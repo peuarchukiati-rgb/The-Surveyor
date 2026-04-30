@@ -23,7 +23,7 @@
 body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif; background: var(--bg); color: var(--text); padding-bottom: env(safe-area-inset-bottom); }
 header { position: sticky; top: 0; background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 16px; z-index: 10; }
 .title { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
-.summary { display: flex; gap: 12px; font-size: 12px; color: var(--muted); }
+.summary { display: flex; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; }
 .pill-todo { background: var(--bg); color: var(--muted); }
 .pill-done { background: var(--success-bg); color: var(--success); }
@@ -33,15 +33,34 @@ header { position: sticky; top: 0; background: var(--card); border-bottom: 1px s
 .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .filter-btn { padding: 6px 12px; font-size: 13px; border: 1px solid var(--border); background: var(--card); border-radius: 999px; cursor: pointer; }
 .filter-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-.list { padding: 0 12px; }
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
-.card-header { padding: 12px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; cursor: pointer; }
+
+/* Section (district) */
+.section { margin: 0 12px 8px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.section-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+.section-header:active { background: var(--bg); }
+.section-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.section-chevron { width: 20px; height: 20px; color: var(--muted); transition: transform 0.15s; flex-shrink: 0; }
+.section.open .section-chevron { transform: rotate(90deg); }
+.section-title { font-weight: 600; font-size: 15px; }
+.section-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.section-progress { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+.progress-bar { width: 64px; height: 5px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--success); transition: width 0.3s; }
+.progress-text { font-size: 11px; color: var(--muted); min-width: 40px; text-align: right; }
+.section-body { display: none; border-top: 1px solid var(--border); }
+.section.open .section-body { display: block; }
+
+/* Stop card (inside section) */
+.card { border-bottom: 1px solid var(--border); }
+.card:last-child { border-bottom: none; }
+.card-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; cursor: pointer; }
+.card-header:active { background: var(--bg); }
 .card-info { flex: 1; min-width: 0; }
 .code { font-weight: 600; font-size: 14px; }
 .location { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.4; word-wrap: break-word; }
 .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
 .status { flex-shrink: 0; }
-.actions { display: none; padding: 0 14px 14px; gap: 8px; flex-direction: column; }
+.actions { display: none; padding: 0 16px 14px; gap: 8px; flex-direction: column; }
 .card.open .actions { display: flex; }
 .action-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: var(--text); font-size: 14px; }
 .action-btn:active { background: #ececea; }
@@ -52,9 +71,17 @@ header { position: sticky; top: 0; background: var(--card); border-bottom: 1px s
 .action-label { font-weight: 500; flex: 1; }
 .action-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .action-text { display: flex; flex-direction: column; flex: 1; }
+
 .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
 .loading { text-align: center; padding: 40px 20px; color: var(--muted); }
+.list-wrapper { padding-bottom: 12px; }
 footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted); }
+
+/* Search-mode: when searching, show flat list & ignore sections */
+.search-mode .section-header { display: none; }
+.search-mode .section-body { display: block !important; border-top: none; }
+.search-mode .section { margin-bottom: 0; border: none; border-radius: 0; background: transparent; }
+.search-mode .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin: 0 0 8px; }
 </style>
 </head>
 <body>
@@ -79,7 +106,7 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
   </div>
 </div>
 
-<div class="list" id="list">
+<div class="list-wrapper" id="list-wrapper">
   <div class="loading">กำลังโหลดรายการ...</div>
 </div>
 
@@ -87,30 +114,24 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
 
 <script>
 // ─────────────────────────────────────────────────────────
-// CONFIG — replace these 2 URLs after running setup scripts
+// CONFIG
 // ─────────────────────────────────────────────────────────
 const CONFIG = {
-  // CSV export of master Sheet (File → Share → Publish to web → CSV)
-  // Or: https://docs.google.com/spreadsheets/d/{ID}/export?format=csv&gid={gid}
   STOPS_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAcbD5e-Y2XfosEch6SBzJBpT5gTmrQ9wt9Ir1RCndSAYypUOH_etUIahPu-QbIWbL3FinZfzPHf9C/pub?gid=0&single=true&output=csv",
-
-  // CSV export of Form responses Sheet (same method)
   RESPONSES_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpVWR6dRnO-nSv1r4U4cJY5KxJ3PKeKcSfZudYs-jaiXM8-UObMSy1BFIvVMongNY14XK-YmcguYLA/pub?gid=202982083&single=true&output=csv",
-
-  // Form prefill template — from buildForm() Logger output
   FORM_PREFILL_TEMPLATE: "https://docs.google.com/forms/d/e/1FAIpQLSd5twWCbiIw8Y3_kIKQuq11SHzB07r1vp25pYebgZEXg26mUg/viewform?usp=pp_url&entry.1089899351={STOP_CODE}"
 };
 
-// ─────────────────────────────────────────────────────────
-// State
-// ─────────────────────────────────────────────────────────
 let stops = [];
 let responses = [];
 let activeFilter = "all";
 let searchTerm = "";
+// Track which sections are open. Once user toggles, that wins over auto-expand.
+const userToggledSections = new Set();
+const openSections = new Set();
 
 // ─────────────────────────────────────────────────────────
-// Load data
+// Load
 // ─────────────────────────────────────────────────────────
 async function loadData() {
   try {
@@ -122,14 +143,11 @@ async function loadData() {
     responses = respCsv ? parseCsv(respCsv) : [];
     render();
   } catch (err) {
-    document.getElementById("list").innerHTML =
-      `<div class="empty">โหลดข้อมูลไม่ได้<br><small>${err.message}</small><br><small>เช็ค STOPS_CSV_URL ใน config</small></div>`;
+    document.getElementById("list-wrapper").innerHTML =
+      `<div class="empty">โหลดข้อมูลไม่ได้<br><small>${err.message}</small></div>`;
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// Minimal CSV parser (handles quoted fields with commas)
-// ─────────────────────────────────────────────────────────
 function parseCsv(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
@@ -157,7 +175,7 @@ function parseLine(line) {
 }
 
 // ─────────────────────────────────────────────────────────
-// Status logic — derived from responses CSV
+// Status
 // ─────────────────────────────────────────────────────────
 function statusOf(stop) {
   const code = (stop.code || "").replace(/\s+/g, "").toUpperCase();
@@ -168,8 +186,8 @@ function statusOf(stop) {
   const hasDay   = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน"));
   const hasNight = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน"));
   if (hasDay && hasNight) return "done";
-  if (hasDay)   return "night-only";  // missing night
-  if (hasNight) return "day-only";    // missing day
+  if (hasDay)   return "night-only";
+  if (hasNight) return "day-only";
   return "todo";
 }
 
@@ -183,9 +201,24 @@ function statusLabel(s) {
 }
 
 // ─────────────────────────────────────────────────────────
+// Group by district (preserve order of first appearance)
+// ─────────────────────────────────────────────────────────
+function groupByDistrict(filtered) {
+  const order = [];
+  const groups = new Map();
+  for (const s of filtered) {
+    const d = s.district || "ไม่ระบุเขต";
+    if (!groups.has(d)) { groups.set(d, []); order.push(d); }
+    groups.get(d).push(s);
+  }
+  return order.map(d => ({ district: d, stops: groups.get(d) }));
+}
+
+// ─────────────────────────────────────────────────────────
 // Render
 // ─────────────────────────────────────────────────────────
 function render() {
+  // Overall summary
   const counts = { todo: 0, partial: 0, done: 0 };
   stops.forEach(s => {
     const st = statusOf(s);
@@ -197,12 +230,13 @@ function render() {
   document.getElementById("progress-pill").textContent = `กำลังตรวจ ${counts.partial}`;
   document.getElementById("done-pill").textContent     = `เสร็จ ${counts.done}`;
 
+  // Filter
   const filtered = stops.filter(s => {
     const st = statusOf(s);
-    if (activeFilter === "todo"  && st !== "todo")       return false;
-    if (activeFilter === "day"   && st !== "day-only" && st !== "todo")   return false;
+    if (activeFilter === "todo"  && st !== "todo")                     return false;
+    if (activeFilter === "day"   && st !== "day-only"  && st !== "todo") return false;
     if (activeFilter === "night" && st !== "night-only" && st !== "todo") return false;
-    if (activeFilter === "done"  && st !== "done")       return false;
+    if (activeFilter === "done"  && st !== "done")                     return false;
     if (searchTerm) {
       const hay = [s.code, s.district, s.road, s.location].join(" ").toLowerCase();
       if (!hay.includes(searchTerm.toLowerCase())) return false;
@@ -210,57 +244,117 @@ function render() {
     return true;
   });
 
-  const list = document.getElementById("list");
+  const wrapper = document.getElementById("list-wrapper");
+  // Toggle search-mode (flat list, no district headers)
+  const isSearching = searchTerm.length > 0;
+  wrapper.classList.toggle("search-mode", isSearching);
+
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty">ไม่พบป้ายตามเงื่อนไข</div>`;
+    wrapper.innerHTML = `<div class="empty">ไม่พบป้ายตามเงื่อนไข</div>`;
     return;
   }
 
-  list.innerHTML = filtered.map(s => {
-    const st  = statusOf(s);
-    const lbl = statusLabel(st);
-    const lat = s.lat, lng = s.long;
-    const code = (s.code || "").replace(/\s+/g, "");
-    const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-    const folderUrl = s.folder_url || "";
-    const formUrl  = CONFIG.FORM_PREFILL_TEMPLATE.replace("{STOP_CODE}", encodeURIComponent(s.code || ""));
+  const groups = groupByDistrict(filtered);
+
+  // Auto-expand rule (only on first render): open sections with pending work
+  // Skip if user already manually toggled — respect their choice
+  for (const g of groups) {
+    if (userToggledSections.has(g.district)) continue;
+    const hasPending = g.stops.some(s => statusOf(s) !== "done");
+    if (hasPending || isSearching) openSections.add(g.district);
+    else openSections.delete(g.district);
+  }
+
+  wrapper.innerHTML = groups.map(g => {
+    // Per-section counts
+    let done = 0, partial = 0, todo = 0;
+    for (const s of g.stops) {
+      const st = statusOf(s);
+      if (st === "done") done++;
+      else if (st === "todo") todo++;
+      else partial++;
+    }
+    const total = g.stops.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const isOpen = openSections.has(g.district);
 
     return `
-      <div class="card" data-code="${code}">
-        <div class="card-header" onclick="this.parentNode.classList.toggle('open')">
-          <div class="card-info">
-            <div class="code">${escape(s.code)} · ${escape(s.type)}</div>
-            <div class="location">${escape(s.location)}</div>
-            <div class="meta">${escape(s.district)} • ${escape(s.road)} • ${lat}, ${lng}</div>
+      <div class="section ${isOpen ? "open" : ""}" data-district="${escape(g.district)}">
+        <div class="section-header" onclick="toggleSection('${escape(g.district)}')">
+          <div class="section-info">
+            <svg class="section-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7 5l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+              <div class="section-title">${escape(g.district)}</div>
+              <div class="section-count">${total} ป้าย${todo > 0 ? ` · ค้าง ${todo}` : ""}${partial > 0 ? ` · ครึ่งเดียว ${partial}` : ""}</div>
+            </div>
           </div>
-          <div class="status"><span class="pill ${lbl.cls}">${lbl.txt}</span></div>
+          <div class="section-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <div class="progress-text">${done}/${total}</div>
+          </div>
         </div>
-        <div class="actions">
-          <a class="action-btn" href="${mapsUrl}" target="_blank" rel="noopener">
-            <span class="action-icon icon-maps">📍</span>
-            <span class="action-text">
-              <span class="action-label">เปิด Google Maps</span>
-              <span class="action-hint">นำทางไปยังตำแหน่งป้าย</span>
-            </span>
-          </a>
-          ${folderUrl ? `
-          <a class="action-btn" href="${folderUrl}" target="_blank" rel="noopener">
-            <span class="action-icon icon-folder">📁</span>
-            <span class="action-text">
-              <span class="action-label">เปิด Drive folder</span>
-              <span class="action-hint">เปิดก่อนถ่ายรูป — รูปจะลงโฟลเดอร์อัตโนมัติ</span>
-            </span>
-          </a>` : ''}
-          <a class="action-btn" href="${formUrl}" target="_blank" rel="noopener">
-            <span class="action-icon icon-form">📋</span>
-            <span class="action-text">
-              <span class="action-label">กรอก Form ตรวจ</span>
-              <span class="action-hint">รหัสป้ายถูก prefill ให้แล้ว</span>
-            </span>
-          </a>
+        <div class="section-body">
+          ${g.stops.map(s => renderCard(s)).join("")}
         </div>
       </div>`;
   }).join("");
+}
+
+function renderCard(s) {
+  const st  = statusOf(s);
+  const lbl = statusLabel(st);
+  const lat = s.lat, lng = s.long;
+  const code = (s.code || "").replace(/\s+/g, "");
+  const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  const folderUrl = s.folder_url || "";
+  const formUrl  = CONFIG.FORM_PREFILL_TEMPLATE.replace("{STOP_CODE}", encodeURIComponent(s.code || ""));
+
+  return `
+    <div class="card" data-code="${code}">
+      <div class="card-header" onclick="this.parentNode.classList.toggle('open')">
+        <div class="card-info">
+          <div class="code">${escape(s.code)} · ${escape(s.type)}</div>
+          <div class="location">${escape(s.location)}</div>
+          <div class="meta">${escape(s.road)} • ${lat}, ${lng}</div>
+        </div>
+        <div class="status"><span class="pill ${lbl.cls}">${lbl.txt}</span></div>
+      </div>
+      <div class="actions">
+        <a class="action-btn" href="${mapsUrl}" target="_blank" rel="noopener">
+          <span class="action-icon icon-maps">📍</span>
+          <span class="action-text">
+            <span class="action-label">เปิด Google Maps</span>
+            <span class="action-hint">นำทางไปยังตำแหน่งป้าย</span>
+          </span>
+        </a>
+        ${folderUrl ? `
+        <a class="action-btn" href="${folderUrl}" target="_blank" rel="noopener">
+          <span class="action-icon icon-folder">📁</span>
+          <span class="action-text">
+            <span class="action-label">เปิด Drive folder</span>
+            <span class="action-hint">เปิดก่อนถ่ายรูป — รูปจะลงโฟลเดอร์อัตโนมัติ</span>
+          </span>
+        </a>` : ''}
+        <a class="action-btn" href="${formUrl}" target="_blank" rel="noopener">
+          <span class="action-icon icon-form">📋</span>
+          <span class="action-text">
+            <span class="action-label">กรอก Form ตรวจ</span>
+            <span class="action-hint">รหัสป้ายถูก prefill ให้แล้ว</span>
+          </span>
+        </a>
+      </div>
+    </div>`;
+}
+
+function toggleSection(district) {
+  userToggledSections.add(district);
+  if (openSections.has(district)) openSections.delete(district);
+  else openSections.add(district);
+  // Cheap re-render: just toggle classes on the affected section
+  const el = document.querySelector(`.section[data-district="${CSS.escape(district)}"]`);
+  if (el) el.classList.toggle("open");
 }
 
 function escape(s) {
@@ -282,10 +376,11 @@ document.getElementById("filter-row").addEventListener("click", e => {
   document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   activeFilter = btn.dataset.filter;
+  // Reset section toggles so auto-expand applies for new filter
+  userToggledSections.clear();
   render();
 });
 
-// Auto-refresh every 60s — picks up new responses
 loadData();
 setInterval(loadData, 60000);
 </script>
