@@ -28,6 +28,7 @@ header { position: sticky; top: 0; background: var(--card); border-bottom: 1px s
 .pill-todo { background: var(--bg); color: var(--muted); }
 .pill-done { background: var(--success-bg); color: var(--success); }
 .pill-progress { background: var(--warning-bg); color: var(--warning); }
+.pill-warning { background: #fef2f2; color: var(--danger); }
 .controls { padding: 12px 16px; display: flex; gap: 8px; flex-direction: column; }
 .search { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--card); }
 .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -91,6 +92,7 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
   <div class="summary" id="summary">
     <span class="pill pill-todo" id="todo-pill">ยังไม่ตรวจ —</span>
     <span class="pill pill-progress" id="progress-pill">กำลังตรวจ —</span>
+    <span class="pill pill-warning" id="needs-photo-pill">ขาดรูป —</span>
     <span class="pill pill-done" id="done-pill">เสร็จ —</span>
   </div>
 </header>
@@ -102,6 +104,7 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
     <button class="filter-btn" data-filter="todo">ยังไม่ตรวจ</button>
     <button class="filter-btn" data-filter="day">เหลือกลางวัน</button>
     <button class="filter-btn" data-filter="night">เหลือกลางคืน</button>
+    <button class="filter-btn" data-filter="needs-photo">ขาดรูป</button>
     <button class="filter-btn" data-filter="done">เสร็จแล้ว</button>
   </div>
 </div>
@@ -177,26 +180,57 @@ function parseLine(line) {
 // ─────────────────────────────────────────────────────────
 // Status
 // ─────────────────────────────────────────────────────────
+// Find the column key in a response row that confirms photos uploaded.
+// Supports varying column names (Form question text becomes column header).
+function getPhotoConfirmKey(row) {
+  for (const k of Object.keys(row)) {
+    if (k.includes("ยืนยัน") && k.includes("อัพรูป")) return k;
+  }
+  return null;
+}
+
+// True if this response row confirms photos are uploaded.
+function isPhotoConfirmed(row) {
+  const key = getPhotoConfirmKey(row);
+  if (!key) return false;
+  const v = row[key] || "";
+  // Accept any answer containing "ครบ" but not "ยังไม่ครบ"
+  return v.includes("ครบ") && !v.includes("ยังไม่");
+}
+
 function statusOf(stop) {
   const code = (stop.code || "").replace(/\s+/g, "").toUpperCase();
   const matches = responses.filter(r => {
     const rcode = (r["รหัสป้าย"] || "").replace(/\s+/g, "").toUpperCase();
     return rcode === code;
   });
-  const hasDay   = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน"));
-  const hasNight = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน"));
-  if (hasDay && hasNight) return "done";
-  if (hasDay)   return "night-only";
-  if (hasNight) return "day-only";
+
+  // Split: confirmed photos vs form-only (no photo confirm)
+  const confirmedDay   = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน") && isPhotoConfirmed(r));
+  const confirmedNight = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน") && isPhotoConfirmed(r));
+  const formOnlyDay    = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน") && !isPhotoConfirmed(r));
+  const formOnlyNight  = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน") && !isPhotoConfirmed(r));
+
+  // Done: confirmed both day & night
+  if (confirmedDay && confirmedNight) return "done";
+
+  // Needs-photo: at least one period has form-only (no photo confirm)
+  if (formOnlyDay || formOnlyNight) return "needs-photo";
+
+  // Partial: one period confirmed, other missing
+  if (confirmedDay)   return "night-only";
+  if (confirmedNight) return "day-only";
+
   return "todo";
 }
 
 function statusLabel(s) {
   return ({
-    "todo":       { txt: "ยังไม่ตรวจ",   cls: "pill-todo" },
-    "day-only":   { txt: "เหลือกลางวัน", cls: "pill-progress" },
-    "night-only": { txt: "เหลือกลางคืน", cls: "pill-progress" },
-    "done":       { txt: "เสร็จ ✓",      cls: "pill-done" }
+    "todo":        { txt: "ยังไม่ตรวจ",     cls: "pill-todo" },
+    "day-only":    { txt: "เหลือกลางวัน",   cls: "pill-progress" },
+    "night-only":  { txt: "เหลือกลางคืน",   cls: "pill-progress" },
+    "needs-photo": { txt: "ขาดรูป ⚠",       cls: "pill-warning" },
+    "done":        { txt: "เสร็จ ✓",        cls: "pill-done" }
   })[s];
 }
 
@@ -219,24 +253,27 @@ function groupByDistrict(filtered) {
 // ─────────────────────────────────────────────────────────
 function render() {
   // Overall summary
-  const counts = { todo: 0, partial: 0, done: 0 };
+  const counts = { todo: 0, partial: 0, needsPhoto: 0, done: 0 };
   stops.forEach(s => {
     const st = statusOf(s);
     if (st === "done") counts.done++;
     else if (st === "todo") counts.todo++;
+    else if (st === "needs-photo") counts.needsPhoto++;
     else counts.partial++;
   });
-  document.getElementById("todo-pill").textContent     = `ยังไม่ตรวจ ${counts.todo}`;
-  document.getElementById("progress-pill").textContent = `กำลังตรวจ ${counts.partial}`;
-  document.getElementById("done-pill").textContent     = `เสร็จ ${counts.done}`;
+  document.getElementById("todo-pill").textContent        = `ยังไม่ตรวจ ${counts.todo}`;
+  document.getElementById("progress-pill").textContent    = `กำลังตรวจ ${counts.partial}`;
+  document.getElementById("needs-photo-pill").textContent = `ขาดรูป ${counts.needsPhoto}`;
+  document.getElementById("done-pill").textContent        = `เสร็จ ${counts.done}`;
 
   // Filter
   const filtered = stops.filter(s => {
     const st = statusOf(s);
-    if (activeFilter === "todo"  && st !== "todo")                     return false;
-    if (activeFilter === "day"   && st !== "day-only"  && st !== "todo") return false;
-    if (activeFilter === "night" && st !== "night-only" && st !== "todo") return false;
-    if (activeFilter === "done"  && st !== "done")                     return false;
+    if (activeFilter === "todo"        && st !== "todo")                                  return false;
+    if (activeFilter === "day"         && st !== "day-only"  && st !== "todo")            return false;
+    if (activeFilter === "night"       && st !== "night-only" && st !== "todo")           return false;
+    if (activeFilter === "needs-photo" && st !== "needs-photo")                           return false;
+    if (activeFilter === "done"        && st !== "done")                                  return false;
     if (searchTerm) {
       const hay = [s.code, s.district, s.road, s.location].join(" ").toLowerCase();
       if (!hay.includes(searchTerm.toLowerCase())) return false;
@@ -267,16 +304,24 @@ function render() {
 
   wrapper.innerHTML = groups.map(g => {
     // Per-section counts
-    let done = 0, partial = 0, todo = 0;
+    let done = 0, partial = 0, needsPhoto = 0, todo = 0;
     for (const s of g.stops) {
       const st = statusOf(s);
       if (st === "done") done++;
       else if (st === "todo") todo++;
+      else if (st === "needs-photo") needsPhoto++;
       else partial++;
     }
     const total = g.stops.length;
     const pct = total ? Math.round((done / total) * 100) : 0;
     const isOpen = openSections.has(g.district);
+
+    // Build subtitle: only show meaningful counts
+    const parts = [`${total} ป้าย`];
+    if (todo > 0)        parts.push(`ค้าง ${todo}`);
+    if (partial > 0)     parts.push(`ครึ่งเดียว ${partial}`);
+    if (needsPhoto > 0)  parts.push(`⚠ ขาดรูป ${needsPhoto}`);
+    const subtitle = parts.join(" · ");
 
     return `
       <div class="section ${isOpen ? "open" : ""}" data-district="${escape(g.district)}">
@@ -287,7 +332,7 @@ function render() {
             </svg>
             <div>
               <div class="section-title">${escape(g.district)}</div>
-              <div class="section-count">${total} ป้าย${todo > 0 ? ` · ค้าง ${todo}` : ""}${partial > 0 ? ` · ครึ่งเดียว ${partial}` : ""}</div>
+              <div class="section-count">${subtitle}</div>
             </div>
           </div>
           <div class="section-progress">
