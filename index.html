@@ -6,18 +6,22 @@
 <title>SO! ตรวจป้าย — กลุ่มกรุงเทพตะวันออก</title>
 <style>
 :root {
-  --bg: #f8f8f6;
-  --card: #ffffff;
-  --text: #1a1a1a;
-  --muted: #666666;
-  --border: rgba(0,0,0,0.08);
-  --primary: #1d4ed8;
-  --primary-bg: #eff3ff;
-  --success: #047857;
-  --success-bg: #ecfdf5;
-  --warning: #b45309;
-  --warning-bg: #fffbeb;
-  --danger: #b91c1c;
+--bg: #f8f8f6;
+--card: #ffffff;
+--text: #1a1a1a;
+--muted: #666666;
+--border: rgba(0,0,0,0.08);
+--primary: #1d4ed8;
+--primary-bg: #eff3ff;
+--success: #047857;
+--success-bg: #ecfdf5;
+--warning: #b45309;
+--warning-bg: #fffbeb;
+--danger: #b91c1c;
+--night: #4338ca;
+--night-bg: #eef2ff;
+--day: #d97706;
+--day-bg: #fff7ed;
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sukhumvit Set", "Noto Sans Thai", system-ui, sans-serif; background: var(--bg); color: var(--text); padding-bottom: env(safe-area-inset-bottom); }
@@ -68,10 +72,15 @@ header { position: sticky; top: 0; background: var(--card); border-bottom: 1px s
 .action-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
 .icon-maps { background: var(--primary-bg); color: var(--primary); }
 .icon-folder { background: var(--success-bg); color: var(--success); }
-.icon-form { background: var(--warning-bg); color: var(--warning); }
+.icon-night { background: var(--night-bg); color: var(--night); }
+.icon-day { background: var(--day-bg); color: var(--day); }
 .action-label { font-weight: 500; flex: 1; }
 .action-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .action-text { display: flex; flex-direction: column; flex: 1; }
+
+/* Form button visual state */
+.action-btn.form-done { opacity: 0.55; }
+.action-btn.form-done .action-label::after { content: " ✓"; color: var(--success); font-weight: 600; }
 
 .empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
 .loading { text-align: center; padding: 40px 20px; color: var(--muted); }
@@ -88,29 +97,29 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
 <body>
 
 <header>
-  <p class="title">ตรวจศาลา — กรุงเทพตะวันออก</p>
-  <div class="summary" id="summary">
-    <span class="pill pill-todo" id="todo-pill">ยังไม่ตรวจ —</span>
-    <span class="pill pill-progress" id="progress-pill">กำลังตรวจ —</span>
-    <span class="pill pill-warning" id="needs-photo-pill">ขาดรูป —</span>
-    <span class="pill pill-done" id="done-pill">เสร็จ —</span>
-  </div>
+<p class="title">ตรวจศาลา — กรุงเทพตะวันออก</p>
+<div class="summary" id="summary">
+<span class="pill pill-todo" id="todo-pill">ยังไม่ตรวจ —</span>
+<span class="pill pill-progress" id="progress-pill">กำลังตรวจ —</span>
+<span class="pill pill-warning" id="needs-photo-pill">ขาดรูป —</span>
+<span class="pill pill-done" id="done-pill">เสร็จ —</span>
+</div>
 </header>
 
 <div class="controls">
-  <input class="search" id="search" placeholder="ค้นหา ES001, ถนน, ตำแหน่ง...">
-  <div class="filter-row" id="filter-row">
-    <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
-    <button class="filter-btn" data-filter="todo">ยังไม่ตรวจ</button>
-    <button class="filter-btn" data-filter="day">เหลือกลางวัน</button>
-    <button class="filter-btn" data-filter="night">เหลือกลางคืน</button>
-    <button class="filter-btn" data-filter="needs-photo">ขาดรูป</button>
-    <button class="filter-btn" data-filter="done">เสร็จแล้ว</button>
-  </div>
+<input class="search" id="search" placeholder="ค้นหา ES001, ถนน, ตำแหน่ง...">
+<div class="filter-row" id="filter-row">
+<button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+<button class="filter-btn" data-filter="todo">ยังไม่ตรวจ</button>
+<button class="filter-btn" data-filter="day">เหลือกลางวัน</button>
+<button class="filter-btn" data-filter="night">เหลือกลางคืน</button>
+<button class="filter-btn" data-filter="needs-photo">ขาดรูป</button>
+<button class="filter-btn" data-filter="done">เสร็จแล้ว</button>
+</div>
 </div>
 
 <div class="list-wrapper" id="list-wrapper">
-  <div class="loading">กำลังโหลดรายการ...</div>
+<div class="loading">กำลังโหลดรายการ...</div>
 </div>
 
 <footer>SO! Field Survey • TOR ค่าบำรุงรักษาฯ 2569</footer>
@@ -120,15 +129,26 @@ footer { padding: 16px; text-align: center; font-size: 11px; color: var(--muted)
 // CONFIG
 // ─────────────────────────────────────────────────────────
 const CONFIG = {
-  STOPS_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAcbD5e-Y2XfosEch6SBzJBpT5gTmrQ9wt9Ir1RCndSAYypUOH_etUIahPu-QbIWbL3FinZfzPHf9C/pub?gid=0&single=true&output=csv",
-  RESPONSES_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpVWR6dRnO-nSv1r4U4cJY5KxJ3PKeKcSfZudYs-jaiXM8-UObMSy1BFIvVMongNY14XK-YmcguYLA/pub?gid=202982083&single=true&output=csv",
-  FORM_PREFILL_TEMPLATE: "https://docs.google.com/forms/d/e/1FAIpQLSd5twWCbiIw8Y3_kIKQuq11SHzB07r1vp25pYebgZEXg26mUg/viewform?usp=pp_url&entry.1089899351={STOP_CODE}"
+// 606 ป้าย — list ป้าย (read-only)
+STOPS_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAcbD5e-Y2XfosEch6SBzJBpT5gTmrQ9wt9Ir1RCndSAYypUOH_etUIahPu-QbIWbL3FinZfzPHf9C/pub?gid=0&single=true&output=csv",
+
+// Form responses — Day Shift (ทีมกลางวัน)
+DAY_RESPONSES_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=33934151&single=true&output=csv",
+
+// Form responses — Night Shift (ทีมกลางคืน)
+NIGHT_RESPONSES_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=2108996858&single=true&output=csv",
+
+// Form prefill templates (รหัสป้ายจะถูก prefill อัตโนมัติ)
+FORM_NIGHT_PREFILL: "https://docs.google.com/forms/d/e/1FAIpQLSfbGm9X6qM9fVt8EUl5F5TLaIpoLjgM2Aj0sTiSvHKg2uXPTQ/viewform?usp=pp_url&entry.1138688633={STOP_CODE}",
+FORM_DAY_PREFILL: "https://docs.google.com/forms/d/e/1FAIpQLSdAY_LzugWtJTkBLbPqb6aakmPMSTR8OKX58sIEQyYBoVncZw/viewform?usp=pp_url&entry.634995506={STOP_CODE}"
 };
 
 let stops = [];
-let responses = [];
+let dayResponses = [];
+let nightResponses = [];
 let activeFilter = "all";
 let searchTerm = "";
+
 // Track which sections are open. Once user toggles, that wins over auto-expand.
 const userToggledSections = new Set();
 const openSections = new Set();
@@ -137,293 +157,319 @@ const openSections = new Set();
 // Load
 // ─────────────────────────────────────────────────────────
 async function loadData() {
-  try {
-    const [stopsCsv, respCsv] = await Promise.all([
-      fetch(CONFIG.STOPS_CSV_URL).then(r => r.text()),
-      fetch(CONFIG.RESPONSES_CSV_URL).then(r => r.text()).catch(() => "")
-    ]);
-    stops = parseCsv(stopsCsv);
-    responses = respCsv ? parseCsv(respCsv) : [];
-    render();
-  } catch (err) {
-    document.getElementById("list-wrapper").innerHTML =
-      `<div class="empty">โหลดข้อมูลไม่ได้<br><small>${err.message}</small></div>`;
-  }
+try {
+const [stopsCsv, dayCsv, nightCsv] = await Promise.all([
+fetch(CONFIG.STOPS_CSV_URL).then(r => r.text()),
+fetch(CONFIG.DAY_RESPONSES_CSV_URL).then(r => r.text()).catch(() => ""),
+fetch(CONFIG.NIGHT_RESPONSES_CSV_URL).then(r => r.text()).catch(() => "")
+]);
+stops = parseCsv(stopsCsv);
+dayResponses = dayCsv ? parseCsv(dayCsv) : [];
+nightResponses = nightCsv ? parseCsv(nightCsv) : [];
+render();
+} catch (err) {
+document.getElementById("list-wrapper").innerHTML =
+`<div class="empty">โหลดข้อมูลไม่ได้<br><small>${err.message}</small></div>`;
+}
 }
 
 function parseCsv(text) {
-  const lines = text.trim().split(/\r?\n/);
-  if (lines.length < 2) return [];
-  const headers = parseLine(lines[0]);
-  return lines.slice(1).map(l => {
-    const cells = parseLine(l);
-    const row = {};
-    headers.forEach((h, i) => row[h.trim()] = (cells[i] || "").trim());
-    return row;
-  });
+const lines = text.trim().split(/\r?\n/);
+if (lines.length < 2) return [];
+const headers = parseLine(lines[0]);
+return lines.slice(1).map(l => {
+const cells = parseLine(l);
+const row = {};
+headers.forEach((h, i) => row[h.trim()] = (cells[i] || "").trim());
+return row;
+});
 }
 
 function parseLine(line) {
-  const cells = [];
-  let cur = "", inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
-    else if (c === '"') inQ = !inQ;
-    else if (c === "," && !inQ) { cells.push(cur); cur = ""; }
-    else cur += c;
-  }
-  cells.push(cur);
-  return cells;
+const cells = [];
+let cur = "", inQ = false;
+for (let i = 0; i < line.length; i++) {
+const c = line[i];
+if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+else if (c === '"') inQ = !inQ;
+else if (c === "," && !inQ) { cells.push(cur); cur = ""; }
+else cur += c;
+}
+cells.push(cur);
+return cells;
 }
 
 // ─────────────────────────────────────────────────────────
 // Status
 // ─────────────────────────────────────────────────────────
+
 // Find the column key in a response row that confirms photos uploaded.
-// Supports varying column names (Form question text becomes column header).
+// Per Peak's decision (2026-05-05): use page-7 question as source of truth
+// — looks for "ยืนยัน" + "11 รูป" or "ยืนยัน" + "คู่มือถ่ายภาพ"
 function getPhotoConfirmKey(row) {
-  for (const k of Object.keys(row)) {
-    if (k.includes("ยืนยัน") && k.includes("อัพรูป")) return k;
-  }
-  return null;
+for (const k of Object.keys(row)) {
+if (k.includes("ยืนยัน") && (k.includes("11 รูป") || k.includes("คู่มือถ่ายภาพ"))) return k;
+}
+// Fallback: any "ยืนยัน...อัพรูป" field if p7 not present (e.g. night form)
+for (const k of Object.keys(row)) {
+if (k.includes("ยืนยัน") && k.includes("อัพรูป")) return k;
+}
+return null;
 }
 
 // True if this response row confirms photos are uploaded.
 function isPhotoConfirmed(row) {
-  const key = getPhotoConfirmKey(row);
-  if (!key) return false;
-  const v = row[key] || "";
-  // Accept any answer containing "ครบ" but not "ยังไม่ครบ"
-  return v.includes("ครบ") && !v.includes("ยังไม่");
+const key = getPhotoConfirmKey(row);
+if (!key) return false;
+const v = row[key] || "";
+// Checked checkbox ⇒ value is non-empty (e.g. "ยืนยันการอัพรูป" or text starting with "ยืนยัน")
+return v.length > 0 && !v.includes("ยังไม่");
+}
+
+function normalizeCode(s) {
+return (s || "").replace(/\s+/g, "").toUpperCase();
 }
 
 function statusOf(stop) {
-  const code = (stop.code || "").replace(/\s+/g, "").toUpperCase();
-  const matches = responses.filter(r => {
-    const rcode = (r["รหัสป้าย"] || "").replace(/\s+/g, "").toUpperCase();
-    return rcode === code;
-  });
+const code = normalizeCode(stop.code);
 
-  // Split: confirmed photos vs form-only (no photo confirm)
-  const confirmedDay   = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน") && isPhotoConfirmed(r));
-  const confirmedNight = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน") && isPhotoConfirmed(r));
-  const formOnlyDay    = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางวัน") && !isPhotoConfirmed(r));
-  const formOnlyNight  = matches.some(r => (r["ช่วงเวลาที่ตรวจ"] || "").includes("กลางคืน") && !isPhotoConfirmed(r));
+const nightMatches = nightResponses.filter(r => normalizeCode(r["รหัสป้าย"]) === code);
+const dayMatches = dayResponses.filter(r => normalizeCode(r["รหัสป้าย"]) === code);
 
-  // Done: confirmed both day & night
-  if (confirmedDay && confirmedNight) return "done";
+const confirmedNight = nightMatches.some(r => isPhotoConfirmed(r));
+const confirmedDay = dayMatches.some(r => isPhotoConfirmed(r));
+const formOnlyNight = nightMatches.some(r => !isPhotoConfirmed(r));
+const formOnlyDay = dayMatches.some(r => !isPhotoConfirmed(r));
 
-  // Needs-photo: at least one period has form-only (no photo confirm)
-  if (formOnlyDay || formOnlyNight) return "needs-photo";
+// Done: confirmed both day & night
+if (confirmedDay && confirmedNight) return { state: "done", nightDone: true, dayDone: true };
 
-  // Partial: one period confirmed, other missing
-  if (confirmedDay)   return "night-only";
-  if (confirmedNight) return "day-only";
+// Needs-photo: at least one period has form-only (no photo confirm)
+if (formOnlyDay || formOnlyNight) {
+return {
+state: "needs-photo",
+nightDone: confirmedNight,
+dayDone: confirmedDay
+};
+}
 
-  return "todo";
+// Partial: one period confirmed, other missing
+if (confirmedNight) return { state: "day-only", nightDone: true, dayDone: false };
+if (confirmedDay) return { state: "night-only", nightDone: false, dayDone: true };
+
+return { state: "todo", nightDone: false, dayDone: false };
 }
 
 function statusLabel(s) {
-  return ({
-    "todo":        { txt: "ยังไม่ตรวจ",     cls: "pill-todo" },
-    "day-only":    { txt: "เหลือกลางวัน",   cls: "pill-progress" },
-    "night-only":  { txt: "เหลือกลางคืน",   cls: "pill-progress" },
-    "needs-photo": { txt: "ขาดรูป ⚠",       cls: "pill-warning" },
-    "done":        { txt: "เสร็จ ✓",        cls: "pill-done" }
-  })[s];
+return ({
+"todo": { txt: "ยังไม่ตรวจ", cls: "pill-todo" },
+"day-only": { txt: "เหลือกลางวัน", cls: "pill-progress" },
+"night-only": { txt: "เหลือกลางคืน", cls: "pill-progress" },
+"needs-photo": { txt: "ขาดรูป ⚠", cls: "pill-warning" },
+"done": { txt: "เสร็จ ✓", cls: "pill-done" }
+})[s];
 }
 
 // ─────────────────────────────────────────────────────────
 // Group by district (preserve order of first appearance)
 // ─────────────────────────────────────────────────────────
 function groupByDistrict(filtered) {
-  const order = [];
-  const groups = new Map();
-  for (const s of filtered) {
-    const d = s.district || "ไม่ระบุเขต";
-    if (!groups.has(d)) { groups.set(d, []); order.push(d); }
-    groups.get(d).push(s);
-  }
-  return order.map(d => ({ district: d, stops: groups.get(d) }));
+const order = [];
+const groups = new Map();
+for (const s of filtered) {
+const d = s.district || "ไม่ระบุเขต";
+if (!groups.has(d)) { groups.set(d, []); order.push(d); }
+groups.get(d).push(s);
+}
+return order.map(d => ({ district: d, stops: groups.get(d) }));
 }
 
 // ─────────────────────────────────────────────────────────
 // Render
 // ─────────────────────────────────────────────────────────
 function render() {
-  // Overall summary
-  const counts = { todo: 0, partial: 0, needsPhoto: 0, done: 0 };
-  stops.forEach(s => {
-    const st = statusOf(s);
-    if (st === "done") counts.done++;
-    else if (st === "todo") counts.todo++;
-    else if (st === "needs-photo") counts.needsPhoto++;
-    else counts.partial++;
-  });
-  document.getElementById("todo-pill").textContent        = `ยังไม่ตรวจ ${counts.todo}`;
-  document.getElementById("progress-pill").textContent    = `กำลังตรวจ ${counts.partial}`;
-  document.getElementById("needs-photo-pill").textContent = `ขาดรูป ${counts.needsPhoto}`;
-  document.getElementById("done-pill").textContent        = `เสร็จ ${counts.done}`;
+// Overall summary
+const counts = { todo: 0, partial: 0, needsPhoto: 0, done: 0 };
+stops.forEach(s => {
+const st = statusOf(s).state;
+if (st === "done") counts.done++;
+else if (st === "todo") counts.todo++;
+else if (st === "needs-photo") counts.needsPhoto++;
+else counts.partial++;
+});
+document.getElementById("todo-pill").textContent = `ยังไม่ตรวจ ${counts.todo}`;
+document.getElementById("progress-pill").textContent = `กำลังตรวจ ${counts.partial}`;
+document.getElementById("needs-photo-pill").textContent = `ขาดรูป ${counts.needsPhoto}`;
+document.getElementById("done-pill").textContent = `เสร็จ ${counts.done}`;
 
-  // Filter
-  const filtered = stops.filter(s => {
-    const st = statusOf(s);
-    if (activeFilter === "todo"        && st !== "todo")                                  return false;
-    if (activeFilter === "day"         && st !== "day-only"  && st !== "todo")            return false;
-    if (activeFilter === "night"       && st !== "night-only" && st !== "todo")           return false;
-    if (activeFilter === "needs-photo" && st !== "needs-photo")                           return false;
-    if (activeFilter === "done"        && st !== "done")                                  return false;
-    if (searchTerm) {
-      const hay = [s.code, s.district, s.road, s.location].join(" ").toLowerCase();
-      if (!hay.includes(searchTerm.toLowerCase())) return false;
-    }
-    return true;
-  });
+// Filter
+const filtered = stops.filter(s => {
+const st = statusOf(s).state;
+if (activeFilter === "todo" && st !== "todo") return false;
+if (activeFilter === "day" && st !== "day-only" && st !== "todo") return false;
+if (activeFilter === "night" && st !== "night-only" && st !== "todo") return false;
+if (activeFilter === "needs-photo" && st !== "needs-photo") return false;
+if (activeFilter === "done" && st !== "done") return false;
+if (searchTerm) {
+const hay = [s.code, s.district, s.road, s.location].join(" ").toLowerCase();
+if (!hay.includes(searchTerm.toLowerCase())) return false;
+}
+return true;
+});
 
-  const wrapper = document.getElementById("list-wrapper");
-  // Toggle search-mode (flat list, no district headers)
-  const isSearching = searchTerm.length > 0;
-  wrapper.classList.toggle("search-mode", isSearching);
+const wrapper = document.getElementById("list-wrapper");
 
-  if (filtered.length === 0) {
-    wrapper.innerHTML = `<div class="empty">ไม่พบป้ายตามเงื่อนไข</div>`;
-    return;
-  }
+// Toggle search-mode (flat list, no district headers)
+const isSearching = searchTerm.length > 0;
+wrapper.classList.toggle("search-mode", isSearching);
 
-  const groups = groupByDistrict(filtered);
+if (filtered.length === 0) {
+wrapper.innerHTML = `<div class="empty">ไม่พบป้ายตามเงื่อนไข</div>`;
+return;
+}
 
-  // Auto-expand rule (only on first render): open sections with pending work
-  // Skip if user already manually toggled — respect their choice
-  for (const g of groups) {
-    if (userToggledSections.has(g.district)) continue;
-    const hasPending = g.stops.some(s => statusOf(s) !== "done");
-    if (hasPending || isSearching) openSections.add(g.district);
-    else openSections.delete(g.district);
-  }
+const groups = groupByDistrict(filtered);
 
-  wrapper.innerHTML = groups.map(g => {
-    // Per-section counts
-    let done = 0, partial = 0, needsPhoto = 0, todo = 0;
-    for (const s of g.stops) {
-      const st = statusOf(s);
-      if (st === "done") done++;
-      else if (st === "todo") todo++;
-      else if (st === "needs-photo") needsPhoto++;
-      else partial++;
-    }
-    const total = g.stops.length;
-    const pct = total ? Math.round((done / total) * 100) : 0;
-    const isOpen = openSections.has(g.district);
+// Auto-expand rule (only on first render): open sections with pending work
+// Skip if user already manually toggled — respect their choice
+for (const g of groups) {
+if (userToggledSections.has(g.district)) continue;
+const hasPending = g.stops.some(s => statusOf(s).state !== "done");
+if (hasPending || isSearching) openSections.add(g.district);
+else openSections.delete(g.district);
+}
 
-    // Build subtitle: only show meaningful counts
-    const parts = [`${total} ป้าย`];
-    if (todo > 0)        parts.push(`ค้าง ${todo}`);
-    if (partial > 0)     parts.push(`ครึ่งเดียว ${partial}`);
-    if (needsPhoto > 0)  parts.push(`⚠ ขาดรูป ${needsPhoto}`);
-    const subtitle = parts.join(" · ");
+wrapper.innerHTML = groups.map(g => {
+// Per-section counts
+let done = 0, partial = 0, needsPhoto = 0, todo = 0;
+for (const s of g.stops) {
+const st = statusOf(s).state;
+if (st === "done") done++;
+else if (st === "todo") todo++;
+else if (st === "needs-photo") needsPhoto++;
+else partial++;
+}
+const total = g.stops.length;
+const pct = total ? Math.round((done / total) * 100) : 0;
+const isOpen = openSections.has(g.district);
 
-    return `
-      <div class="section ${isOpen ? "open" : ""}" data-district="${escape(g.district)}">
-        <div class="section-header" onclick="toggleSection('${escape(g.district)}')">
-          <div class="section-info">
-            <svg class="section-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 5l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div>
-              <div class="section-title">${escape(g.district)}</div>
-              <div class="section-count">${subtitle}</div>
-            </div>
-          </div>
-          <div class="section-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-            <div class="progress-text">${done}/${total}</div>
-          </div>
-        </div>
-        <div class="section-body">
-          ${g.stops.map(s => renderCard(s)).join("")}
-        </div>
-      </div>`;
-  }).join("");
+// Build subtitle: only show meaningful counts
+const parts = [`${total} ป้าย`];
+if (todo > 0) parts.push(`ค้าง ${todo}`);
+if (partial > 0) parts.push(`ครึ่งเดียว ${partial}`);
+if (needsPhoto > 0) parts.push(`⚠ ขาดรูป ${needsPhoto}`);
+const subtitle = parts.join(" · ");
+
+return `
+<div class="section ${isOpen ? "open" : ""}" data-district="${escape(g.district)}">
+<div class="section-header" onclick="toggleSection('${escape(g.district)}')">
+<div class="section-info">
+<svg class="section-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7 5l6 5-6 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<div>
+<div class="section-title">${escape(g.district)}</div>
+<div class="section-count">${subtitle}</div>
+</div>
+</div>
+<div class="section-progress">
+<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+<div class="progress-text">${done}/${total}</div>
+</div>
+</div>
+<div class="section-body">
+${g.stops.map(s => renderCard(s)).join("")}
+</div>
+</div>`;
+}).join("");
 }
 
 function renderCard(s) {
-  const st  = statusOf(s);
-  const lbl = statusLabel(st);
-  const lat = s.lat, lng = s.long;
-  const code = (s.code || "").replace(/\s+/g, "");
-  const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  const folderUrl = s.folder_url || "";
-  const formUrl  = CONFIG.FORM_PREFILL_TEMPLATE.replace("{STOP_CODE}", encodeURIComponent(s.code || ""));
+const st = statusOf(s);
+const lbl = statusLabel(st.state);
+const lat = s.lat, lng = s.long;
+const code = (s.code || "").replace(/\s+/g, "");
+const codeRaw = s.code || "";
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+const folderUrl = s.folder_url || "";
+const formNightUrl = CONFIG.FORM_NIGHT_PREFILL.replace("{STOP_CODE}", encodeURIComponent(codeRaw));
+const formDayUrl = CONFIG.FORM_DAY_PREFILL.replace("{STOP_CODE}", encodeURIComponent(codeRaw));
 
-  return `
-    <div class="card" data-code="${code}">
-      <div class="card-header" onclick="this.parentNode.classList.toggle('open')">
-        <div class="card-info">
-          <div class="code">${escape(s.code)} · ${escape(s.type)}</div>
-          <div class="location">${escape(s.location)}</div>
-          <div class="meta">${escape(s.road)} • ${lat}, ${lng}</div>
-        </div>
-        <div class="status"><span class="pill ${lbl.cls}">${lbl.txt}</span></div>
-      </div>
-      <div class="actions">
-        <a class="action-btn" href="${mapsUrl}" target="_blank" rel="noopener">
-          <span class="action-icon icon-maps">📍</span>
-          <span class="action-text">
-            <span class="action-label">เปิด Google Maps</span>
-            <span class="action-hint">นำทางไปยังตำแหน่งป้าย</span>
-          </span>
-        </a>
-        ${folderUrl ? `
-        <a class="action-btn" href="${folderUrl}" target="_blank" rel="noopener">
-          <span class="action-icon icon-folder">📁</span>
-          <span class="action-text">
-            <span class="action-label">เปิด Drive folder</span>
-            <span class="action-hint">เปิดก่อนถ่ายรูป — รูปจะลงโฟลเดอร์อัตโนมัติ</span>
-          </span>
-        </a>` : ''}
-        <a class="action-btn" href="${formUrl}" target="_blank" rel="noopener">
-          <span class="action-icon icon-form">📋</span>
-          <span class="action-text">
-            <span class="action-label">กรอก Form ตรวจ</span>
-            <span class="action-hint">รหัสป้ายถูก prefill ให้แล้ว</span>
-          </span>
-        </a>
-      </div>
-    </div>`;
+return `
+<div class="card" data-code="${code}">
+<div class="card-header" onclick="this.parentNode.classList.toggle('open')">
+<div class="card-info">
+<div class="code">${escape(s.code)} · ${escape(s.type)}</div>
+<div class="location">${escape(s.location)}</div>
+<div class="meta">${escape(s.road)} • ${lat}, ${lng}</div>
+</div>
+<div class="status"><span class="pill ${lbl.cls}">${lbl.txt}</span></div>
+</div>
+<div class="actions">
+<a class="action-btn" href="${mapsUrl}" target="_blank" rel="noopener">
+<span class="action-icon icon-maps">📍</span>
+<span class="action-text">
+<span class="action-label">เปิด Google Maps</span>
+<span class="action-hint">นำทางไปยังตำแหน่งป้าย</span>
+</span>
+</a>
+${folderUrl ? `
+<a class="action-btn" href="${folderUrl}" target="_blank" rel="noopener">
+<span class="action-icon icon-folder">📁</span>
+<span class="action-text">
+<span class="action-label">เปิด Drive folder</span>
+<span class="action-hint">เปิดก่อนถ่ายรูป — รูปจะลงโฟลเดอร์อัตโนมัติ</span>
+</span>
+</a>` : ''}
+<a class="action-btn ${st.nightDone ? 'form-done' : ''}" href="${formNightUrl}" target="_blank" rel="noopener">
+<span class="action-icon icon-night">🌙</span>
+<span class="action-text">
+<span class="action-label">กรอก Form กลางคืน</span>
+<span class="action-hint">${st.nightDone ? 'ตรวจแล้ว — กดเพื่อแก้ไข' : 'ทีมกลางคืนตรวจรอบนี้'}</span>
+</span>
+</a>
+<a class="action-btn ${st.dayDone ? 'form-done' : ''}" href="${formDayUrl}" target="_blank" rel="noopener">
+<span class="action-icon icon-day">☀️</span>
+<span class="action-text">
+<span class="action-label">กรอก Form กลางวัน</span>
+<span class="action-hint">${st.dayDone ? 'ตรวจแล้ว — กดเพื่อแก้ไข' : 'ทีมกลางวันตรวจรอบนี้'}</span>
+</span>
+</a>
+</div>
+</div>`;
 }
 
 function toggleSection(district) {
-  userToggledSections.add(district);
-  if (openSections.has(district)) openSections.delete(district);
-  else openSections.add(district);
-  // Cheap re-render: just toggle classes on the affected section
-  const el = document.querySelector(`.section[data-district="${CSS.escape(district)}"]`);
-  if (el) el.classList.toggle("open");
+userToggledSections.add(district);
+if (openSections.has(district)) openSections.delete(district);
+else openSections.add(district);
+// Cheap re-render: just toggle classes on the affected section
+const el = document.querySelector(`.section[data-district="${CSS.escape(district)}"]`);
+if (el) el.classList.toggle("open");
 }
 
 function escape(s) {
-  return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
 
 // ─────────────────────────────────────────────────────────
 // Events
 // ─────────────────────────────────────────────────────────
 document.getElementById("search").addEventListener("input", e => {
-  searchTerm = e.target.value;
-  render();
+searchTerm = e.target.value;
+render();
 });
 
 document.getElementById("filter-row").addEventListener("click", e => {
-  const btn = e.target.closest(".filter-btn");
-  if (!btn) return;
-  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  activeFilter = btn.dataset.filter;
-  // Reset section toggles so auto-expand applies for new filter
-  userToggledSections.clear();
-  render();
+const btn = e.target.closest(".filter-btn");
+if (!btn) return;
+document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+btn.classList.add("active");
+activeFilter = btn.dataset.filter;
+// Reset section toggles so auto-expand applies for new filter
+userToggledSections.clear();
+render();
 });
 
 loadData();
