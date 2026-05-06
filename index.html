@@ -204,13 +204,20 @@ return cells;
 // ─────────────────────────────────────────────────────────
 
 // Find the column key in a response row that confirms photos uploaded.
-// Per Peak's decision (2026-05-05): use page-7 question as source of truth
-// — looks for "ยืนยัน" + "11 รูป" or "ยืนยัน" + "คู่มือถ่ายภาพ"
+// Day Shift Form: has 'ยืนยันการอัพรูปครบ 11 รูป (ตามคู่มือถ่ายภาพ)' (page 7)
+// Night Shift Form: has 'คุณอัพรูปครบแล้วใช่หรือไม่' (page 1) — different wording
+//
+// Strategy: try in order of specificity, fall through if not found.
 function getPhotoConfirmKey(row) {
+// 1. Day Shift p7 (most specific): "ยืนยัน" + ("11 รูป" or "คู่มือถ่ายภาพ")
 for (const k of Object.keys(row)) {
 if (k.includes("ยืนยัน") && (k.includes("11 รูป") || k.includes("คู่มือถ่ายภาพ"))) return k;
 }
-// Fallback: any "ยืนยัน...อัพรูป" field if p7 not present (e.g. night form)
+// 2. Night Shift p1: "อัพรูป" + "ครบ" (catches "คุณอัพรูปครบแล้วใช่หรือไม่")
+for (const k of Object.keys(row)) {
+if (k.includes("อัพรูป") && k.includes("ครบ")) return k;
+}
+// 3. Generic fallback: anything with "ยืนยัน" + "อัพรูป"
 for (const k of Object.keys(row)) {
 if (k.includes("ยืนยัน") && k.includes("อัพรูป")) return k;
 }
@@ -221,9 +228,12 @@ return null;
 function isPhotoConfirmed(row) {
 const key = getPhotoConfirmKey(row);
 if (!key) return false;
-const v = row[key] || "";
-// Checked checkbox ⇒ value is non-empty (e.g. "ยืนยันการอัพรูป" or text starting with "ยืนยัน")
-return v.length > 0 && !v.includes("ยังไม่");
+const v = (row[key] || "").trim();
+// Empty cell ⇒ unchecked
+if (v.length === 0) return false;
+// Negative wordings ⇒ unchecked (defensive — shouldn't appear from a checkbox)
+if (v.includes("ยังไม่") || v.includes("ไม่ครบ")) return false;
+return true;
 }
 
 function normalizeCode(s) {
