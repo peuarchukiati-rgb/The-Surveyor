@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "verified_at": "2026-05-14",
+    "verification_method": "Apps Script toPrefilledUrl() API + manual browser test",
+    "note": "All 3 daytime forms share entry_id 634995506"
+  },
+  "TNS": {
+    "daytime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSctu7CfQhXb5RAP-V6BXazyPDL-IvEbJeNzoFyn5C8Uvr9B5Q/viewform",
+    "nighttime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSeisQbUSC7f8yV4fbucbDNHZh5nbjL5ZUjx6TAiO-5VFatneQ/viewform",
+    "daytime_form_id": "19KCJJvmdRa4nDqVOnDfUmRyb0RiLUVnTABFTzpBYvWA",
+    "nighttime_form_id": "1y5cBhXOT-bcG3Ffwny-AcBYR_i2ociwD-Wnf6wUjfiM",
+    "daytime_entry_id": "634995506",
+    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1FAIpQLSctu7CfQhXb5RAP-V6BXazyPDL-IvEbJeNzoFyn5C8Uvr9B5Q/viewform?usp=pp_url&entry.634995506={CODE}"
+  },
+  "SS": {
+    "daytime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSfItSPlSk-MitQzX8GqbGVZxdKIy0NPTZBjyFmnkqkB58W2Gw/viewform",
+    "nighttime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSdCtsEXTGNauHMnh2ZiGXVbbb3CH9XBVwSKVWleVv_DhpIH8Q/viewform",
+    "daytime_form_id": "1IqzeQSwa_r02iajGmwHy8jsjKgQc-aVre714FY80zkQ",
+    "nighttime_form_id": "1hzr97_MLsYgGMsWGgXPWO7Izzka5TNXU415Ttc2-27A",
+    "daytime_entry_id": "634995506",
+    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1FAIpQLSfItSPlSk-MitQzX8GqbGVZxdKIy0NPTZBjyFmnkqkB58W2Gw/viewform?usp=pp_url&entry.634995506={CODE}"
+  },
+  "NS": {
+    "daytime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSdaohB0LbTHO-nfo_4uf7hW_rqrGSXXJfgmD1-WzKbNXThD0g/viewform",
+    "nighttime_public_url": "https://docs.google.com/forms/d/e/1FAIpQLSe0FTSht1MHKFhQflclgvTnmnw0PZnvKxzlfNRrS1Wv5afXwg/viewform",
+    "daytime_form_id": "1Gtr6Vt5Qo3qvrU3bYs0CTHcx5WNQf-xDR0lIVA_K0KM",
+    "nighttime_form_id": "1Ta9c7UeMOgvW-vUJs-aXS3d4p1pPyxqBpHF0kkVkpus",
+    "daytime_entry_id": "634995506",
+    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1FAIpQLSdaohB0LbTHO-nfo_4uf7hW_rqrGSXXJfgmD1-WzKbNXThD0g/viewform?usp=pp_url&entry.634995506={CODE}"
+  }
+}

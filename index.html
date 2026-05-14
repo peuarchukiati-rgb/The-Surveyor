@@ -2,430 +2,328 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1a1a1a">
 <title>The Surveyor — ตรวจศาลาที่พักผู้โดยสาร</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Sarabun', sans-serif;
-    background: #f5f5f7; color: #1d1d1f; line-height: 1.5;
-  }
-  .tor-selector {
-    position: sticky; top: 0; z-index: 100;
-    background: #1d1d1f; color: white;
-    padding: 12px 16px; display: flex; gap: 8px; overflow-x: auto;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  .tor-btn {
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer;
-    white-space: nowrap; font-size: 14px; transition: all 0.2s;
-  }
-  .tor-btn:hover { background: rgba(255,255,255,0.2); }
-  .tor-btn.active { background: #007aff; border-color: #007aff; font-weight: 600; }
-  .tor-btn .badge {
-    background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 10px;
-    font-size: 11px; margin-left: 4px;
-  }
-  .header {
-    padding: 16px; background: white; border-bottom: 1px solid #e5e5e7;
-  }
-  .header h1 { font-size: 20px; margin-bottom: 4px; }
-  .header .subtitle { color: #6e6e73; font-size: 13px; }
-  .stats {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 8px; margin-top: 12px;
-  }
-  .stat {
-    background: #f5f5f7; padding: 8px 12px; border-radius: 8px; font-size: 13px;
-  }
-  .stat .num { font-size: 18px; font-weight: 600; display: block; }
-  .stat .label { color: #6e6e73; font-size: 11px; }
-  .district-list { padding: 12px; }
-  .district {
-    background: white; border-radius: 12px; margin-bottom: 8px;
-    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  }
-  .district-header {
-    padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between;
-    align-items: center; user-select: none;
-  }
-  .district-header:hover { background: #f9f9fb; }
-  .district-name { font-weight: 600; font-size: 15px; }
-  .district-stats { font-size: 12px; color: #6e6e73; }
-  .district-body { display: none; padding: 0 16px 12px; }
-  .district.open .district-body { display: block; }
-  .stop {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 0; border-top: 1px solid #f0f0f2;
-  }
-  .stop-info { flex: 1; min-width: 0; }
-  .stop-code { font-weight: 600; font-size: 14px; }
-  .stop-location { font-size: 12px; color: #6e6e73; white-space: nowrap;
-                    overflow: hidden; text-overflow: ellipsis; }
-  .stop-status { font-size: 11px; padding: 3px 8px; border-radius: 10px;
-                  margin-left: 8px; white-space: nowrap; }
-  .status-todo { background: #fff3cd; color: #856404; }
-  .status-day-only { background: #cce5ff; color: #004085; }
-  .status-night-only { background: #e2e3e5; color: #383d41; }
-  .status-needs-photo { background: #ffe5cc; color: #8b4513; }
-  .status-done { background: #d4edda; color: #155724; }
-  .stop-actions { display: flex; gap: 4px; }
-  .btn {
-    background: #007aff; color: white; padding: 6px 10px; border-radius: 6px;
-    text-decoration: none; font-size: 11px; white-space: nowrap;
-  }
-  .btn.btn-night { background: #5856d6; }
-  .btn.btn-photo { background: #ff9500; }
-  .btn.disabled { background: #c7c7cc; pointer-events: none; }
-  .placeholder-banner {
-    background: #fff3cd; color: #856404; padding: 12px 16px; text-align: center;
-    border-bottom: 1px solid #ffeeba; font-size: 13px;
-  }
-  .loading { text-align: center; padding: 40px; color: #6e6e73; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Sukhumvit Set", system-ui, sans-serif;
+  background: #f5f7fa; color: #1a1a1a; -webkit-font-smoothing: antialiased;
+}
+.tor-bar {
+  position: sticky; top: 0; z-index: 20;
+  background: #1d1d1f; padding: 10px 12px;
+  display: flex; gap: 6px; overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+.tor-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  color: #fff; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  white-space: nowrap; font-size: 13px; transition: all .15s;
+}
+.tor-btn:hover { background: rgba(255,255,255,.18); }
+.tor-btn.active { background: #1a73e8; border-color: #1a73e8; font-weight: 600; }
+.tor-btn .cnt { background: rgba(255,255,255,.2); padding: 1px 6px; border-radius: 10px; font-size: 11px; margin-left: 4px; }
+header {
+  background: #fff; border-bottom: 1px solid #e1e5eb; padding: 14px 16px;
+}
+header h1 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
+header .sub { color: #5f6368; font-size: 13px; display: flex; gap: 12px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.badge.day { background: #fbbc04; color: #3c2a00; }
+.badge.night { background: #34374b; color: #fff; }
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-top: 10px;
+}
+.stat { background: #f5f7fa; padding: 8px 10px; border-radius: 8px; font-size: 12px; }
+.stat .n { font-size: 18px; font-weight: 600; display: block; }
+.stat .l { color: #5f6368; font-size: 11px; }
+.controls {
+  padding: 8px 12px; background: #fff; border-bottom: 1px solid #e1e5eb;
+  display: flex; gap: 6px;
+}
+.controls input {
+  flex: 1; padding: 9px 11px; font-size: 14px;
+  border: 1px solid #d0d7e0; border-radius: 8px; background: #fff;
+}
+.controls input:focus { outline: none; border-color: #1a73e8; }
+.district-list { padding: 8px 8px 80px; }
+.district {
+  background: #fff; border-radius: 12px; margin: 6px 0;
+  overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  border: 1px solid #e1e5eb;
+}
+.district-hdr {
+  padding: 12px 16px; cursor: pointer; display: flex;
+  justify-content: space-between; align-items: center; user-select: none;
+}
+.district-hdr:active { background: #f9f9fb; }
+.district-name { font-weight: 600; font-size: 15px; }
+.district-cnt { font-size: 12px; color: #5f6368; }
+.district-body { display: none; border-top: 1px solid #f0f0f2; }
+.district.open .district-body { display: block; }
+.stop {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-bottom: 1px solid #f0f0f2; cursor: pointer;
+}
+.stop:last-child { border-bottom: none; }
+.stop:active { background: #f5f7fa; }
+.stop-info { flex: 1; min-width: 0; }
+.stop-code { font-weight: 600; font-size: 14px; }
+.stop-loc { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stop-status { font-size: 11px; padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
+.s-todo { background: #f1f3f5; color: #5f6368; }
+.s-day { background: #fff7ed; color: #d97706; }
+.s-night { background: #eef2ff; color: #4338ca; }
+.s-photo { background: #ffe5cc; color: #8b4513; }
+.s-done { background: #ecfdf5; color: #047857; }
+.stop-arrow { color: #b0b4ba; font-size: 20px; }
+.empty { text-align: center; padding: 40px 20px; color: #5f6368; font-size: 14px; }
+.loading { text-align: center; padding: 40px 20px; color: #5f6368; }
 </style>
 </head>
 <body>
 
-<div class="tor-selector" id="tor-selector"></div>
-<div class="header" id="header"></div>
-<div id="placeholder-banner-container"></div>
-<div id="district-list" class="district-list">
-  <div class="loading">กำลังโหลด...</div>
+<div class="tor-bar" id="torBar"></div>
+<header id="header"></header>
+<div class="controls">
+  <input id="search" type="search" placeholder="🔍 ค้น code, ถนน, location..." autocomplete="off">
 </div>
+<div class="district-list" id="districtList"><div class="loading">กำลังโหลด...</div></div>
 
 <script>
-// === LOTS configuration (auto-generated by refactor_launcher.py) ===
-const LOTS = [
+// ═══════════════════════════════════════════════════════
+// CONFIG — verified form URLs (2026-05-14)
+// ═══════════════════════════════════════════════════════
+const TORS = [
   {
-    "tor_id": "ES",
-    "tor_name_th": "กรุงเทพตะวันออก",
-    "tor_name_short": "ตะวันออก",
-    "code_prefix": "ES",
-    "stop_count": 606,
-    "owner": "SO!",
-    "status": "live",
-    "master_sheet_id": "1k8cYjeMEcJFcbOKojjVDw31QOT_Mkr2Acyl7GPSGl2I",
-    "stops_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAcbD5e-Y2XfosEch6SBzJBpT5gTmrQ9wt9Ir1RCndSAYypUOH_etUIahPu-QbIWbL3FinZfzPHf9C/pub?gid=0&single=true&output=csv",
-    "day_responses_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=33934151&single=true&output=csv",
-    "night_responses_csv_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=2108996858&single=true&output=csv",
-    "daytime_form_id": "1pBOkeveZtEnNdpiDMafX1z0oZUT4u409enN_aRSW3co",
-    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1pBOkeveZtEnNdpiDMafX1z0oZUT4u409enN_aRSW3co/viewform?entry.1089899351={CODE}",
-    "nighttime_form_id": "1iX1xG2n2BUuvUHrJ74oQqq4pTTVFT57uCLF_ffbgG60",
-    "nighttime_prefill_template": "https://docs.google.com/forms/d/e/1iX1xG2n2BUuvUHrJ74oQqq4pTTVFT57uCLF_ffbgG60/viewform?entry.1089899351={CODE}",
-    "stop_code_entry_param": "entry.1089899351"
+    id: "ES", name: "กรุงเทพตะวันออก", short: "ตะวันออก", prefix: "ES",
+    count: 606, owner: "SO!", status: "live",
+    stops_url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAcbD5e-Y2XfosEch6SBzJBpT5gTmrQ9wt9Ir1RCndSAYypUOH_etUIahPu-QbIWbL3FinZfzPHf9C/pub?gid=0&single=true&output=csv",
+    day_url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=33934151&single=true&output=csv",
+    night_url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW5Nsl7kTq1Lg0agwRoUrfMWMyFCIcnWf6G34KRV6iS9CbzpCLzXHT1EWgjNqBEleHw6ikNbSD_waf/pub?gid=2108996858&single=true&output=csv",
+    form_day: "https://docs.google.com/forms/d/e/1FAIpQLSdAY_LzugWtJTkBLbPqb6aakmPMSTR8OKX58sIEQyYBoVncZw/viewform?usp=pp_url&entry.634995506={CODE}",
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSfbGm9X6qM9fVt8EUl5F5TLaIpoLjgM2Aj0sTiSvHKg2uXPTQ/viewform?usp=pp_url&entry.1138688633={CODE}"
   },
   {
-    "tor_id": "TNS",
-    "tor_name_th": "กรุงธนเหนือ-ใต้",
-    "tor_name_short": "กรุงธน",
-    "code_prefix": "TNS",
-    "stop_count": 272,
-    "owner": "Look Ads",
-    "status": "live",
-    "drive_folder_id": "1eh8IdXW3pxMfC505wH8hUcSZWLSmqSXy",
-    "drive_folder_url": "https://drive.google.com/drive/folders/1eh8IdXW3pxMfC505wH8hUcSZWLSmqSXy",
-    "photos_folder_id": "1qZpWHWG-OBlaKjm9LWLx7LnePOumoSR0",
-    "photos_folder_url": "https://drive.google.com/drive/folders/1qZpWHWG-OBlaKjm9LWLx7LnePOumoSR0",
-    "master_sheet_id": "1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA",
-    "master_sheet_edit_url": "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/edit",
-    "stops_csv_url": "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=1057962464",
-    "day_responses_csv_url": "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=33934151",
-    "night_responses_csv_url": "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=2108996858",
-    "daytime_form_id": "19KCJJvmdRa4nDqVOnDfUmRyb0RiLUVnTABFTzpBYvWA",
-    "daytime_form_url": "https://docs.google.com/forms/d/e/19KCJJvmdRa4nDqVOnDfUmRyb0RiLUVnTABFTzpBYvWA/viewform",
-    "daytime_prefill_template": "https://docs.google.com/forms/d/e/19KCJJvmdRa4nDqVOnDfUmRyb0RiLUVnTABFTzpBYvWA/viewform?entry.1089899351={CODE}",
-    "nighttime_form_id": "1y5cBhXOT-bcG3Ffwny-AcBYR_i2ociwD-Wnf6wUjfiM",
-    "nighttime_form_url": "https://docs.google.com/forms/d/e/1y5cBhXOT-bcG3Ffwny-AcBYR_i2ociwD-Wnf6wUjfiM/viewform",
-    "nighttime_prefill_template": "https://docs.google.com/forms/d/e/1y5cBhXOT-bcG3Ffwny-AcBYR_i2ociwD-Wnf6wUjfiM/viewform?entry.1089899351={CODE}",
-    "stop_code_entry_param": "entry.1089899351"
+    id: "TNS", name: "กรุงธนเหนือ-ใต้", short: "กรุงธน", prefix: "TNS",
+    count: 272, owner: "Look Ads", status: "live",
+    stops_url: "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=1057962464",
+    day_url: "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=33934151",
+    night_url: "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=2108996858",
+    form_day: "https://docs.google.com/forms/d/e/1FAIpQLSctu7CfQhXb5RAP-V6BXazyPDL-IvEbJeNzoFyn5C8Uvr9B5Q/viewform?usp=pp_url&entry.634995506={CODE}",
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSeisQbUSC7f8yV4fbucbDNHZh5nbjL5ZUjx6TAiO-5VFatneQ/viewform"
   },
   {
-    "tor_id": "SS",
-    "tor_name_th": "กรุงเทพใต้",
-    "tor_name_short": "ใต้",
-    "code_prefix": "SS",
-    "stop_count": 233,
-    "owner": "Look Ads",
-    "status": "live",
-    "drive_folder_id": "1F1pSYS9_uMzsd7v-Ak4DC8LLCjhjeMol",
-    "drive_folder_url": "https://drive.google.com/drive/folders/1F1pSYS9_uMzsd7v-Ak4DC8LLCjhjeMol",
-    "photos_folder_id": "1hYYdN0TRLpiLDYFkgydXJJ6DhTDn3biM",
-    "photos_folder_url": "https://drive.google.com/drive/folders/1hYYdN0TRLpiLDYFkgydXJJ6DhTDn3biM",
-    "master_sheet_id": "1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk",
-    "master_sheet_edit_url": "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/edit",
-    "stops_csv_url": "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=1437038297",
-    "day_responses_csv_url": "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=33934151",
-    "night_responses_csv_url": "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=2108996858",
-    "daytime_form_id": "1IqzeQSwa_r02iajGmwHy8jsjKgQc-aVre714FY80zkQ",
-    "daytime_form_url": "https://docs.google.com/forms/d/e/1IqzeQSwa_r02iajGmwHy8jsjKgQc-aVre714FY80zkQ/viewform",
-    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1IqzeQSwa_r02iajGmwHy8jsjKgQc-aVre714FY80zkQ/viewform?entry.1089899351={CODE}",
-    "nighttime_form_id": "1hzr97_MLsYgGMsWGgXPWO7Izzka5TNXU415Ttc2-27A",
-    "nighttime_form_url": "https://docs.google.com/forms/d/e/1hzr97_MLsYgGMsWGgXPWO7Izzka5TNXU415Ttc2-27A/viewform",
-    "nighttime_prefill_template": "https://docs.google.com/forms/d/e/1hzr97_MLsYgGMsWGgXPWO7Izzka5TNXU415Ttc2-27A/viewform?entry.1089899351={CODE}",
-    "stop_code_entry_param": "entry.1089899351"
+    id: "SS", name: "กรุงเทพใต้", short: "ใต้", prefix: "SS",
+    count: 233, owner: "Look Ads", status: "live",
+    stops_url: "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=1437038297",
+    day_url: "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=33934151",
+    night_url: "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=2108996858",
+    form_day: "https://docs.google.com/forms/d/e/1FAIpQLSfItSPlSk-MitQzX8GqbGVZxdKIy0NPTZBjyFmnkqkB58W2Gw/viewform?usp=pp_url&entry.634995506={CODE}",
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSdCtsEXTGNauHMnh2ZiGXVbbb3CH9XBVwSKVWleVv_DhpIH8Q/viewform"
   },
   {
-    "tor_id": "NS",
-    "tor_name_th": "กรุงเทพเหนือ",
-    "tor_name_short": "เหนือ",
-    "code_prefix": "NS",
-    "stop_count": 246,
-    "owner": "Look Ads",
-    "status": "live",
-    "drive_folder_id": "1L6uLCrAF3mYFBOiavvFohLELWMAcRN0r",
-    "drive_folder_url": "https://drive.google.com/drive/folders/1L6uLCrAF3mYFBOiavvFohLELWMAcRN0r",
-    "photos_folder_id": "1f4WWe14UFqP65RXanohL8JauFtr8_qGu",
-    "photos_folder_url": "https://drive.google.com/drive/folders/1f4WWe14UFqP65RXanohL8JauFtr8_qGu",
-    "master_sheet_id": "1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU",
-    "master_sheet_edit_url": "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/edit",
-    "stops_csv_url": "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=1808728461",
-    "day_responses_csv_url": "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=33934151",
-    "night_responses_csv_url": "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=2108996858",
-    "daytime_form_id": "1Gtr6Vt5Qo3qvrU3bYs0CTHcx5WNQf-xDR0lIVA_K0KM",
-    "daytime_form_url": "https://docs.google.com/forms/d/e/1Gtr6Vt5Qo3qvrU3bYs0CTHcx5WNQf-xDR0lIVA_K0KM/viewform",
-    "daytime_prefill_template": "https://docs.google.com/forms/d/e/1Gtr6Vt5Qo3qvrU3bYs0CTHcx5WNQf-xDR0lIVA_K0KM/viewform?entry.1089899351={CODE}",
-    "nighttime_form_id": "1Ta9c7UeMOgvW-vUJs-aXS3d4p1pPyxqBpHF0kkVkpus",
-    "nighttime_form_url": "https://docs.google.com/forms/d/e/1Ta9c7UeMOgvW-vUJs-aXS3d4p1pPyxqBpHF0kkVkpus/viewform",
-    "nighttime_prefill_template": "https://docs.google.com/forms/d/e/1Ta9c7UeMOgvW-vUJs-aXS3d4p1pPyxqBpHF0kkVkpus/viewform?entry.1089899351={CODE}",
-    "stop_code_entry_param": "entry.1089899351"
+    id: "NS", name: "กรุงเทพเหนือ", short: "เหนือ", prefix: "NS",
+    count: 246, owner: "Look Ads", status: "live",
+    stops_url: "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=1808728461",
+    day_url: "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=33934151",
+    night_url: "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=2108996858",
+    form_day: "https://docs.google.com/forms/d/e/1FAIpQLSdaohB0LbTHO-nfo_4uf7hW_rqrGSXXJfgmD1-WzKbNXThD0g/viewform?usp=pp_url&entry.634995506={CODE}",
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSe0FTSht1MHKFhQflclgvTnmnw0PZnvKxzlfNRrS1Wv5afXwg/viewform"
   }
 ];
-const TOTAL_STOPS = 1357;
 
-// === State ===
-let currentTorId = localStorage.getItem('lastTOR') || 'ES';
-let stopsData = [];
-let dayResponses = [];
-let nightResponses = [];
-let currentTor = null;
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let curTorId = localStorage.getItem("lastTOR") || "ES";
+let stops = [], dayResp = [], nightResp = [];
+let searchTerm = "";
 
-// === Helpers ===
-function fmtNumber(n) { return n.toLocaleString('th-TH'); }
+function curTor() { return TORS.find(t => t.id === curTorId) || TORS[0]; }
+function isDaytime() { const h = new Date().getHours(); return h >= 6 && h < 18; }
 
-function getCurrentTor() {
-  return LOTS.find(t => t.tor_id === currentTorId) || LOTS[0];
-}
-
+// ═══════════════════════════════════════════════════════
+// CSV
+// ═══════════════════════════════════════════════════════
 async function fetchCSV(url) {
   try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    return parseCSV(text);
-  } catch (e) {
-    console.error('Fetch error:', e);
-    return [];
-  }
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return parseCSV(await r.text());
+  } catch (e) { console.error("CSV fetch:", e); return []; }
 }
 
 function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim());
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.length);
   if (!lines.length) return [];
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).map(line => {
-    const values = parseCSVLine(line);
-    return Object.fromEntries(headers.map((h, i) => [h, values[i] || '']));
+  const hdrs = parseLine(lines[0]);
+  return lines.slice(1).map(l => {
+    const vals = parseLine(l);
+    return Object.fromEntries(hdrs.map((h, i) => [h.trim(), (vals[i] || "").trim()]));
   });
 }
 
-function parseCSVLine(line) {
-  const result = [];
-  let current = '', inQuotes = false;
+function parseLine(line) {
+  const out = []; let cur = "", inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
-    if (c === '"') inQuotes = !inQuotes;
-    else if (c === ',' && !inQuotes) { result.push(current); current = ''; }
-    else current += c;
+    if (c === '"') inQ = !inQ;
+    else if (c === ',' && !inQ) { out.push(cur); cur = ""; }
+    else cur += c;
   }
-  result.push(current);
-  return result.map(s => s.trim());
+  out.push(cur);
+  return out;
 }
 
-// === Status calculation (preserves Bangkok East logic) ===
-function calculateStatus(stopCode) {
-  const dayMatch = dayResponses.some(r => {
-    const code = (r['รหัสป้าย'] || '').trim();
-    return code === stopCode;
+// ═══════════════════════════════════════════════════════
+// STATUS (matches Bangkok East logic)
+// ═══════════════════════════════════════════════════════
+function calcStatus(code) {
+  const dayOK = dayResp.some(r => (r["รหัสป้าย"] || "").trim() === code);
+  const nightOK = nightResp.some(r => (r["รหัสป้าย"] || "").trim() === code);
+  const all = [...dayResp, ...nightResp].filter(r => (r["รหัสป้าย"] || "").trim() === code);
+  const photo = all.some(r => {
+    const k = Object.keys(r).find(k => k.includes("ยืนยัน") && k.includes("อัพรูป"));
+    if (!k) return false;
+    const v = r[k] || "";
+    return v.includes("ครบ") && !v.includes("ยังไม่ครบ");
   });
-  const nightMatch = nightResponses.some(r => {
-    const code = (r['รหัสป้าย'] || '').trim();
-    return code === stopCode;
-  });
-
-  const allResponses = [...dayResponses, ...nightResponses].filter(r =>
-    (r['รหัสป้าย'] || '').trim() === stopCode
-  );
-  const photoConfirmed = allResponses.some(r => {
-    const photoCol = Object.keys(r).find(k => k.includes('ยืนยัน') && k.includes('อัพรูป'));
-    if (!photoCol) return false;
-    const val = r[photoCol] || '';
-    return val.includes('ครบ') && !val.includes('ยังไม่ครบ');
-  });
-
-  if (dayMatch && nightMatch && photoConfirmed) return 'done';
-  if (dayMatch && nightMatch) return 'needs-photo';
-  if (dayMatch) return 'day-only';
-  if (nightMatch) return 'night-only';
-  return 'todo';
+  if (dayOK && nightOK && photo) return "done";
+  if (dayOK && nightOK) return "photo";
+  if (dayOK) return "day";
+  if (nightOK) return "night";
+  return "todo";
 }
 
-const STATUS_LABELS = {
-  'todo': 'ยังไม่ตรวจ',
-  'day-only': 'กลางวันเสร็จ',
-  'night-only': 'กลางคืนเสร็จ',
-  'needs-photo': 'รออัพรูป',
-  'done': 'เสร็จ ✓'
-};
+const STATUS_LBL = { todo:"ยังไม่ตรวจ", day:"กลางวันเสร็จ", night:"กลางคืนเสร็จ", photo:"รออัพรูป", done:"เสร็จ ✓" };
+const STATUS_CLS = { todo:"s-todo", day:"s-day", night:"s-night", photo:"s-photo", done:"s-done" };
 
-// === Render ===
-function renderTorSelector() {
-  const container = document.getElementById('tor-selector');
-  container.innerHTML = LOTS.map(tor => `
-    <button class="tor-btn ${tor.tor_id === currentTorId ? 'active' : ''}"
-            onclick="switchTor('${tor.tor_id}')">
-      ${tor.status === 'placeholder' ? '🟡 ' : '🟢 '}${tor.tor_name_short}
-      <span class="badge">${tor.stop_count}</span>
-    </button>
-  `).join('');
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function renderTorBar() {
+  document.getElementById("torBar").innerHTML = TORS.map(t =>
+    `<button class="tor-btn ${t.id===curTorId?'active':''}" onclick="switchTor('${t.id}')">
+      🟢 ${t.short}<span class="cnt">${t.count}</span>
+    </button>`
+  ).join("");
 }
 
-function renderHeader(tor) {
-  const header = document.getElementById('header');
-  const stats = calculateStats();
-  header.innerHTML = `
-    <h1>${tor.tor_name_th}</h1>
-    <div class="subtitle">${tor.code_prefix}001–${tor.code_prefix}${tor.stop_count.toString().padStart(3, '0')} · ${tor.owner}</div>
+function renderHeader() {
+  const t = curTor();
+  const total = stops.length;
+  const statuses = stops.map(s => calcStatus(s.code));
+  const done = statuses.filter(s => s === "done").length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const modeClass = isDaytime() ? "day" : "night";
+  const modeLabel = isDaytime() ? "☀️ กลางวัน" : "🌙 กลางคืน";
+
+  document.getElementById("header").innerHTML = `
+    <h1>${t.name}</h1>
+    <div class="sub">
+      <span>${t.prefix}001–${t.prefix}${String(t.count).padStart(3,'0')} · ${t.owner}</span>
+      <span class="badge ${modeClass}">${modeLabel}</span>
+    </div>
     <div class="stats">
-      <div class="stat"><span class="num">${stats.total}</span><span class="label">ทั้งหมด</span></div>
-      <div class="stat"><span class="num">${stats.done}</span><span class="label">เสร็จแล้ว</span></div>
-      <div class="stat"><span class="num">${stats.pending}</span><span class="label">ค้าง</span></div>
-      <div class="stat"><span class="num">${stats.pct}%</span><span class="label">% Done</span></div>
+      <div class="stat"><span class="n">${total}</span><span class="l">ทั้งหมด</span></div>
+      <div class="stat"><span class="n">${done}</span><span class="l">เสร็จแล้ว</span></div>
+      <div class="stat"><span class="n">${total - done}</span><span class="l">ค้าง</span></div>
+      <div class="stat"><span class="n">${pct}%</span><span class="l">Done</span></div>
     </div>
   `;
 }
 
-function calculateStats() {
-  const total = stopsData.length;
-  const statuses = stopsData.map(s => calculateStatus(s.code));
-  const done = statuses.filter(s => s === 'done').length;
-  const pending = total - done;
-  const pct = total ? Math.round(done / total * 100) : 0;
-  return { total, done, pending, pct };
-}
+function renderDistricts() {
+  const q = searchTerm.toLowerCase();
+  const filtered = q ? stops.filter(s =>
+    [s.code, s.district, s.road, s.location].some(v => v && v.toLowerCase().includes(q))
+  ) : stops;
 
-function renderPlaceholderBanner(tor) {
-  const container = document.getElementById('placeholder-banner-container');
-  if (tor.status === 'placeholder') {
-    container.innerHTML = `
-      <div class="placeholder-banner">
-        🟡 TOR นี้ยังไม่ได้ provision — ดูข้อมูลได้ แต่ form ยังไม่พร้อมใช้
-      </div>
-    `;
-  } else {
-    container.innerHTML = '';
-  }
-}
-
-function renderDistricts(tor) {
-  const container = document.getElementById('district-list');
-  if (!stopsData.length) {
-    container.innerHTML = '<div class="loading">ไม่มีข้อมูล</div>';
+  if (!filtered.length) {
+    document.getElementById("districtList").innerHTML = `<div class="empty">${q ? 'ไม่พบผลลัพธ์' : 'ไม่มีข้อมูล'}</div>`;
     return;
   }
 
-  // Group by district
-  const byDistrict = {};
-  stopsData.forEach(stop => {
-    const d = stop.district || '(ไม่ระบุ)';
-    if (!byDistrict[d]) byDistrict[d] = [];
-    byDistrict[d].push(stop);
+  const byDist = {};
+  filtered.forEach(s => {
+    const d = s.district || "(ไม่ระบุ)";
+    if (!byDist[d]) byDist[d] = [];
+    byDist[d].push(s);
   });
 
-  const html = Object.entries(byDistrict).map(([district, stops]) => {
-    const districtStats = { total: stops.length, done: 0 };
-    stops.forEach(s => {
-      if (calculateStatus(s.code) === 'done') districtStats.done++;
-    });
-
+  document.getElementById("districtList").innerHTML = Object.entries(byDist).map(([dist, arr]) => {
+    const done = arr.filter(s => calcStatus(s.code) === "done").length;
     return `
       <div class="district">
-        <div class="district-header" onclick="toggleDistrict(this)">
-          <div class="district-name">${district}</div>
-          <div class="district-stats">${districtStats.done}/${districtStats.total}</div>
+        <div class="district-hdr" onclick="this.parentElement.classList.toggle('open')">
+          <span class="district-name">${dist}</span>
+          <span class="district-cnt">${done}/${arr.length}</span>
         </div>
         <div class="district-body">
-          ${stops.map(stop => renderStop(stop, tor)).join('')}
+          ${arr.map(s => renderStop(s)).join("")}
         </div>
-      </div>
-    `;
-  }).join('');
-
-  container.innerHTML = html;
+      </div>`;
+  }).join("");
 }
 
-function renderStop(stop, tor) {
-  const status = calculateStatus(stop.code);
-  const isPlaceholder = tor.status === 'placeholder';
-
-  const dayUrl = isPlaceholder ? '#'
-    : (tor.daytime_prefill_template || '').replace('{CODE}', encodeURIComponent(stop.code));
-  const nightUrl = isPlaceholder ? '#'
-    : (tor.nighttime_prefill_template || '').replace('{CODE}', encodeURIComponent(stop.code));
-
+function renderStop(s) {
+  const st = calcStatus(s.code);
   return `
-    <div class="stop">
+    <div class="stop" onclick="openForm('${s.code.replace(/'/g,"&#39;")}')">
       <div class="stop-info">
-        <div class="stop-code">${stop.code}</div>
-        <div class="stop-location">${stop.location || ''}</div>
+        <div class="stop-code">${s.code}</div>
+        <div class="stop-loc">${s.district || ""} · ${s.road || ""} · ${s.location || ""}</div>
       </div>
-      <span class="stop-status status-${status}">${STATUS_LABELS[status]}</span>
-      <div class="stop-actions">
-        <a href="${dayUrl}" target="_blank" class="btn ${isPlaceholder ? 'disabled' : ''}">☀️</a>
-        <a href="${nightUrl}" target="_blank" class="btn btn-night ${isPlaceholder ? 'disabled' : ''}">🌙</a>
-      </div>
-    </div>
-  `;
+      <span class="stop-status ${STATUS_CLS[st]}">${STATUS_LBL[st]}</span>
+      <span class="stop-arrow">›</span>
+    </div>`;
 }
 
-function toggleDistrict(headerEl) {
-  headerEl.parentElement.classList.toggle('open');
+function openForm(code) {
+  const t = curTor();
+  const tmpl = isDaytime() ? t.form_day : t.form_night;
+  const url = tmpl.includes("{CODE}") ? tmpl.replace("{CODE}", encodeURIComponent(code)) : tmpl;
+  window.open(url, "_blank");
 }
 
-async function switchTor(torId) {
-  currentTorId = torId;
-  localStorage.setItem('lastTOR', torId);
-  await loadCurrentTor();
+// ═══════════════════════════════════════════════════════
+// LOAD
+// ═══════════════════════════════════════════════════════
+async function switchTor(id) {
+  curTorId = id;
+  localStorage.setItem("lastTOR", id);
+  await loadTor();
 }
 
-async function loadCurrentTor() {
-  const tor = getCurrentTor();
-  currentTor = tor;
-  renderTorSelector();
-  renderPlaceholderBanner(tor);
-  document.getElementById('district-list').innerHTML = '<div class="loading">กำลังโหลด...</div>';
+async function loadTor() {
+  const t = curTor();
+  renderTorBar();
+  document.getElementById("districtList").innerHTML = '<div class="loading">กำลังโหลด...</div>';
 
-  if (tor.status === 'placeholder') {
-    stopsData = await fetchCSV(`data/stops_${tor.tor_id}.csv`);
-    dayResponses = [];
-    nightResponses = [];
-  } else {
-    const [stops, day, night] = await Promise.all([
-      tor.stops_csv_url ? fetchCSV(tor.stops_csv_url) : [],
-      tor.day_responses_csv_url ? fetchCSV(tor.day_responses_csv_url) : [],
-      tor.night_responses_csv_url ? fetchCSV(tor.night_responses_csv_url) : []
-    ]);
-    stopsData = stops;
-    dayResponses = day;
-    nightResponses = night;
-  }
+  const [s, d, n] = await Promise.all([
+    fetchCSV(t.stops_url),
+    t.day_url ? fetchCSV(t.day_url) : [],
+    t.night_url ? fetchCSV(t.night_url) : []
+  ]);
+  stops = s; dayResp = d; nightResp = n;
 
-  renderHeader(tor);
-  renderDistricts(tor);
+  renderHeader();
+  renderDistricts();
 }
 
-// === Init ===
-loadCurrentTor();
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.trim();
+  renderDistricts();
+});
+setInterval(() => renderHeader(), 60000); // update day/night badge
+loadTor();
 </script>
 </body>
 </html>
