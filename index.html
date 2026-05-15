@@ -74,14 +74,41 @@ header .sub { color: #5f6368; font-size: 13px; display: flex; gap: 12px; flex-wr
 .stop-code { font-weight: 600; font-size: 14px; }
 .stop-loc { font-size: 12px; color: #5f6368; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .stop-status { font-size: 11px; padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
-.s-todo { background: #f1f3f5; color: #5f6368; }
-.s-day { background: #fff7ed; color: #d97706; }
-.s-night { background: #eef2ff; color: #4338ca; }
-.s-photo { background: #ffe5cc; color: #8b4513; }
-.s-done { background: #ecfdf5; color: #047857; }
+.s-todo { background: #fbbc04; color: #3c2a00; }
+.s-day { background: #4285f4; color: #fff; }
+.s-night { background: #80868b; color: #fff; }
+.s-photo { background: #ea8600; color: #fff; }
+.s-done { background: #34a853; color: #fff; }
 .stop-arrow { color: #b0b4ba; font-size: 20px; }
 .empty { text-align: center; padding: 40px 20px; color: #5f6368; font-size: 14px; }
 .loading { text-align: center; padding: 40px 20px; color: #5f6368; }
+.panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.panel-overlay.open { opacity: 1; pointer-events: auto; }
+.panel {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
+  background: #fff; border-radius: 16px 16px 0 0; padding: 20px 16px 28px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.15);
+  transform: translateY(100%); transition: transform .25s ease-out;
+  max-height: 80vh; overflow-y: auto;
+}
+.panel-overlay.open .panel { transform: translateY(0); }
+.panel-handle { width: 36px; height: 4px; background: #d0d7e0; border-radius: 2px; margin: 0 auto 14px; }
+.panel-code { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.panel-loc { font-size: 13px; color: #5f6368; margin-bottom: 14px; line-height: 1.4; }
+.panel-actions { display: flex; flex-direction: column; gap: 8px; }
+.panel-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 10px; border: 1px solid #e1e5eb;
+  background: #fff; font-size: 14px; cursor: pointer; text-decoration: none; color: #1a1a1a;
+  transition: background .1s;
+}
+.panel-btn:active { background: #f5f7fa; }
+.panel-btn.disabled { opacity: .4; pointer-events: none; }
+.panel-btn .icon { font-size: 18px; width: 24px; text-align: center; }
+.panel-footer { margin-top: 14px; text-align: center; }
 </style>
 </head>
 <body>
@@ -92,6 +119,9 @@ header .sub { color: #5f6368; font-size: 13px; display: flex; gap: 12px; flex-wr
   <input id="search" type="search" placeholder="🔍 ค้น code, ถนน, location..." autocomplete="off">
 </div>
 <div class="district-list" id="districtList"><div class="loading">กำลังโหลด...</div></div>
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel()">
+  <div class="panel" onclick="event.stopPropagation()" id="panel"></div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════
@@ -114,7 +144,7 @@ const TORS = [
     day_url: "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=33934151",
     night_url: "https://docs.google.com/spreadsheets/d/1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA/export?format=csv&gid=2108996858",
     form_day: "https://docs.google.com/forms/d/e/1FAIpQLSctu7CfQhXb5RAP-V6BXazyPDL-IvEbJeNzoFyn5C8Uvr9B5Q/viewform?usp=pp_url&entry.634995506={CODE}",
-    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSeisQbUSC7f8yV4fbucbDNHZh5nbjL5ZUjx6TAiO-5VFatneQ/viewform"
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSeisQbUSC7f8yV4fbucbDNHZh5nbjL5ZUjx6TAiO-5VFatneQ/viewform?usp=pp_url&entry.1138688633={CODE}"
   },
   {
     id: "SS", name: "กรุงเทพใต้", short: "ใต้", prefix: "SS",
@@ -123,7 +153,7 @@ const TORS = [
     day_url: "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=33934151",
     night_url: "https://docs.google.com/spreadsheets/d/1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk/export?format=csv&gid=2108996858",
     form_day: "https://docs.google.com/forms/d/e/1FAIpQLSfItSPlSk-MitQzX8GqbGVZxdKIy0NPTZBjyFmnkqkB58W2Gw/viewform?usp=pp_url&entry.634995506={CODE}",
-    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSdCtsEXTGNauHMnh2ZiGXVbbb3CH9XBVwSKVWleVv_DhpIH8Q/viewform"
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSdCtsEXTGNauHMnh2ZiGXVbbb3CH9XBVwSKVWleVv_DhpIH8Q/viewform?usp=pp_url&entry.1138688633={CODE}"
   },
   {
     id: "NS", name: "กรุงเทพเหนือ", short: "เหนือ", prefix: "NS",
@@ -132,7 +162,7 @@ const TORS = [
     day_url: "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=33934151",
     night_url: "https://docs.google.com/spreadsheets/d/1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU/export?format=csv&gid=2108996858",
     form_day: "https://docs.google.com/forms/d/e/1FAIpQLSdaohB0LbTHO-nfo_4uf7hW_rqrGSXXJfgmD1-WzKbNXThD0g/viewform?usp=pp_url&entry.634995506={CODE}",
-    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSe0FTSht1MHKFhQflclgvTnmnw0PZnvKxzlfNRrS1Wv5afXwg/viewform"
+    form_night: "https://docs.google.com/forms/d/e/1FAIpQLSe0FTSht1MHKFhQflclgvTnmnw0PZnvKxzlfNRrS1Wv5afXwg/viewform?usp=pp_url&entry.1138688633={CODE}"
   }
 ];
 
@@ -182,16 +212,27 @@ function parseLine(line) {
 // ═══════════════════════════════════════════════════════
 // STATUS (matches Bangkok East logic)
 // ═══════════════════════════════════════════════════════
+function getPhotoConfirmKey(headers) {
+  let k = headers.find(h => h.includes("ยืนยัน") && (h.includes("11 รูป") || h.includes("คู่มือถ่ายภาพ")));
+  if (k) return k;
+  k = headers.find(h => h.includes("อัพรูป") && h.includes("ครบ"));
+  if (k) return k;
+  return headers.find(h => h.includes("ยืนยัน") && h.includes("อัพรูป"));
+}
+
+function isPhotoConfirmed(row, headers) {
+  const k = getPhotoConfirmKey(headers);
+  if (!k) return false;
+  const v = (row[k] || "").toLowerCase().trim();
+  return v.includes("ครบ") || v.includes("ยืนยัน") || v === "yes" || v === "true";
+}
+
 function calcStatus(code) {
   const dayOK = dayResp.some(r => (r["รหัสป้าย"] || "").trim() === code);
   const nightOK = nightResp.some(r => (r["รหัสป้าย"] || "").trim() === code);
   const all = [...dayResp, ...nightResp].filter(r => (r["รหัสป้าย"] || "").trim() === code);
-  const photo = all.some(r => {
-    const k = Object.keys(r).find(k => k.includes("ยืนยัน") && k.includes("อัพรูป"));
-    if (!k) return false;
-    const v = r[k] || "";
-    return v.includes("ครบ") && !v.includes("ยังไม่ครบ");
-  });
+  const headers = all.length ? Object.keys(all[0]) : [];
+  const photo = all.some(r => isPhotoConfirmed(r, headers));
   if (dayOK && nightOK && photo) return "done";
   if (dayOK && nightOK) return "photo";
   if (dayOK) return "day";
@@ -199,7 +240,7 @@ function calcStatus(code) {
   return "todo";
 }
 
-const STATUS_LBL = { todo:"ยังไม่ตรวจ", day:"กลางวันเสร็จ", night:"กลางคืนเสร็จ", photo:"รออัพรูป", done:"เสร็จ ✓" };
+const STATUS_LBL = { todo:"ยังไม่ตรวจ", day:"กลางวันเสร็จ", night:"กลางคืนเสร็จ", photo:"ขาดรูป", done:"เสร็จ ✓" };
 const STATUS_CLS = { todo:"s-todo", day:"s-day", night:"s-night", photo:"s-photo", done:"s-done" };
 
 // ═══════════════════════════════════════════════════════
@@ -273,7 +314,7 @@ function renderDistricts() {
 function renderStop(s) {
   const st = calcStatus(s.code);
   return `
-    <div class="stop" onclick="openForm('${s.code.replace(/'/g,"&#39;")}')">
+    <div class="stop" onclick="showStopPanel('${s.code.replace(/'/g,"&#39;")}')">
       <div class="stop-info">
         <div class="stop-code">${s.code}</div>
         <div class="stop-loc">${s.district || ""} · ${s.road || ""} · ${s.location || ""}</div>
@@ -283,11 +324,43 @@ function renderStop(s) {
     </div>`;
 }
 
-function openForm(code) {
+function showStopPanel(code) {
+  const s = stops.find(x => x.code === code);
+  if (!s) return;
   const t = curTor();
-  const tmpl = isDaytime() ? t.form_day : t.form_night;
-  const url = tmpl.includes("{CODE}") ? tmpl.replace("{CODE}", encodeURIComponent(code)) : tmpl;
-  window.open(url, "_blank");
+  const st = calcStatus(code);
+  const dayUrl = t.form_day.includes("{CODE}") ? t.form_day.replace("{CODE}", encodeURIComponent(code)) : t.form_day;
+  const nightUrl = t.form_night.includes("{CODE}") ? t.form_night.replace("{CODE}", encodeURIComponent(code)) : t.form_night;
+  const hasMap = s.lat && s.long;
+  const mapUrl = hasMap ? `https://maps.google.com/?q=${s.lat},${s.long}` : "";
+  const hasFolder = s.folder_url && s.folder_url.trim();
+
+  document.getElementById("panel").innerHTML = `
+    <div class="panel-handle"></div>
+    <div class="panel-code">${s.code}</div>
+    <div class="panel-loc">${s.district || ""} · ${s.road || ""}<br>${s.location || ""}</div>
+    <div class="panel-actions">
+      <a class="panel-btn ${hasMap ? '' : 'disabled'}" href="${mapUrl}" target="_blank" rel="noopener">
+        <span class="icon">📍</span> เปิดแผนที่
+      </a>
+      <a class="panel-btn ${hasFolder ? '' : 'disabled'}" href="${hasFolder || '#'}" target="_blank" rel="noopener">
+        <span class="icon">📁</span> ${hasFolder ? 'เปิด Drive folder' : 'ยังไม่มี folder'}
+      </a>
+      <a class="panel-btn" href="${dayUrl}" target="_blank" rel="noopener">
+        <span class="icon">☀️</span> กลางวัน
+      </a>
+      <a class="panel-btn" href="${nightUrl}" target="_blank" rel="noopener">
+        <span class="icon">🌙</span> กลางคืน
+      </a>
+    </div>
+    <div class="panel-footer">
+      <span class="stop-status ${STATUS_CLS[st]}">${STATUS_LBL[st]}</span>
+    </div>`;
+  document.getElementById("panelOverlay").classList.add("open");
+}
+
+function closePanel() {
+  document.getElementById("panelOverlay").classList.remove("open");
 }
 
 // ═══════════════════════════════════════════════════════
