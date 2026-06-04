@@ -92,8 +92,8 @@ def match_traffy_csv(traffy_path, output_path, stops):
 
         for row in reader:
             try:
-                lat = float(row.get("lat") or row.get("latitude") or 0)
-                lng = float(row.get("long") or row.get("longitude") or row.get("lng") or 0)
+                lat = float(row.get("lat") or row.get("latitude") or row.get("case_lat") or 0)
+                lng = float(row.get("long") or row.get("longitude") or row.get("lng") or row.get("case_long") or 0)
             except ValueError:
                 lat, lng = 0, 0
 
