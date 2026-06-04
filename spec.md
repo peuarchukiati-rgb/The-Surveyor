@@ -84,6 +84,10 @@ All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
   - 10 fields: stop code, ticket ID, work type, before/after photos, description, status, notes, technician, date
   - Google Form prefill URL pattern documented
   - End-to-end flow: tracker → maps → fix → form → report
+- [x] Dedup report for กทม. (v2/output/traffy_dedup_report.html + .csv)
+  - 55 tickets → 33 unique shelters, formal print-ready report
+  - Multi-ticket table, work type breakdown, executive summary
+  - CSV handoff for data integration
 
 ## What's Next
 
@@ -91,7 +95,7 @@ All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
 - [x] Case ticket status tracking (open → assigned → fixed → reported)
 - [x] Traffy fix form spec (ช่างถ่ายรูป + report) — ready to create Google Form
 - [x] 23 unmatched cases → field verification list for พี่สาธิต
-- [ ] Case dedup reporting for กทม. (5 tickets = 1 case)
+- [x] Case dedup reporting for กทม. (55 tickets → 33 shelters, formal HTML + CSV)
 
 ### Step 2: Inspection Form (P2 — รอ BOQ fields จากมนต์)
 - [ ] Simplified BOQ form (≤2 pages: lights/seats/structure/roof/signage)
