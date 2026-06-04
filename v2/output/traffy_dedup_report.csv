@@ -1,0 +1,34 @@
+shelter_code,ticket_count,ticket_ids,work_types,district,match_status,distance_m
+ES222,1,2025-EF6DC3,ไฟ/แสงสว่าง,มนบุรี,matched,8.8
+ES306,1,2025-KUZUE7,ที่นั่ง/ม้านั่ง,บางกะปิ,matched,63.9
+ES422,1,"2025-AMXRAZ, 2025-637DK7, 2025-LZJFJL",หลังคา/กันแดดฝน,ประเวศ,no_match_nearest_327.5m,327.5
+ES468,1,2025-WWWY77,หลังคา/กันแดดฝน,บางกะปี,matched,55
+ES500,1,2025-F2FXKW,ที่นั่ง/ม้านั่ง,บางกะปิ,matched,4.8
+ES505,1,6GYCYK,ไฟ/แสงสว่าง,สะพานสูง,no_match_nearest_1265.4m,1265.4
+ES513,1,2025-GHNUV6,โครงสร้าง/ป้าย,สะพานสูง,matched,181.5
+ES521,1,2025-T488WT,ไฟ/แสงสว่าง,สะพานสูง,matched,151.9
+MS023,1,ABREZU,ไฟ/แสงสว่าง,ดุสิต,matched,0.7
+MS120,4,"LFUEJA,2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M,2025-F6XAKD, 2025-UJHZJN,2025-DU2J3U","ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง",พญาไท,no_match_nearest_594.0m,594
+MS126,1,"2025-MAEK96, 2025-EZ8G76",หลังคา/กันแดดฝน,ราชเทวี,no_match_nearest_1293.7m,1293.7
+MS203,2,"3WTYUW,ACRVL9","ที่นั่ง/ม้านั่ง,หลังคา/กันแดดฝน",พระนคร,matched,99.9
+MS204,1,2025-KX467X,ไฟ/แสงสว่าง,พระนคร,no_match_nearest_251.2m,251.2
+MS238,1,2025-JKE23B,โครงสร้าง/ป้าย,พระนคร,no_match_nearest_359.0m,359
+MS239,1,2025-ZF28RM,ไฟ/แสงสว่าง,พระนคร,matched,169.7
+MS274,1,2025-9C4C3R,ไฟ/แสงสว่าง,พระนคร,matched,15
+NS003,1,"2025-W9J6NM, 2025-6JENFJ, 2025-UJXLU6, 2025-3KR86D, 2025-2UKUFV, 2025-B4P69L, 2025-DY6TC4, 2025-FTPKMH",ไฟ/แสงสว่าง,จตุจักร,no_match_nearest_418.2m,418.2
+NS009,1,"2025-8Y9K6K, 2025-B4624F",ไฟ/แสงสว่าง,จตุจักร,no_match_nearest_1310.7m,1310.7
+NS022,1,2025-8GP3JR,ไฟ/แสงสว่าง,จตุจักร,no_match_nearest_599.6m,599.6
+NS068,1,2025-K9PB87,ไฟ/แสงสว่าง,บางซื่อ,matched,165.2
+NS074,1,KWY2UV,ไฟ/แสงสว่าง,บางซื่อ,matched,166.5
+NS083,2,"EU3RT3,CRPVE9",ที่นั่ง/ม้านั่ง,บางซื่อ,matched,79.3
+NS128,1,2025-7B46MY,ไฟ/แสงสว่าง,ลาดพร้าว,no_match_nearest_320.1m,320.1
+NS203,1,TAHVCU,ไฟ/แสงสว่าง,สายไหม,no_match_nearest_480.0m,480
+NS249,1,2025-3E3UX9,ไฟ/แสงสว่าง,จตุจักร,matched,40.4
+SS001,2,"CBTULN,2025-8ZNX99","ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง",ปทุมวัน,no_match_nearest_759.8m,759.8
+SS003,1,2025-UMBZZX,ไฟ/แสงสว่าง,ปทุมวัน,no_match_nearest_352.7m,352.7
+SS029,2,"2025-XFPJE9,2025-N8CHMC, 2025-BFTW2T",ที่นั่ง/ม้านั่ง,คลองเตย,no_match_nearest_204.2m,204.2
+SS079,1,2025-836KYX,ที่นั่ง/ม้านั่ง,วัฒนา,no_match_nearest_394.8m,394.8
+SS157,1,WPCXEP,ไฟ/แสงสว่าง,บางรัก,matched,27
+SS176,1,2025-Y9HZRZ,ไฟ/แสงสว่าง,บางคอแหลม,matched,194.9
+SS228,1,9LT2G6,หลังคา/กันแดดฝน,บางคอแหลม,no_match_nearest_651.7m,657.5
+SS235,1,2025-HAGEHU,ไฟ/แสงสว่าง,คลองเตย,matched,41.8

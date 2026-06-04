@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1a1a1a">
+<title>Traffy Tracker — The Surveyor v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; font-family: 'Sarabun', -apple-system, sans-serif;
+  background: #121212; color: #e0e0e0; -webkit-font-smoothing: antialiased;
+  font-size: 15px; line-height: 1.5;
+}
+
+/* Top bar */
+.top-bar {
+  position: sticky; top: 0; z-index: 20;
+  background: #1a1a1a; border-bottom: 1px solid #333;
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.top-bar h1 { margin: 0; font-size: 17px; font-weight: 700; color: #d4a843; }
+.top-bar .sub { font-size: 12px; color: #888; }
+
+/* Tab bar */
+.tab-bar {
+  display: flex; gap: 0; background: #1a1a1a; border-bottom: 1px solid #333;
+  position: sticky; top: 52px; z-index: 19;
+}
+.tab {
+  flex: 1; text-align: center; padding: 10px 8px; font-size: 13px; font-weight: 600;
+  color: #888; cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all .15s;
+}
+.tab.active { color: #d4a843; border-bottom-color: #d4a843; }
+.tab:hover { color: #ccc; }
+
+/* Summary bar */
+.summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px; padding: 12px 16px; background: #1a1a1a;
+}
+.sum-card {
+  background: #222; border-radius: 10px; padding: 10px 12px; text-align: center;
+  border: 1px solid #333;
+}
+.sum-card .n { font-size: 22px; font-weight: 700; color: #d4a843; display: block; }
+.sum-card .l { font-size: 11px; color: #888; }
+
+/* Filters */
+.filters {
+  padding: 8px 16px; display: flex; gap: 8px; flex-wrap: wrap;
+  background: #161616; border-bottom: 1px solid #2a2a2a;
+}
+.filters select, .filters input {
+  background: #222; color: #e0e0e0; border: 1px solid #444; border-radius: 8px;
+  padding: 7px 10px; font-size: 13px; font-family: inherit;
+}
+.filters input { flex: 1; min-width: 120px; }
+.filters select { min-width: 100px; }
+
+/* Case list */
+.case-list { padding: 8px 12px 100px; }
+.case-card {
+  background: #1e1e1e; border-radius: 10px; margin: 6px 0; padding: 12px 14px;
+  border: 1px solid #2a2a2a; cursor: pointer; transition: border-color .15s;
+}
+.case-card:active, .case-card:hover { border-color: #d4a843; }
+.case-row { display: flex; align-items: center; gap: 10px; }
+.case-id { font-weight: 700; font-size: 14px; color: #d4a843; min-width: 0; }
+.case-shelter { font-size: 13px; color: #aaa; }
+.case-desc { font-size: 13px; color: #888; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.case-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; align-items: center; }
+
+/* Pills */
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.pill-matched { background: #1b5e20; color: #a5d6a7; }
+.pill-no_match { background: #b71c1c; color: #ef9a9a; }
+.pill-open { background: #555; color: #ccc; }
+.pill-assigned { background: #1565c0; color: #90caf9; }
+.pill-in_progress { background: #f9a825; color: #333; }
+.pill-fixed { background: #2e7d32; color: #a5d6a7; }
+.pill-reported { background: #6a1b9a; color: #ce93d8; }
+.pill-work { background: #333; color: #d4a843; border: 1px solid #555; }
+.pill-dist { background: #263238; color: #80cbc4; font-size: 10px; }
+
+/* Detail expand */
+.case-detail {
+  display: none; margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid #333; font-size: 13px;
+}
+.case-card.expanded .case-detail { display: block; }
+.detail-row { margin: 4px 0; }
+.detail-label { color: #888; min-width: 80px; display: inline-block; }
+.detail-value { color: #e0e0e0; }
+.detail-value a { color: #64b5f6; text-decoration: none; }
+.detail-value a:hover { text-decoration: underline; }
+
+/* Status dropdown in detail */
+.status-select {
+  background: #333; color: #e0e0e0; border: 1px solid #555; border-radius: 6px;
+  padding: 4px 8px; font-size: 12px; font-family: inherit; cursor: pointer;
+}
+
+/* Dedup view */
+.dedup-card {
+  background: #1e1e1e; border-radius: 10px; margin: 6px 0; padding: 12px 14px;
+  border: 1px solid #2a2a2a;
+}
+.dedup-header { display: flex; justify-content: space-between; align-items: center; }
+.dedup-code { font-weight: 700; color: #d4a843; font-size: 15px; }
+.dedup-count { font-size: 12px; color: #888; }
+.dedup-tickets { margin-top: 6px; font-size: 12px; color: #aaa; }
+.dedup-types { margin-top: 4px; }
+
+/* Empty */
+.empty { text-align: center; padding: 40px 20px; color: #666; font-size: 14px; }
+
+/* Mobile */
+@media (max-width: 480px) {
+  .summary { grid-template-columns: repeat(2, 1fr); }
+  .filters { flex-direction: column; }
+  .filters select, .filters input { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <h1>Traffy Tracker</h1>
+    <div class="sub">The Surveyor v2 — ติดตามเคส Traffy Fondue</div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" data-tab="cases" onclick="switchTab('cases')">เคสทั้งหมด</div>
+  <div class="tab" data-tab="dedup" onclick="switchTab('dedup')">ตามศาลา (Dedup)</div>
+</div>
+
+<div id="summaryBar" class="summary"></div>
+
+<div id="filtersBar" class="filters">
+  <input id="searchInput" type="search" placeholder="ค้น ticket, shelter code, ถนน..." autocomplete="off">
+  <select id="filterStatus">
+    <option value="">สถานะ match</option>
+    <option value="matched">Matched</option>
+    <option value="no_match">No Match</option>
+  </select>
+  <select id="filterWork">
+    <option value="">ประเภทงาน</option>
+  </select>
+  <select id="filterDistrict">
+    <option value="">เขต</option>
+  </select>
+</div>
+
+<div id="caseList" class="case-list"></div>
+<div id="dedupList" class="case-list" style="display:none"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// EMBEDDED DATA (generated by build_traffy_tracker.py)
+// ═══════════════════════════════════════════════════
+const CASES = [{"ticket_id": "ABREZU", "match_status": "matched", "shelter_code": "MS023", "shelter_type": "Type A", "district_shelter": "ดุสิต", "road": "พิษณุโลก", "shelter_location": "หน้าโรงเรียนพณิชยการพระนคร", "distance_m": "0.7", "nearest_2nd": "MS020", "distance_2nd_m": "8.6", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ปัญหา: ริมถนนดังกล่าว บริเวณด้านหน้าสนามม้านางเลิ้ง พบดวงไฟฟ้าส่องสว่างป้ายรอรถโดยสารประจำทางดับชำรุด ทำให้บริเวณดังกล่าวมืดมาก  ถนน: พิษณุโลก เขต: ดุสิต\n #1555", "district_case": "ดุสิต", "case_address": "ป้ายรถประจำทาง กระทรวงศึกษาธิการ 3 แขวงสวนจิตรลดา เขตดุสิต 10300", "case_lat": "13.76286", "case_long": "100.51431", "shelter_lat": "13.762864", "shelter_long": "100.514305", "match_code": "MS 023", "match_tor": "MS", "match_district": "ดุสิต", "match_dist_m": "0.7"}, {"ticket_id": "2025-F2FXKW", "match_status": "matched", "shelter_code": "ES500", "shelter_type": "หลังเล็ก", "district_shelter": "บางกะปิ", "road": "ลาดพร้าว", "shelter_location": "ตรงข้ามเดอะมอลล์บางกะปี", "distance_m": "4.8", "nearest_2nd": "ES325", "distance_2nd_m": "333.1", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ที่นั่งป้ายรถเมล์ไม่เพียงพอ ทั้งๆที่ป้ายนี้ ผู้โดยสารเยอะมาก", "district_case": "บางกะปิ", "case_address": "เอ็นมาร์คพลาซ่า แขวงคลองจั่น บางกะปิ 10240", "case_lat": "13.76744", "case_long": "100.64296", "shelter_lat": "13.767418", "shelter_long": "100.642922", "match_code": "ES 500", "match_tor": "ES", "match_district": "บางกะปิ", "match_dist_m": "4.8"}, {"ticket_id": "2025-EF6DC3", "match_status": "matched", "shelter_code": "ES222", "shelter_type": "Type B", "district_shelter": "มนบุรี", "road": "รามคำแหง", "shelter_location": "ตรงข้ามสำนักงานประปาสาขามีนบุรี", "distance_m": "8.8", "nearest_2nd": "ES220", "distance_2nd_m": "171.3", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "คือรออยู่ป้ายรถเมล์จุดนี้ รู้สึกไม่ปลอดภัยมากเลยครับ เพราะหนึ่งคือ น้ำท่วมขัง แล้วรถยนต์ขับแรงมาก ทำให้น้ำสาดมาที่ป้ายรถเมล์ เลยรู้สึกไม่โอเคเรื่องถนนละคระบ สอง", "district_case": "มีนบุรี", "case_address": "หมู่บ้านฟอร์เรสปาร์ค แขวงแสนแสบ เขตมีนบุรี 10510", "case_lat": "13.8146", "case_long": "100.74127", "shelter_lat": "13.814679", "shelter_long": "100.741267", "match_code": "ES 222", "match_tor": "ES", "match_district": "มนบุรี", "match_dist_m": "8.8"}, {"ticket_id": "2025-9C4C3R", "match_status": "matched", "shelter_code": "MS274", "shelter_type": "Type B", "district_shelter": "พระนคร", "road": "สนามไชย", "shelter_location": "ตรงข้าม หน้าร.ร.วัดราชบพิธ หน้ามิวเซียมสยาม (ก่อนถึงซอยเศรษฐการ) (ทดแทน)", "distance_m": "15", "nearest_2nd": "MS273", "distance_2nd_m": "29.1", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 *️⃣หมายเลขตามภาพแนบ 💡จำนวนไฟทั้งหมด 3 ดวง 💡ดับสนิท 3 ดวง😭 🗣️รบกวนตรวจสอบแก้ไข 📸 📌ตรง ป้ายรถ ร.ร.วัดราชบพิธ 🛣️ถนนสนามไชย 🙏👷👩‍🔧ขอขอ", "district_case": "พระนคร", "case_address": "PFVV+MX4 แขวงพระบรมมหาราชวัง เขตพระนคร 10200", "case_lat": "13.74412", "case_long": "100.49471", "shelter_lat": "13.7442", "shelter_long": "100.494598", "match_code": "MS 274", "match_tor": "MS", "match_district": "พระนคร", "match_dist_m": "15.0"}, {"ticket_id": "WPCXEP", "match_status": "matched", "shelter_code": "SS157", "shelter_type": "Type A", "district_shelter": "บางรัก", "road": "สี่พระยา", "shelter_location": "หน้าวัดแก้วแจ่มฟ้า", "distance_m": "27", "nearest_2nd": "SS236", "distance_2nd_m": "450.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ปัญหา: ภายในศาลาที่พักผู้โดยสาร หน้าวัดแก้วแจ่มฟ้า พบดวงไฟฟ้าส่องสว่าง ไม่เปิดใช้งาน จำนวน  3 ดวง เป็นเวลา  6 เดือนแล้ว ทำให้บริเวณนั้นมืดมาก ถนน: สี่พระยา จุดส", "district_case": "บางรัก", "case_address": "วัดแก้วแจ่มฟ้า แขวงสี่พระยา เขตบางรัก 10500", "case_lat": "13.73089", "case_long": "100.51951", "shelter_lat": "13.730939", "shelter_long": "100.519755", "match_code": "SS 157", "match_tor": "SS", "match_district": "บางรัก", "match_dist_m": "27.0"}, {"ticket_id": "2025-3E3UX9", "match_status": "matched", "shelter_code": "NS249", "shelter_type": "Type A", "district_shelter": "จตุจักร", "road": "พหลโยธิน", "shelter_location": "ตรงข้ามซอยพหลโยธิน 18/2 (1)", "distance_m": "40.4", "nearest_2nd": "NS250", "distance_2nd_m": "41.9", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "อยากให้ทำป้ายรถเมล์ป้ายธนาคารทหารไทย ให้เป็นป้ายประจำสักที ป้ายชั่วคราวทั้งเปลี่ยว มืด ไฟไม่สว่าง บางครั้งคนขับรถเมล์ไม่เห็นผู้โดยสาร ต้องเปิดไฟฉายจ่อเอา", "district_case": "จตุจักร", "case_address": "1014/4 ถ. พหลโยธิน แขวงจอมพล เขตจตุจักร 10900", "case_lat": "13.80742", "case_long": "100.55683", "shelter_lat": "13.807608", "shelter_long": "100.55651", "match_code": "NS 249", "match_tor": "NS", "match_district": "จตุจักร", "match_dist_m": "40.4"}, {"ticket_id": "2025-HAGEHU", "match_status": "matched", "shelter_code": "SS235", "shelter_type": "Type B2", "district_shelter": "คลองเตย", "road": "สุนทรโกษา", "shelter_location": "สโมสรท่าเรือ", "distance_m": "41.8", "nearest_2nd": "SS053", "distance_2nd_m": "263.8", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "เรื่องป้ายรถเมล์ที่แจ้งไปหลายครั้ง2ครั้งแล้วบอกทำเส็จแล้วไม่เห็นไฟติดเลยต่อไปไฟป้ายรถเมลทีพักผู้โดยสารจุดนี้ผมจะไม่แจ้งให้แล้วเพราะไม่ได้รับการแก้ไขเลยใกล้หน้าส", "district_case": "คลองเตย", "case_address": "139 ถ. สุนทรโกษา แขวงคลองเตย เขตคลองเตย 10110", "case_lat": "13.71655", "case_long": "100.56112", "shelter_lat": "13.716176", "shelter_long": "100.56108", "match_code": "SS 235", "match_tor": "SS", "match_district": "คลองเตย", "match_dist_m": "41.8"}, {"ticket_id": "2025-WWWY77", "match_status": "matched", "shelter_code": "ES468", "shelter_type": "Type B2", "district_shelter": "บางกะปี", "road": "รามคำแหง", "shelter_location": "ระหว่างซอยรามคำแหง 83/1 - 83/2 (หน้าโรงแรมANDA) 1", "distance_m": "55", "nearest_2nd": "ES469", "distance_2nd_m": "63.3", "work_type": "หลังคา/กันแดดฝน", "report_count": "1", "description": "หน้าปากซอยรามคำแหง 36/1 ตรงสถานีหัวหมาก (สีส้ม) มีป้ายรถเมล์ แต่ไม่ทำป้ายถาวร มีหลังคาบังแดด กันฝนให้คนที่มารอรถเมล์เลย นานแล้วนะ ไม่มีหน่วยงานไหนสนใจ ป้ายอยู่ต", "district_case": "บางกะปิ", "case_address": "462 1 ซอย รามคำแหง 36/1 แขวงหัวหมาก บางกะปิ 10240", "case_lat": "13.76156", "case_long": "100.63769", "shelter_lat": "13.761906", "shelter_long": "100.638054", "match_code": "ES 468", "match_tor": "ES", "match_district": "บางกะปี", "match_dist_m": "55.0"}, {"ticket_id": "2025-KUZUE7", "match_status": "matched", "shelter_code": "ES306", "shelter_type": "TypeA", "district_shelter": "บางกะปิ", "road": "รามคำแหง", "shelter_location": "ข้างประตูใหญ่ มหาวิทยาลัยรามคำแหง ( ติด WF 119) สะพานลอยคนข้าม", "distance_m": "63.9", "nearest_2nd": "MS073", "distance_2nd_m": "354.1", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ป้ายรถประจำทางหน้าป้ายมหาวิทยาลัยรามคำแหง มีเก้าอี้หลุดอยู่ตรงนี้ครับไม่แน่ใจว่ามาจากไหน", "district_case": "บางกะปิ", "case_address": "1181 ถนน รามคำแหง แขวงหัวหมาก บางกะปิ 10240", "case_lat": "13.75917", "case_long": "100.61806", "shelter_lat": "13.759382", "shelter_long": "100.61861", "match_code": "ES 306", "match_tor": "ES", "match_district": "บางกะปิ", "match_dist_m": "63.9"}, {"ticket_id": "EU3RT3", "match_status": "matched", "shelter_code": "NS083", "shelter_type": "Type B2", "district_shelter": "บางซื่อ", "road": "ประชาราษฎร์ สาย1", "shelter_location": "ตรงข้ามบ. พงศ์ถาวรกิจ", "distance_m": "79.3", "nearest_2nd": "NS082", "distance_2nd_m": "311", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ปัญหา: เรื่องเดิม หน้าปากซอยดังกล่าว บริเวณป้ายรถโดยสารประจำทาง ต้องการให้ติดตั้งเก้าอี้ที่นั่งรอรถโดยสารประจำทาง เนื่องจากประชาชนยืนรอรถนาน สร้างความเดือดร้อนใ", "district_case": "บางซื่อ", "case_address": "445 Pracha Rat Sai 1 Rd, แขวงบางซื่อ บางซื่อ 10800", "case_lat": "13.80708", "case_long": "100.52156", "shelter_lat": "13.807784", "shelter_long": "100.521676", "match_code": "NS 083", "match_tor": "NS", "match_district": "บางซื่อ", "match_dist_m": "79.3"}, {"ticket_id": "3WTYUW", "match_status": "matched", "shelter_code": "MS203", "shelter_type": "Type B2", "district_shelter": "พระนคร", "road": "รอบสนามหลวง", "shelter_location": "2 หน้าศาลอาญา", "distance_m": "99.9", "nearest_2nd": "MS204", "distance_2nd_m": "141.7", "work_type": "หลังคา/กันแดดฝน", "report_count": "1", "description": "ปัญหา: ถนนดังกล่าว หน้าสนามหลวง บริเวณป้ายรอรถโดยสารประจำทาง พบไม่มีหลังคา ทำให้ประชาชนที่มารอรถโดยสารไม่มีที่หลบฝน จึงขอให้มีการสร้างหลังคาและขอให้มีการเพิ่มป้", "district_case": "พระนคร", "case_address": "สนามหลวง (ตรงข้ามศาลฎีกา) แขวงพระบรมมหาราชวัง เขตพระนคร 10200", "case_lat": "13.75463", "case_long": "100.49388", "shelter_lat": "13.753734", "shelter_long": "100.493952", "match_code": "MS 203", "match_tor": "MS", "match_district": "พระนคร", "match_dist_m": "99.9"}, {"ticket_id": "2025-T488WT", "match_status": "matched", "shelter_code": "ES521", "shelter_type": "หลังเล็ก", "district_shelter": "สะพานสูง", "road": "เคหะร่มเกล้า", "shelter_location": "ปากซอยเคหะร่มเกล้า 82", "distance_m": "151.9", "nearest_2nd": "ES504", "distance_2nd_m": "208.4", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ไฟบริเวณป้ายรถประจำทางดับ", "district_case": "สะพานสูง", "case_address": "ตรงข้ามทองธาราวิลล่า แขวงราษฎร์พัฒนา สะพานสูง 10240", "case_lat": "13.77575", "case_long": "100.70618", "shelter_lat": "13.774599", "shelter_long": "100.706937", "match_code": "ES 521", "match_tor": "ES", "match_district": "สะพานสูง", "match_dist_m": "151.9"}, {"ticket_id": "2025-K9PB87", "match_status": "matched", "shelter_code": "NS068", "shelter_type": "Type B2", "district_shelter": "บางซื่อ", "road": "กรุงเทพ-นนทบุรี", "shelter_location": "ตรงข้ามวัดทองสุธาราม(ตรงข้ามซ.56)", "distance_m": "165.2", "nearest_2nd": "NS029", "distance_2nd_m": "332", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ป้านหยุดรถเมล์ ไม่มีสิ่งอำนวยความสะดวก ไม่มีไฟฟ้าส่องสว่างเพียงพอให้เกิดความปลอดภัยต่อชีวิตและทรัพย์สินเวลาใช้บริการรถเมล์ ป้ายเก่า ไม่มีที่นั่งที่อยู่ในสภาพดีแ", "district_case": "บางซื่อ", "case_address": "MRT วงศ์สว่าง (ทางออก 1) แขวงวงศ์สว่าง บางซื่อ 10800", "case_lat": "13.82988", "case_long": "100.52641", "shelter_lat": "13.830779", "shelter_long": "100.525192", "match_code": "NS 068", "match_tor": "NS", "match_district": "บางซื่อ", "match_dist_m": "165.2"}, {"ticket_id": "KWY2UV", "match_status": "matched", "shelter_code": "NS074", "shelter_type": "Type B2", "district_shelter": "บางซื่อ", "road": "กรุงเทพ-นนทบุรี", "shelter_location": "ตรงข้ามศูนย์ฝึกอาชีพทหารผ่านศึก", "distance_m": "166.5", "nearest_2nd": "NS073", "distance_2nd_m": "195.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง ทางลงจากสถานีรถไฟบางซ่อน ฝั่งขาเข้า พบว่าไม่มีเก้าอี้นั่งภายในที่พักผู้โดยสาร จึงขอให้พิจารณาให้มีการติดตั้ง ถนน: กรุงเทพ - ", "district_case": "บางซื่อ", "case_address": "ตรงข้ามตลาดบางซ่อน แขวงบางซื่อ บางซื่อ 10800", "case_lat": "13.8215", "case_long": "100.53273", "shelter_lat": "13.822997", "shelter_long": "100.532765", "match_code": "NS 074", "match_tor": "NS", "match_district": "บางซื่อ", "match_dist_m": "166.5"}, {"ticket_id": "2025-ZF28RM", "match_status": "matched", "shelter_code": "MS239", "shelter_type": "Type B2", "district_shelter": "พระนคร", "road": "มหาไชย", "shelter_location": "ม หน้าเมอรี่คิงส์วังบูรพา 6e", "distance_m": "169.7", "nearest_2nd": "MS248", "distance_2nd_m": "322.2", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 💡จำนวนไฟทั้งหมด 4 ดวง 💡ดับสนิท 4 ดวง 😞😥😭 💥👉ส่งต่อ สำนักการจราจรและขนส่ง (สจส.) 📸 📌ตรงป้ายสถานีรถไฟฟ้าสามยอด 🛣️ถนนเจริญกรุง 🙏👷👩‍🔧ข", "district_case": "พระนคร", "case_address": "114/2 ถ. เจริญกรุง แขวงวังบูรพาภิรมย์ เขตพระนคร 10200", "case_lat": "13.74696", "case_long": "100.50187", "shelter_lat": "13.745645", "shelter_long": "100.502668", "match_code": "MS 239", "match_tor": "MS", "match_district": "พระนคร", "match_dist_m": "169.7"}, {"ticket_id": "2025-GHNUV6", "match_status": "matched", "shelter_code": "ES513", "shelter_type": "หลังเล็ก", "district_shelter": "สะพานสูง", "road": "ถนนราษฎร์พัฒนา", "shelter_location": "ปากซอยถนนราษฎร์พัฒนา 7", "distance_m": "181.5", "nearest_2nd": "ES511", "distance_2nd_m": "263.3", "work_type": "โครงสร้าง/ป้าย", "report_count": "1", "description": "ขอป้ายรถเมล์ฝั่งตรงข้าม บ.มีสทีนด่วนค่ะ. ป้ายสำรองพายุดัดพัง ไม่มีที่หลบฝน", "district_case": "สะพานสูง", "case_address": "QPJ4+R88 ถ. ราษฎร์พัฒนา แขวงราษฎร์พัฒนา สะพานสูง 10240", "case_lat": "13.7819", "case_long": "100.70575", "shelter_lat": "13.783522", "shelter_long": "100.705935", "match_code": "ES 513", "match_tor": "ES", "match_district": "สะพานสูง", "match_dist_m": "181.5"}, {"ticket_id": "2025-Y9HZRZ", "match_status": "matched", "shelter_code": "SS176", "shelter_type": "Type B2", "district_shelter": "บางคอแหลม", "road": "เจริญกรุง", "shelter_location": "เจริญกรุง 89", "distance_m": "194.9", "nearest_2nd": "SS173", "distance_2nd_m": "225.9", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ไฟป้ายรถเมล์เสีย", "district_case": "บางคอแหลม", "case_address": "ตลาดบางคอแหลม แขวงบางคอแหลม เขตบางคอแหลม 10120", "case_lat": "13.69833", "case_long": "100.49839", "shelter_lat": "13.69719", "shelter_long": "100.49702", "match_code": "SS 176", "match_tor": "SS", "match_district": "บางคอแหลม", "match_dist_m": "194.9"}, {"ticket_id": "CRPVE9", "match_status": "no_match_nearest_200.3m", "shelter_code": "NS083", "shelter_type": "Type B2", "district_shelter": "บางซื่อ", "road": "ประชาราษฎร์ สาย1", "shelter_location": "ตรงข้ามบ. พงศ์ถาวรกิจ", "distance_m": "200.3", "nearest_2nd": "NS082", "distance_2nd_m": "286.7", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ปัญหา: เรื่องเดิม บริเวณป้ายรถโดยสารประจำทาง หน้าเซเว่นอิเลฟเว่น สาขาแยกบางโพ(04207) ต้องการให้ติดตั้งเก้าอี้ที่นั่งรอรถโดยสารประจำทาง เนื่องจากประชาชนยืนรอรถนา", "district_case": "บางซื่อ", "case_address": "รพ.บางโพ แขวงบางซื่อ บางซื่อ 10800", "case_lat": "13.80643", "case_long": "100.5229", "shelter_lat": "13.807784", "shelter_long": "100.521676", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "200.3"}, {"ticket_id": "2025-XFPJE9", "match_status": "no_match_nearest_204.2m", "shelter_code": "SS029", "shelter_type": "Type A", "district_shelter": "คลองเตย", "road": "พระราม 4", "shelter_location": "ตรงข้ามตลาดตลองเตย ( ข้างซอยไผ่สิงห์โต)", "distance_m": "204.2", "nearest_2nd": "SS030", "distance_2nd_m": "204.2", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน ทางเท้าไม่โอเค อยากให้มีจุดพักตามที่โปรโมทไว้นะคร้บผม เพราะคนรอขึ้นเยอะครับ", "district_case": "คลองเตย", "case_address": "PH95+QC8 แขวงคลองเตย เขตคลองเตย 10110", "case_lat": "13.71937", "case_long": "100.55874", "shelter_lat": "13.71949796", "shelter_long": "100.5606254", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "204.2"}, {"ticket_id": "ACRVL9", "match_status": "no_match_nearest_231.7m", "shelter_code": "MS203", "shelter_type": "Type B2", "district_shelter": "พระนคร", "road": "รอบสนามหลวง", "shelter_location": "2 หน้าศาลอาญา", "distance_m": "231.7", "nearest_2nd": "MS245", "distance_2nd_m": "268.6", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ปัญหา: บริเวณป้ายรอรถโดยสารประจำทางหน้าสนามหลวง 1. บริเวณที่พักผู้โดยสาร ไม่มีเก้าอี้สำหรับผู้ใช้บริการเพื่อนั่งรอรถโดยสารประจำทาง เนื่องจากผู้ใช้บริการต้องยืนร", "district_case": "พระนคร", "case_address": "2 ถ. หน้าพระธาตุ แขวงพระบรมมหาราชวัง เขตพระนคร 10200", "case_lat": "13.75462", "case_long": "100.49201", "shelter_lat": "13.753734", "shelter_long": "100.493952", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "231.7"}, {"ticket_id": "2025-KX467X", "match_status": "no_match_nearest_251.2m", "shelter_code": "MS204", "shelter_type": "Type B2", "district_shelter": "พระนคร", "road": "รอบสนามหลวง", "shelter_location": "9 หน้ากระทรวงยุติธรรม", "distance_m": "251.2", "nearest_2nd": "MS203", "distance_2nd_m": "368.7", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ไฟป้ายรถเมล์ไม่ติด", "district_case": "พระนคร", "case_address": "ม.ธรรมศาสตร์ แขวงพระบรมมหาราชวัง เขตพระนคร 10200", "case_lat": "13.75663", "case_long": "100.49229", "shelter_lat": "13.75578", "shelter_long": "100.494445", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "251.2"}, {"ticket_id": "2025-N8CHMC, 2025-BFTW2T", "match_status": "no_match_nearest_284.8m", "shelter_code": "SS029", "shelter_type": "Type A", "district_shelter": "คลองเตย", "road": "พระราม 4", "shelter_location": "ตรงข้ามตลาดตลองเตย ( ข้างซอยไผ่สิงห์โต)", "distance_m": "284.8", "nearest_2nd": "SS030", "distance_2nd_m": "284.8", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "2", "description": "จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน ทางเท้าไม่โอเค อยากให้มีจุดพักตามที่โปรโมทไว้นะคร้บผม เพราะคนรอขึ้นเยอะครับ เหมือนที่ส่งไปก่อนหน้าเ", "district_case": "คลองเตย", "case_address": "25 ถ. สุนทรโกษา แขวงคลองเตย เขตคลองเตย 10110", "case_lat": "13.719555", "case_long": "100.55799", "shelter_lat": "13.71949796", "shelter_long": "100.5606254", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "284.8"}, {"ticket_id": "2025-7B46MY", "match_status": "no_match_nearest_320.1m", "shelter_code": "NS128", "shelter_type": "Type B", "district_shelter": "ลาดพร้าว", "road": "สุคนธสวัสดิ์", "shelter_location": "บริเวณตรงข้ามโรงเรียนอนุบาลครูเกียว", "distance_m": "320.1", "nearest_2nd": "NS129", "distance_2nd_m": "480.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ป้ายรถเมล์ สร้างเสร็จมาได้แระมาณ 4 เดือน พบว่า ป้ายไฟ bus stop บนหลังคา ไฟไม่ติดในเวบากลางคืน( ปกติจะติด)   แจ้งทางผู้รับเหมาให้มาแก้ไขด่วน", "district_case": "ลาดพร้าว", "case_address": "หมู่บ้านชวนชื่นลาดพร้าว แขวงลาดพร้าว ลาดพร้าว 10230", "case_lat": "13.83237", "case_long": "100.62524", "shelter_lat": "13.834821", "shelter_long": "100.626795", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "320.1"}, {"ticket_id": "2025-AMXRAZ, 2025-637DK7, 2025-LZJFJL", "match_status": "no_match_nearest_327.5m", "shelter_code": "ES422", "shelter_type": "Type B2", "district_shelter": "ประเวศ", "road": "อ่อนนุช", "shelter_location": "ข้างปัมบางจาก ตรงข้ามซอยอ่อนนุช 74/3 -", "distance_m": "327.5", "nearest_2nd": "ES343", "distance_2nd_m": "361.2", "work_type": "หลังคา/กันแดดฝน", "report_count": "3", "description": "ป้ายรถเมล์ตรงหน้าร้านสเต็กบ้านแดง อ่อนนุช 55/1 ตรงข้ามโรงงาน SCS เดิมเป็นเต้นท์หลังคาสีเขียว แต่หลังคาชำรุด และโดนลือหลังคาเต้นท์ออก ช่วงนี้หน้าฝน จึงขอรบกวนให้", "district_case": "ประเวศ", "case_address": "391, 1 ซ. สุขุมวิท 77 แขวงประเวศ เขตประเวศ 10250", "case_lat": "13.71915", "case_long": "100.66699", "shelter_lat": "13.718175", "shelter_long": "100.664129", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "327.5"}, {"ticket_id": "2025-UMBZZX", "match_status": "no_match_nearest_352.7m", "shelter_code": "SS003", "shelter_type": "Type Jc", "district_shelter": "ปทุมวัน", "road": "พระราม4", "shelter_location": "สถานนีรถไฟใต้ดินลุมพินี ประตู 1", "distance_m": "352.7", "nearest_2nd": "SS047", "distance_2nd_m": "1176.1", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ป้ายรถเมล์เสี่ยงไฟดูด !!! ป้ายรถเมล์บ่อนไก้ อยู่ตรงข้ามตึกลุมพินีทาวเวอร์ สายไฟได้หย่อนลงมาขวางป้ายรถเมล หย่อนถึงหัวคน อันตรายเสี่ยงไฟดูดคนรอรถเมล และดูไม่สวยงา", "district_case": "ปทุมวัน", "case_address": "บ่อนไก่ (ขาออก) แขวงลุมพินี เขตปทุมวัน 10330", "case_lat": "13.72445", "case_long": "100.54917", "shelter_lat": "13.7254272", "shelter_long": "100.5460632", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "352.7"}, {"ticket_id": "2025-JKE23B", "match_status": "no_match_nearest_359.0m", "shelter_code": "MS238", "shelter_type": "Type B2", "district_shelter": "พระนคร", "road": "บวรนิเวศน์", "shelter_location": "หน้าวัดบวรนิเวศน์", "distance_m": "359", "nearest_2nd": "MS236", "distance_2nd_m": "362.3", "work_type": "โครงสร้าง/ป้าย", "report_count": "1", "description": "ป้าหยุดรถประจำทาง ที่อยู่บริเวณหน้าสำนักงานเขตพระนคร มีสภาพชำรุดเนื่องจากว่ามีมือดีมาขีดเขียนตัวป้าย และติดพวกสติ๊กเกอร์ ทำให้ตัวสภาพป้ายไม่เหมาะสมในการใช้งานรบ", "district_case": "พระนคร", "case_address": "72 ซอย สามเสน 4 แขวงบ้านพานถม เขตพระนคร 10200", "case_lat": "13.76394", "case_long": "100.49929", "shelter_lat": "13.760713", "shelter_long": "100.499201", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "359.0"}, {"ticket_id": "2025-836KYX", "match_status": "no_match_nearest_394.8m", "shelter_code": "SS079", "shelter_type": "Type B2", "district_shelter": "วัฒนา", "road": "สุขุมวิท", "shelter_location": "ใกล้สถานีรถไฟฟ้า Btร พระโขนง (หน้าร.ร.เสริมวิทย์ธุรกิจ, ก่อนถึงซ.สุขุมวิท 69)", "distance_m": "394.8", "nearest_2nd": "SS084", "distance_2nd_m": "422.7", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ป้ายรถเมล์มีการย้ายเอาม้านั่งออก กรุณานำตัวใหม่มาติดตั้ง", "district_case": "คลองเตย", "case_address": "1144 ถ. สุขุมวิท แขวงพระโขนง เขตคลองเตย 10110", "case_lat": "13.71243", "case_long": "100.59483", "shelter_lat": "13.714737", "shelter_long": "100.592052", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "394.8"}, {"ticket_id": "2025-W9J6NM, 2025-6JENFJ, 2025-UJXLU6, 2025-3KR86D, 2025-2UKUFV, 2025-B4P69L, 2025-DY6TC4, 2025-FTPKMH", "match_status": "no_match_nearest_418.2m", "shelter_code": "NS003", "shelter_type": "Type B", "district_shelter": "จตุจักร", "road": "ลาดพร้าว", "shelter_location": "หน้าหมู่บ้านกลางเมือง (ก่อนถึงซอย ลาดพร้าว25)", "distance_m": "418.2", "nearest_2nd": "NS004", "distance_2nd_m": "927.9", "work_type": "ไฟ/แสงสว่าง", "report_count": "8", "description": "บริเวณทางออกหมายเลข 3 จะมีป้ายรถเมล์ ที่ดูเหมือนจะไม่ค่อยเป็นลักษณะของป้ายรถเมล์เท่าไหร่ แสงสว่างไม่ค่อยเพียงพอมีแท่นแบริเออร์กั้น รถเมล์มักจอดนอกป้าย ผู้โดยสาร", "district_case": "จตุจักร", "case_address": "448 1 ถ. ลาดพร้าว แขวงจอมพล เขตจตุจักร 10900", "case_lat": "13.80594", "case_long": "100.57404", "shelter_lat": "13.803993", "shelter_long": "100.577354", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "418.2"}, {"ticket_id": "TAHVCU", "match_status": "no_match_nearest_480.0m", "shelter_code": "NS203", "shelter_type": "Type B2", "district_shelter": "สายไหม", "road": "พหลโยธิน", "shelter_location": "ใกล้สี่แยก คปอ. ( มุงหน้าไปสะพานใหม่)", "distance_m": "480", "nearest_2nd": "NS204", "distance_2nd_m": "507.2", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ปัญหา: บริเวณที่พักผู้โดยสารภายปากซอยดังกล่าวพบ ดวงไฟส่องสว่างทางดับ 1 ดวง ส่งผลให้บริเวณดังกล่าวมืด ซอย: พหลโยธิน 54/2 ถนน: พหลโยธิน จุดสังเกต: บริเวณป้ายที่พั", "district_case": "สายไหม", "case_address": "BTS แยก คปอ. (ทางออก 4) แขวงสายไหม เขตสายไหม 10220", "case_lat": "13.92609", "case_long": "100.62657", "shelter_lat": "13.922252", "shelter_long": "100.624534", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "480.0"}, {"ticket_id": "LFUEJA", "match_status": "no_match_nearest_594.0m", "shelter_code": "MS120", "shelter_type": "Type A", "district_shelter": "พญาไท", "road": "พระราม 6", "shelter_location": "หน้าโรงสูบน้ำที่ 7", "distance_m": "594", "nearest_2nd": "MS016", "distance_2nd_m": "604.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ปัญหา: เดิมแจ้งเรื่อง บริเวณถนนดังกล่าว หน้าวิทยาลัยพยาบาลกองทัพบก  พบดวงไฟฟ้าส่องสว่างป้ายรอรถโดยสารประจำทางชำรุด จำนวน 1 ป้าย ทำให้บริเวณดังกล่าวมืดมากและเคยม", "district_case": "ราชเทวี", "case_address": "ป้ายรถประจำทาง แยกตึกชัย 1 แขวงทุ่งพญาไท เขตราชเทวี 10400", "case_lat": "13.76847", "case_long": "100.53062", "shelter_lat": "13.773811", "shelter_long": "100.530731", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "594.0"}, {"ticket_id": "2025-8GP3JR", "match_status": "no_match_nearest_599.6m", "shelter_code": "NS022", "shelter_type": "Type B2", "district_shelter": "จตุจักร", "road": "งามวงศ์วาน", "shelter_location": "หน้าเรือนจำคลองเปรม (1)", "distance_m": "599.6", "nearest_2nd": "NS023", "distance_2nd_m": "644.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ไฟส่องสว่างบริเวณป้าย หยุดรถประจำทางตรงข้ามสถานีบางเขน ไม่ติดตรงนี้มืดมาก อันตรายและไม่ปลอดภัย", "district_case": "จตุจักร", "case_address": "ตรงข้ามสถานีบางเขน แขวงลาดยาว เขตจตุจักร 10900", "case_lat": "13.8492", "case_long": "100.56285", "shelter_lat": "13.850077", "shelter_long": "100.55737", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "599.6"}, {"ticket_id": "9LT2G6", "match_status": "no_match_nearest_651.7m", "shelter_code": "SS228", "shelter_type": "Type B2", "district_shelter": "บางคอแหลม", "road": "เจริญกรุง", "shelter_location": "บริเวณ ซ.เจริญกรุง89", "distance_m": "657.5", "nearest_2nd": "SS162", "distance_2nd_m": "1500.7", "work_type": "หลังคา/กันแดดฝน", "report_count": "1", "description": "ปัญหา: ขอให้ที่พักผู้โดยสารมีการติดตั้งหลังคากันแดด กันฝน เพื่ออำนวยความสะดวกต่อผู้มาใช้บริการ  อ้างอิงเลขที่รับแจ้ง 6FAK2V เจ้าหน้าที่ตอบกลับมาเมื่อวันที่ 9 ม.", "district_case": "บางคอแหลม", "case_address": "บ้านใหม่ แขวงวัดพระยาไกร เขตบางคอแหลม 10120", "case_lat": "13.7091", "case_long": "100.51012", "shelter_lat": "13.705016", "shelter_long": "100.5057187", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "651.7"}, {"ticket_id": "CBTULN", "match_status": "no_match_nearest_759.8m", "shelter_code": "SS001", "shelter_type": "Type B2", "district_shelter": "ปทุมวัน", "road": "อังรีดูนังค์", "shelter_location": "หน้าประตู 2 ราชกรีฑาสโมสร (เลยสะพานลอบ 40 เมตร)", "distance_m": "759.8", "nearest_2nd": "SS002", "distance_2nd_m": "1347.6", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "1", "description": "ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง พบภายในที่พักผู้โดยสาร ไม่มีเก้าอี้สำหรับผู้โดยสารนั่งรอรถโดยสารประจำทาง ซึ่งสร้างความไม่สะดวกแก่ประชาชนที่มาใช้บริการเป็นอย", "district_case": "ปทุมวัน", "case_address": "สยาม ถ. พระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน 10330", "case_lat": "13.74565", "case_long": "100.53434", "shelter_lat": "13.738839", "shelter_long": "100.534904", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "759.8"}, {"ticket_id": "2025-8ZNX99", "match_status": "no_match_nearest_817.3m", "shelter_code": "SS001", "shelter_type": "Type B2", "district_shelter": "ปทุมวัน", "road": "อังรีดูนังค์", "shelter_location": "หน้าประตู 2 ราชกรีฑาสโมสร (เลยสะพานลอบ 40 เมตร)", "distance_m": "817.3", "nearest_2nd": "SS002", "distance_2nd_m": "1427.5", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ขอร้องเรียนเรื่องป้ายรถเมล์ (รถโดยสารประจำทางของ ป้ายสยามสแควร์และสยามเซ็นเตอร์ครับ ในมุมมองของผู้ใช้งานรู้สึกว่า ไม่สะดวกอย่างยิ่ง เพราะมีปัญหาหลายอย่าง ได้แก่", "district_case": "ปทุมวัน", "case_address": "979 ถ. พระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน 10330", "case_lat": "13.74597", "case_long": "100.53307", "shelter_lat": "13.738839", "shelter_long": "100.534904", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "817.3"}, {"ticket_id": "2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M", "match_status": "no_match_nearest_1187.8m", "shelter_code": "MS120", "shelter_type": "Type A", "district_shelter": "พญาไท", "road": "พระราม 6", "shelter_location": "หน้าโรงสูบน้ำที่ 7", "distance_m": "1187.8", "nearest_2nd": "MS122", "distance_2nd_m": "1384", "work_type": "ที่นั่ง/ม้านั่ง", "report_count": "3", "description": "ป้ายโฆษณาชำรุด ณ ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิ เกาะพหลโยธิน ป้ายกลาง2 ด้านนอก ป้ายจะหลุดใส่ผดส.ที่นั่งรอได้", "district_case": "ราชเทวี", "case_address": "SD34, 12 ถ. ราชวิถี แขวงทุ่งพญาไท เขตราชเทวี 10400", "case_lat": "13.76589", "case_long": "100.53811", "shelter_lat": "13.773811", "shelter_long": "100.530731", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1187.8"}, {"ticket_id": "2025-F6XAKD, 2025-UJHZJN", "match_status": "no_match_nearest_1199.1m", "shelter_code": "MS120", "shelter_type": "Type A", "district_shelter": "พญาไท", "road": "พระราม 6", "shelter_location": "หน้าโรงสูบน้ำที่ 7", "distance_m": "1199.1", "nearest_2nd": "MS122", "distance_2nd_m": "1399.2", "work_type": "ไฟ/แสงสว่าง", "report_count": "2", "description": "ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิพหลโยธิน ไม่มีไฟส่องสว่างที่ป้ายตั้งแต่เริ่มรื้อจะทำสะพานลอยครับ", "district_case": "ราชเทวี", "case_address": "อนุสาวรีย์ชัยสมรภูมิ (เกาะพหลโยธิน) แขวงทุ่งพญาไท เขตราชเทวี 10400", "case_lat": "13.76571", "case_long": "100.53806", "shelter_lat": "13.773811", "shelter_long": "100.530731", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1199.1"}, {"ticket_id": "2025-DU2J3U", "match_status": "no_match_nearest_1222.3m", "shelter_code": "MS120", "shelter_type": "Type A", "district_shelter": "พญาไท", "road": "พระราม 6", "shelter_location": "หน้าโรงสูบน้ำที่ 7", "distance_m": "1222.3", "nearest_2nd": "MS122", "distance_2nd_m": "1412.2", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ป้ายรถเมล์อนุสาวรีย์ เกาะพหลโยธิน ไฟดับมานานมากแล้วค่ะ เรามาขึ้นรถที่ป้ายทุกวัน เท่าที่เราสังเกต คิดว่าดับมาตั้งแต่ 29 ก.ค. แล้วค่ะ  จนวันนี้ (1 ก.ย. 68) ยังไม่", "district_case": "ราชเทวี", "case_address": "SD34 12 ถ. ราชวิถี แขวงทุ่งพญาไท เขตราชเทวี 10400", "case_lat": "13.76579", "case_long": "100.53847", "shelter_lat": "13.773811", "shelter_long": "100.530731", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1222.3"}, {"ticket_id": "6GYCYK", "match_status": "no_match_nearest_1265.4m", "shelter_code": "ES505", "shelter_type": "หลังเล็ก", "district_shelter": "สะพานสูง", "road": "ถนนราษฎร์พัฒนา", "shelter_location": "ปากซอยถนนราษฎร์พัฒนา 31", "distance_m": "1265.4", "nearest_2nd": "ES506", "distance_2nd_m": "1335", "work_type": "ไฟ/แสงสว่าง", "report_count": "1", "description": "ศูนย์เรื่องราวร้องทุกข์ ได้รับการประสานผ่านระบบการจัดการเรื่องราวร้องทุกข์ สำนักงานปลัดสำนักนายกรัฐมนตรี ทำเนียบรัฐบาล รหัสเรื่อง นร02680039400  ขอให้ติดตั้งไฟฟ", "district_case": "สะพานสูง", "case_address": "สำนักงานเขตสะพานสูง ซอย รามคำแหง 118 แขวงสะพานสูง สะพานสูง : QM9P+J74 5 ซ. รามคำแหง 118 แขวงสะพานสูง สะพานสูง 10240", "case_lat": "13.76891", "case_long": "100.6857", "shelter_lat": "13.768182", "shelter_long": "100.697393", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1265.4"}, {"ticket_id": "2025-MAEK96, 2025-EZ8G76", "match_status": "no_match_nearest_1293.7m", "shelter_code": "MS126", "shelter_type": "Type A", "district_shelter": "ราชเทวี", "road": "นิคมมักกะสัน", "shelter_location": "หน้าการนิคมแห่งประเทศไทย", "distance_m": "1293.7", "nearest_2nd": "MS125", "distance_2nd_m": "1308.8", "work_type": "หลังคา/กันแดดฝน", "report_count": "2", "description": "ขอเสนอการปรับปรุงพื้นที่อนุสาวรีย์ชัยฯ เพิ่มว่า อยากให้ปรับปรุงป้ายรถเมล์ให้เป็นป้ายอัจฉริยะ มีจอบอกเวลารถเมล์ถึงป้าย โดยอาจเชื่อมกับระบบ viabus ตลอดจนปรับปรุงท", "district_case": "ราชเทวี", "case_address": "อนุสาวรีย์ชัยสมรภูมิ เขตราชเทวี 10400", "case_lat": "13.76467", "case_long": "100.5387", "shelter_lat": "13.754413", "shelter_long": "100.544354", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1293.7"}, {"ticket_id": "2025-8Y9K6K, 2025-B4624F", "match_status": "no_match_nearest_1310.7m", "shelter_code": "NS009", "shelter_type": "Type B2", "district_shelter": "จตุจักร", "road": "พหลโยธิน", "shelter_location": "หน้าร้านเกียรติประสาสน์ (ไกล้พหลโยธิน 18)", "distance_m": "1310.7", "nearest_2nd": "MS130", "distance_2nd_m": "1417", "work_type": "ไฟ/แสงสว่าง", "report_count": "2", "description": "ขออนุญาตแจ้งเป็นข้อมูลนะคะ รบกวนช่วยมาตรวจสอบบริเวณป้ายรถเมล์แยกสุทธิสาร วิภาวดี (ขาออก) ค่ะ ป้ายรถเมล์มืดมากค่ะ ไฟไม่ติดมาหลายเดือนแล้ว เวลากลางคืนพนักงานขับรถ", "district_case": "พญาไท", "case_address": "แยกสุทธิสาร (ฝั่งวิภาวดี ขาออก) แขวงสามเสนใน เขตพญาไท 10400", "case_lat": "13.79067", "case_long": "100.56123", "shelter_lat": "13.797043", "shelter_long": "100.55102", "match_code": "", "match_tor": "", "match_district": "", "match_dist_m": "1310.7"}];
+const DEDUP = [{"shelter_code": "ES222", "ticket_count": "1", "ticket_ids": "2025-EF6DC3", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "ES306", "ticket_count": "1", "ticket_ids": "2025-KUZUE7", "work_types": "ที่นั่ง/ม้านั่ง", "case_count": "1"}, {"shelter_code": "ES422", "ticket_count": "1", "ticket_ids": "2025-AMXRAZ, 2025-637DK7, 2025-LZJFJL", "work_types": "หลังคา/กันแดดฝน", "case_count": "1"}, {"shelter_code": "ES468", "ticket_count": "1", "ticket_ids": "2025-WWWY77", "work_types": "หลังคา/กันแดดฝน", "case_count": "1"}, {"shelter_code": "ES500", "ticket_count": "1", "ticket_ids": "2025-F2FXKW", "work_types": "ที่นั่ง/ม้านั่ง", "case_count": "1"}, {"shelter_code": "ES505", "ticket_count": "1", "ticket_ids": "6GYCYK", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "ES513", "ticket_count": "1", "ticket_ids": "2025-GHNUV6", "work_types": "โครงสร้าง/ป้าย", "case_count": "1"}, {"shelter_code": "ES521", "ticket_count": "1", "ticket_ids": "2025-T488WT", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "MS023", "ticket_count": "1", "ticket_ids": "ABREZU", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "MS120", "ticket_count": "4", "ticket_ids": "LFUEJA,2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M,2025-F6XAKD, 2025-UJHZJN,2025-DU2J3U", "work_types": "ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "MS126", "ticket_count": "1", "ticket_ids": "2025-MAEK96, 2025-EZ8G76", "work_types": "หลังคา/กันแดดฝน", "case_count": "1"}, {"shelter_code": "MS203", "ticket_count": "2", "ticket_ids": "3WTYUW,ACRVL9", "work_types": "ที่นั่ง/ม้านั่ง,หลังคา/กันแดดฝน", "case_count": "1"}, {"shelter_code": "MS204", "ticket_count": "1", "ticket_ids": "2025-KX467X", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "MS238", "ticket_count": "1", "ticket_ids": "2025-JKE23B", "work_types": "โครงสร้าง/ป้าย", "case_count": "1"}, {"shelter_code": "MS239", "ticket_count": "1", "ticket_ids": "2025-ZF28RM", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "MS274", "ticket_count": "1", "ticket_ids": "2025-9C4C3R", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS003", "ticket_count": "1", "ticket_ids": "2025-W9J6NM, 2025-6JENFJ, 2025-UJXLU6, 2025-3KR86D, 2025-2UKUFV, 2025-B4P69L, 2025-DY6TC4, 2025-FTPKMH", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS009", "ticket_count": "1", "ticket_ids": "2025-8Y9K6K, 2025-B4624F", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS022", "ticket_count": "1", "ticket_ids": "2025-8GP3JR", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS068", "ticket_count": "1", "ticket_ids": "2025-K9PB87", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS074", "ticket_count": "1", "ticket_ids": "KWY2UV", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS083", "ticket_count": "2", "ticket_ids": "EU3RT3,CRPVE9", "work_types": "ที่นั่ง/ม้านั่ง", "case_count": "1"}, {"shelter_code": "NS128", "ticket_count": "1", "ticket_ids": "2025-7B46MY", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS203", "ticket_count": "1", "ticket_ids": "TAHVCU", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "NS249", "ticket_count": "1", "ticket_ids": "2025-3E3UX9", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "SS001", "ticket_count": "2", "ticket_ids": "CBTULN,2025-8ZNX99", "work_types": "ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "SS003", "ticket_count": "1", "ticket_ids": "2025-UMBZZX", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "SS029", "ticket_count": "2", "ticket_ids": "2025-XFPJE9,2025-N8CHMC, 2025-BFTW2T", "work_types": "ที่นั่ง/ม้านั่ง", "case_count": "1"}, {"shelter_code": "SS079", "ticket_count": "1", "ticket_ids": "2025-836KYX", "work_types": "ที่นั่ง/ม้านั่ง", "case_count": "1"}, {"shelter_code": "SS157", "ticket_count": "1", "ticket_ids": "WPCXEP", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "SS176", "ticket_count": "1", "ticket_ids": "2025-Y9HZRZ", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}, {"shelter_code": "SS228", "ticket_count": "1", "ticket_ids": "9LT2G6", "work_types": "หลังคา/กันแดดฝน", "case_count": "1"}, {"shelter_code": "SS235", "ticket_count": "1", "ticket_ids": "2025-HAGEHU", "work_types": "ไฟ/แสงสว่าง", "case_count": "1"}];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentTab = 'cases';
+let caseStatuses = JSON.parse(localStorage.getItem('traffy_statuses') || '{}');
+
+function saveStatuses() {
+  localStorage.setItem('traffy_statuses', JSON.stringify(caseStatuses));
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('caseList').style.display = tab === 'cases' ? '' : 'none';
+  document.getElementById('dedupList').style.display = tab === 'dedup' ? '' : 'none';
+  document.getElementById('filtersBar').style.display = tab === 'cases' ? '' : 'none';
+  if (tab === 'dedup') renderDedup();
+}
+
+// ═══════════════════════════════════════════════════
+// SUMMARY
+// ═══════════════════════════════════════════════════
+function renderSummary() {
+  const total = CASES.length;
+  const matched = CASES.filter(c => c.match_status === 'matched').length;
+  const unmatched = total - matched;
+
+  const workTypes = {};
+  CASES.forEach(c => {
+    const w = c.work_type || 'ไม่ระบุ';
+    workTypes[w] = (workTypes[w] || 0) + 1;
+  });
+
+  let html = `
+    <div class="sum-card"><span class="n">${total}</span><span class="l">เคสทั้งหมด</span></div>
+    <div class="sum-card"><span class="n">${matched}</span><span class="l">จับคู่แล้ว</span></div>
+    <div class="sum-card"><span class="n">${unmatched}</span><span class="l">ไม่พบศาลา</span></div>
+  `;
+  Object.entries(workTypes).sort((a,b) => b[1]-a[1]).forEach(([k,v]) => {
+    html += `<div class="sum-card"><span class="n">${v}</span><span class="l">${esc(k)}</span></div>`;
+  });
+  document.getElementById('summaryBar').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════
+function populateFilters() {
+  const works = new Set();
+  const districts = new Set();
+  CASES.forEach(c => {
+    if (c.work_type) works.add(c.work_type);
+    if (c.district_shelter) districts.add(c.district_shelter);
+    if (c.district_case) districts.add(c.district_case);
+  });
+
+  const wSel = document.getElementById('filterWork');
+  [...works].sort().forEach(w => {
+    const o = document.createElement('option');
+    o.value = w; o.textContent = w;
+    wSel.appendChild(o);
+  });
+
+  const dSel = document.getElementById('filterDistrict');
+  [...districts].sort().forEach(d => {
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    dSel.appendChild(o);
+  });
+}
+
+function getFilteredCases() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const ms = document.getElementById('filterStatus').value;
+  const wt = document.getElementById('filterWork').value;
+  const dist = document.getElementById('filterDistrict').value;
+
+  return CASES.filter(c => {
+    if (ms && c.match_status !== ms) return false;
+    if (wt && c.work_type !== wt) return false;
+    if (dist && c.district_shelter !== dist && c.district_case !== dist) return false;
+    if (q) {
+      const hay = [c.ticket_id, c.shelter_code, c.road, c.shelter_location, c.description, c.case_address, c.district_shelter].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER CASES
+// ═══════════════════════════════════════════════════
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function truncate(s, n) {
+  if (!s) return '';
+  return s.length > n ? s.substring(0, n) + '...' : s;
+}
+
+function statusPill(status) {
+  const labels = { open:'เปิด', assigned:'มอบหมาย', in_progress:'กำลังซ่อม', fixed:'เสร็จ', reported:'รายงานแล้ว' };
+  return `<span class="pill pill-${status}">${labels[status] || status}</span>`;
+}
+
+function matchPill(ms) {
+  return ms === 'matched'
+    ? '<span class="pill pill-matched">matched</span>'
+    : '<span class="pill pill-no_match">no match</span>';
+}
+
+function renderCases() {
+  const cases = getFilteredCases();
+  const container = document.getElementById('caseList');
+
+  if (!cases.length) {
+    container.innerHTML = '<div class="empty">ไม่พบเคสที่ตรงเงื่อนไข</div>';
+    return;
+  }
+
+  container.innerHTML = cases.map(c => {
+    const st = caseStatuses[c.ticket_id] || 'open';
+    const dist = c.distance_m ? c.distance_m + 'm' : '';
+    const mapsUrl = (c.case_lat && c.case_long) ? `https://www.google.com/maps?q=${c.case_lat},${c.case_long}` : '';
+    const shelterMapsUrl = (c.shelter_lat && c.shelter_long) ? `https://www.google.com/maps?q=${c.shelter_lat},${c.shelter_long}` : '';
+
+    return `<div class="case-card" data-id="${esc(c.ticket_id)}" onclick="toggleCase(this)">
+      <div class="case-row">
+        <span class="case-id">${esc(c.ticket_id)}</span>
+        <span class="case-shelter">${esc(c.shelter_code || '—')}</span>
+      </div>
+      <div class="case-desc">${esc(truncate(c.description, 80))}</div>
+      <div class="case-meta">
+        ${matchPill(c.match_status)}
+        ${statusPill(st)}
+        ${c.work_type ? `<span class="pill pill-work">${esc(c.work_type)}</span>` : ''}
+        ${dist ? `<span class="pill pill-dist">${dist}</span>` : ''}
+      </div>
+      <div class="case-detail">
+        <div class="detail-row"><span class="detail-label">รายละเอียด</span><span class="detail-value">${esc(c.description)}</span></div>
+        <div class="detail-row"><span class="detail-label">ที่อยู่เคส</span><span class="detail-value">${esc(c.case_address)}</span></div>
+        <div class="detail-row"><span class="detail-label">ศาลา</span><span class="detail-value">${esc(c.shelter_code)} — ${esc(c.shelter_location)} (${esc(c.shelter_type)})</span></div>
+        <div class="detail-row"><span class="detail-label">ถนน</span><span class="detail-value">${esc(c.road)}</span></div>
+        <div class="detail-row"><span class="detail-label">เขต</span><span class="detail-value">${esc(c.district_shelter || c.district_case)}</span></div>
+        <div class="detail-row"><span class="detail-label">ระยะห่าง</span><span class="detail-value">${dist || '—'}</span></div>
+        ${mapsUrl ? `<div class="detail-row"><span class="detail-label">แผนที่เคส</span><span class="detail-value"><a href="${mapsUrl}" target="_blank">เปิด Google Maps (เคส)</a></span></div>` : ''}
+        ${shelterMapsUrl ? `<div class="detail-row"><span class="detail-label">แผนที่ศาลา</span><span class="detail-value"><a href="${shelterMapsUrl}" target="_blank">เปิด Google Maps (ศาลา)</a></span></div>` : ''}
+        <div class="detail-row" style="margin-top:8px">
+          <span class="detail-label">สถานะงาน</span>
+          <select class="status-select" onchange="setStatus('${esc(c.ticket_id)}', this.value); event.stopPropagation();" onclick="event.stopPropagation();">
+            <option value="open" ${st==='open'?'selected':''}>Open</option>
+            <option value="assigned" ${st==='assigned'?'selected':''}>Assigned</option>
+            <option value="in_progress" ${st==='in_progress'?'selected':''}>In Progress</option>
+            <option value="fixed" ${st==='fixed'?'selected':''}>Fixed</option>
+            <option value="reported" ${st==='reported'?'selected':''}>Reported</option>
+          </select>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCase(el) {
+  el.classList.toggle('expanded');
+}
+
+function setStatus(ticketId, status) {
+  caseStatuses[ticketId] = status;
+  saveStatuses();
+  renderCases();
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER DEDUP
+// ═══════════════════════════════════════════════════
+function renderDedup() {
+  const container = document.getElementById('dedupList');
+  container.innerHTML = DEDUP.map(d => {
+    const tickets = (d.ticket_ids || '').split(',').map(t => t.trim()).filter(Boolean);
+    return `<div class="dedup-card">
+      <div class="dedup-header">
+        <span class="dedup-code">${esc(d.shelter_code)}</span>
+        <span class="dedup-count">${d.ticket_count || tickets.length} ticket(s)</span>
+      </div>
+      <div class="dedup-types">${(d.work_types||'').split(',').map(w => `<span class="pill pill-work">${esc(w.trim())}</span>`).join(' ')}</div>
+      <div class="dedup-tickets">Tickets: ${tickets.map(t => `<strong>${esc(t)}</strong>`).join(', ')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderSummary();
+populateFilters();
+renderCases();
+
+document.getElementById('searchInput').addEventListener('input', renderCases);
+document.getElementById('filterStatus').addEventListener('change', renderCases);
+document.getElementById('filterWork').addEventListener('change', renderCases);
+document.getElementById('filterDistrict').addEventListener('change', renderCases);
+</script>
+</body>
+</html>

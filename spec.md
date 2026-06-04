@@ -71,13 +71,26 @@ All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
 - [x] Traffy cases imported + re-matched (17/40 auto, 6 new finds vs มนต์'s original)
 - [x] Data audit complete (missing codes, duplicates, text issues)
 - [x] Multi-team schema defined (SCHEMA.md)
+- [x] Field verification list generated (v2/output/field_verification_list.html)
+  - gen_field_list.py: reads traffy_rematched.csv, outputs printable A4 HTML
+  - Section A: 17 auto-matched (go fix), Section B: 23 field verify (sorted by district)
+  - Google Maps links, checkbox column, Sarabun font, print-optimized CSS
+- [x] Traffy Tracker dashboard (v2/traffy_tracker.html)
+  - build_traffy_tracker.py: reads CSVs → generates static HTML with embedded data
+  - Summary bar, case list with expand detail, dedup view, filters (match/work_type/district)
+  - Status tracking per case via localStorage (open/assigned/in_progress/fixed/reported)
+  - Google Maps links for case + shelter locations, dark theme, Sarabun font, mobile-first
+- [x] Traffy fix form spec (v2/forms/traffy_fix_form.md)
+  - 10 fields: stop code, ticket ID, work type, before/after photos, description, status, notes, technician, date
+  - Google Form prefill URL pattern documented
+  - End-to-end flow: tracker → maps → fix → form → report
 
 ## What's Next
 
 ### Step 1: Traffy Pipeline (P1 — unblocks พี่สาธิต)
-- [ ] Case ticket status tracking (open → assigned → fixed → reported)
-- [ ] Traffy fix form (ช่างถ่ายรูป + report)
-- [ ] 23 unmatched cases → field verification list for พี่สาธิต
+- [x] Case ticket status tracking (open → assigned → fixed → reported)
+- [x] Traffy fix form spec (ช่างถ่ายรูป + report) — ready to create Google Form
+- [x] 23 unmatched cases → field verification list for พี่สาธิต
 - [ ] Case dedup reporting for กทม. (5 tickets = 1 case)
 
 ### Step 2: Inspection Form (P2 — รอ BOQ fields จากมนต์)

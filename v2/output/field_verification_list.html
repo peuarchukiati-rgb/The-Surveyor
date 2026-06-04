@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Verification List - Traffy Cases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Sarabun', sans-serif; font-size: 11px; color: #222; padding: 12mm; }
+
+  @media print {
+    body { padding: 0; }
+    .no-print { display: none; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    .section { page-break-before: always; }
+    .section:first-of-type { page-break-before: avoid; }
+  }
+
+  .header { text-align: center; margin-bottom: 16px; border-bottom: 2px solid #1a237e; padding-bottom: 8px; }
+  .header h1 { font-size: 18px; font-weight: 700; color: #1a237e; }
+  .header .subtitle { font-size: 13px; color: #555; margin-top: 4px; }
+  .header .stats { font-size: 12px; margin-top: 6px; }
+  .header .stats span { background: #e8eaf6; padding: 2px 8px; border-radius: 3px; margin: 0 4px; }
+
+  .section h2 { font-size: 14px; font-weight: 700; color: #fff; background: #1a237e; padding: 6px 10px; margin: 14px 0 6px 0; }
+  .section h2.verify { background: #c62828; }
+  .section .note { font-size: 10px; color: #666; margin-bottom: 6px; padding-left: 4px; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  th { background: #e8eaf6; font-weight: 600; text-align: left; padding: 4px 5px; border: 1px solid #bbb; font-size: 10px; }
+  td { padding: 3px 5px; border: 1px solid #ccc; vertical-align: top; font-size: 10.5px; line-height: 1.3; }
+  tr:nth-child(even) { background: #fafafa; }
+  tr:hover { background: #fff9c4; }
+
+  .check { width: 30px; text-align: center; font-size: 14px; }
+  .mono { font-family: monospace; font-size: 10px; }
+  a { color: #1565c0; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .dist { white-space: nowrap; }
+  .desc { max-width: 220px; word-break: break-word; }
+  .badge { display: inline-block; background: #e0e0e0; padding: 1px 4px; border-radius: 2px; font-size: 9px; }
+  .badge-district { background: #e3f2fd; color: #1565c0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Traffy x Surveyor - Field Verification List</h1>
+  <div class="subtitle">รายการตรวจสอบภาคสนาม สำหรับทีมพี่สาธิต</div>
+  <div class="stats">
+    วันที่พิมพ์: 04/06/2026 &nbsp;|&nbsp;
+    <span>ทั้งหมด 40 เคส</span>
+    <span>Auto-matched: 17</span>
+    <span>ต้องตรวจสอบ: 23</span>
+  </div>
+</div>
+
+<!-- SECTION A: Auto-matched -->
+<div class="section">
+  <h2>Section A: Auto-matched (17 cases) - ยืนยันแล้ว ไปซ่อมได้เลย</h2>
+  <div class="note">เคสเหล่านี้จับคู่ป้ายได้อัตโนมัติ ทีมไปดำเนินการซ่อมบำรุงตามรายการ</div>
+  <table>
+    <thead>
+      <tr>
+        <th class="check">ตรวจแล้ว</th>
+        <th>#</th>
+        <th>Ticket ID</th>
+        <th>รหัสป้าย</th>
+        <th>ระยะห่าง (m)</th>
+        <th>ประเภทงาน</th>
+        <th>รายละเอียด</th>
+        <th>แผนที่</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="check">☐</td>
+        <td>1</td>
+        <td class="mono">ABREZU</td>
+        <td><b>MS 023</b></td>
+        <td class="dist">0.7</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ปัญหา: ริมถนนดังกล่าว บริเวณด้านหน้าสนามม้านางเลิ้ง พบดวงไฟฟ้าส่องสว่างป้ายรอรถโ...</td>
+        <td><a href="https://www.google.com/maps?q=13.76286,100.51431" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>2</td>
+        <td class="mono">2025-F2FXKW</td>
+        <td><b>ES 500</b></td>
+        <td class="dist">4.8</td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ที่นั่งป้ายรถเมล์ไม่เพียงพอ ทั้งๆที่ป้ายนี้ ผู้โดยสารเยอะมาก</td>
+        <td><a href="https://www.google.com/maps?q=13.76744,100.64296" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>3</td>
+        <td class="mono">2025-EF6DC3</td>
+        <td><b>ES 222</b></td>
+        <td class="dist">8.8</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">คือรออยู่ป้ายรถเมล์จุดนี้ รู้สึกไม่ปลอดภัยมากเลยครับ เพราะหนึ่งคือ น้ำท่วมขัง แล...</td>
+        <td><a href="https://www.google.com/maps?q=13.8146,100.74127" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>4</td>
+        <td class="mono">2025-9C4C3R</td>
+        <td><b>MS 274</b></td>
+        <td class="dist">15.0</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 *️⃣หมายเลขตามภาพแนบ 💡จำนวนไฟทั้งหมด 3 ดวง 💡ดับสนิ...</td>
+        <td><a href="https://www.google.com/maps?q=13.74412,100.49471" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>5</td>
+        <td class="mono">WPCXEP</td>
+        <td><b>SS 157</b></td>
+        <td class="dist">27.0</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ปัญหา: ภายในศาลาที่พักผู้โดยสาร หน้าวัดแก้วแจ่มฟ้า พบดวงไฟฟ้าส่องสว่าง ไม่เปิดใช...</td>
+        <td><a href="https://www.google.com/maps?q=13.73089,100.51951" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>6</td>
+        <td class="mono">2025-3E3UX9</td>
+        <td><b>NS 249</b></td>
+        <td class="dist">40.4</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">อยากให้ทำป้ายรถเมล์ป้ายธนาคารทหารไทย ให้เป็นป้ายประจำสักที ป้ายชั่วคราวทั้งเปลี่...</td>
+        <td><a href="https://www.google.com/maps?q=13.80742,100.55683" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>7</td>
+        <td class="mono">2025-HAGEHU</td>
+        <td><b>SS 235</b></td>
+        <td class="dist">41.8</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">เรื่องป้ายรถเมล์ที่แจ้งไปหลายครั้ง2ครั้งแล้วบอกทำเส็จแล้วไม่เห็นไฟติดเลยต่อไปไฟป...</td>
+        <td><a href="https://www.google.com/maps?q=13.71655,100.56112" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>8</td>
+        <td class="mono">2025-WWWY77</td>
+        <td><b>ES 468</b></td>
+        <td class="dist">55.0</td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td class="desc">หน้าปากซอยรามคำแหง 36/1 ตรงสถานีหัวหมาก (สีส้ม) มีป้ายรถเมล์ แต่ไม่ทำป้ายถาวร มี...</td>
+        <td><a href="https://www.google.com/maps?q=13.76156,100.63769" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>9</td>
+        <td class="mono">2025-KUZUE7</td>
+        <td><b>ES 306</b></td>
+        <td class="dist">63.9</td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ป้ายรถประจำทางหน้าป้ายมหาวิทยาลัยรามคำแหง มีเก้าอี้หลุดอยู่ตรงนี้ครับไม่แน่ใจว่า...</td>
+        <td><a href="https://www.google.com/maps?q=13.75917,100.61806" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>10</td>
+        <td class="mono">EU3RT3</td>
+        <td><b>NS 083</b></td>
+        <td class="dist">79.3</td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ปัญหา: เรื่องเดิม หน้าปากซอยดังกล่าว บริเวณป้ายรถโดยสารประจำทาง ต้องการให้ติดตั้...</td>
+        <td><a href="https://www.google.com/maps?q=13.80708,100.52156" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>11</td>
+        <td class="mono">3WTYUW</td>
+        <td><b>MS 203</b></td>
+        <td class="dist">99.9</td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td class="desc">ปัญหา: ถนนดังกล่าว หน้าสนามหลวง บริเวณป้ายรอรถโดยสารประจำทาง พบไม่มีหลังคา ทำให้...</td>
+        <td><a href="https://www.google.com/maps?q=13.75463,100.49388" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>12</td>
+        <td class="mono">2025-T488WT</td>
+        <td><b>ES 521</b></td>
+        <td class="dist">151.9</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ไฟบริเวณป้ายรถประจำทางดับ</td>
+        <td><a href="https://www.google.com/maps?q=13.77575,100.70618" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>13</td>
+        <td class="mono">2025-K9PB87</td>
+        <td><b>NS 068</b></td>
+        <td class="dist">165.2</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ป้านหยุดรถเมล์ ไม่มีสิ่งอำนวยความสะดวก ไม่มีไฟฟ้าส่องสว่างเพียงพอให้เกิดความปลอด...</td>
+        <td><a href="https://www.google.com/maps?q=13.82988,100.52641" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>14</td>
+        <td class="mono">KWY2UV</td>
+        <td><b>NS 074</b></td>
+        <td class="dist">166.5</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง ทางลงจากสถานีรถไฟบางซ่อน ฝั่งขาเข้า พบว่าไม่...</td>
+        <td><a href="https://www.google.com/maps?q=13.8215,100.53273" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>15</td>
+        <td class="mono">2025-ZF28RM</td>
+        <td><b>MS 239</b></td>
+        <td class="dist">169.7</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 💡จำนวนไฟทั้งหมด 4 ดวง 💡ดับสนิท 4 ดวง 😞😥😭 💥👉ส่งต่อ...</td>
+        <td><a href="https://www.google.com/maps?q=13.74696,100.50187" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>16</td>
+        <td class="mono">2025-GHNUV6</td>
+        <td><b>ES 513</b></td>
+        <td class="dist">181.5</td>
+        <td>โครงสร้าง/ป้าย</td>
+        <td class="desc">ขอป้ายรถเมล์ฝั่งตรงข้าม บ.มีสทีนด่วนค่ะ. ป้ายสำรองพายุดัดพัง ไม่มีที่หลบฝน</td>
+        <td><a href="https://www.google.com/maps?q=13.7819,100.70575" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>17</td>
+        <td class="mono">2025-Y9HZRZ</td>
+        <td><b>SS 176</b></td>
+        <td class="dist">194.9</td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ไฟป้ายรถเมล์เสีย</td>
+        <td><a href="https://www.google.com/maps?q=13.69833,100.49839" target="_blank">Maps</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SECTION B: Field Verify -->
+<div class="section">
+  <h2 class="verify">Section B: Field Verify (23 cases) - ต้องตรวจสอบภาคสนาม</h2>
+  <div class="note">เคสเหล่านี้จับคู่ป้ายอัตโนมัติไม่ได้ ต้องไปยืนยันหน้างาน | เรียงตามเขตเพื่อวางเส้นทาง</div>
+  <table>
+    <thead>
+      <tr>
+        <th class="check">ตรวจแล้ว</th>
+        <th>#</th>
+        <th>Ticket ID</th>
+        <th>รหัสป้าย (มนต์)</th>
+        <th>ป้ายใกล้สุด</th>
+        <th>ระยะ (m)</th>
+        <th>เขต</th>
+        <th>ประเภทงาน</th>
+        <th>รายละเอียด</th>
+        <th>ที่อยู่</th>
+        <th>แผนที่</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="check">☐</td>
+        <td>1</td>
+        <td class="mono">2025-XFPJE9</td>
+        <td>SS029</td>
+        <td>SS029</td>
+        <td class="dist">204.2</td>
+        <td><span class="badge badge-district">คลองเตย</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน ทางเท้าไม่โอเค อยาก...</td>
+        <td>PH95+QC8 แขวงคลองเตย เขตคลองเตย 10110</td>
+        <td><a href="https://www.google.com/maps?q=13.71937,100.55874" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>2</td>
+        <td class="mono">2025-N8CHMC, 2025-BFTW2T</td>
+        <td>SS029</td>
+        <td>SS029</td>
+        <td class="dist">284.8</td>
+        <td><span class="badge badge-district">คลองเตย</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน ทางเท้าไม่โอเค อยาก...</td>
+        <td>25 ถ. สุนทรโกษา แขวงคลองเตย เขตคลองเตย 10110</td>
+        <td><a href="https://www.google.com/maps?q=13.719555,100.55799" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>3</td>
+        <td class="mono">2025-836KYX</td>
+        <td>SS079</td>
+        <td>SS079</td>
+        <td class="dist">394.8</td>
+        <td><span class="badge badge-district">คลองเตย</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ป้ายรถเมล์มีการย้ายเอาม้านั่งออก กรุณานำตัวใหม่มาติดตั้ง</td>
+        <td>1144 ถ. สุขุมวิท แขวงพระโขนง เขตคลองเตย 10110</td>
+        <td><a href="https://www.google.com/maps?q=13.71243,100.59483" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>4</td>
+        <td class="mono">2025-W9J6NM, 2025-6JENFJ, 2025-UJXLU6, 2025-3KR86D, 2025-2UKUFV, 2025-B4P69L, 2025-DY6TC4, 2025-FTPKMH</td>
+        <td>NS003</td>
+        <td>NS003</td>
+        <td class="dist">418.2</td>
+        <td><span class="badge badge-district">จตุจักร</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">บริเวณทางออกหมายเลข 3 จะมีป้ายรถเมล์ ที่ดูเหมือนจะไม่ค่อยเป็นลักษณะของป้ายรถเมล์...</td>
+        <td>448 1 ถ. ลาดพร้าว แขวงจอมพล เขตจตุจักร 10900</td>
+        <td><a href="https://www.google.com/maps?q=13.80594,100.57404" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>5</td>
+        <td class="mono">2025-8GP3JR</td>
+        <td>NS022</td>
+        <td>NS022</td>
+        <td class="dist">599.6</td>
+        <td><span class="badge badge-district">จตุจักร</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ไฟส่องสว่างบริเวณป้าย หยุดรถประจำทางตรงข้ามสถานีบางเขน ไม่ติดตรงนี้มืดมาก อันตรา...</td>
+        <td>ตรงข้ามสถานีบางเขน แขวงลาดยาว เขตจตุจักร 10900</td>
+        <td><a href="https://www.google.com/maps?q=13.8492,100.56285" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>6</td>
+        <td class="mono">9LT2G6</td>
+        <td>SS228</td>
+        <td>SS228</td>
+        <td class="dist">651.7</td>
+        <td><span class="badge badge-district">บางคอแหลม</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td class="desc">ปัญหา: ขอให้ที่พักผู้โดยสารมีการติดตั้งหลังคากันแดด กันฝน เพื่ออำนวยความสะดวกต่อ...</td>
+        <td>บ้านใหม่ แขวงวัดพระยาไกร เขตบางคอแหลม 10120</td>
+        <td><a href="https://www.google.com/maps?q=13.7091,100.51012" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>7</td>
+        <td class="mono">CRPVE9</td>
+        <td>NS083</td>
+        <td>NS083</td>
+        <td class="dist">200.3</td>
+        <td><span class="badge badge-district">บางซื่อ</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ปัญหา: เรื่องเดิม บริเวณป้ายรถโดยสารประจำทาง หน้าเซเว่นอิเลฟเว่น สาขาแยกบางโพ(04...</td>
+        <td>รพ.บางโพ แขวงบางซื่อ บางซื่อ 10800</td>
+        <td><a href="https://www.google.com/maps?q=13.80643,100.5229" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>8</td>
+        <td class="mono">2025-UMBZZX</td>
+        <td>SS003</td>
+        <td>SS003</td>
+        <td class="dist">352.7</td>
+        <td><span class="badge badge-district">ปทุมวัน</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ป้ายรถเมล์เสี่ยงไฟดูด !!! ป้ายรถเมล์บ่อนไก้ อยู่ตรงข้ามตึกลุมพินีทาวเวอร์ สายไฟไ...</td>
+        <td>บ่อนไก่ (ขาออก) แขวงลุมพินี เขตปทุมวัน 10330</td>
+        <td><a href="https://www.google.com/maps?q=13.72445,100.54917" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>9</td>
+        <td class="mono">CBTULN</td>
+        <td>SS001</td>
+        <td>SS001</td>
+        <td class="dist">759.8</td>
+        <td><span class="badge badge-district">ปทุมวัน</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง พบภายในที่พักผู้โดยสาร ไม่มีเก้าอี้สำหรับผู้...</td>
+        <td>สยาม ถ. พระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน 10330</td>
+        <td><a href="https://www.google.com/maps?q=13.74565,100.53434" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>10</td>
+        <td class="mono">2025-8ZNX99</td>
+        <td>SS001</td>
+        <td>SS001</td>
+        <td class="dist">817.3</td>
+        <td><span class="badge badge-district">ปทุมวัน</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ขอร้องเรียนเรื่องป้ายรถเมล์ (รถโดยสารประจำทางของ ป้ายสยามสแควร์และสยามเซ็นเตอร์ค...</td>
+        <td>979 ถ. พระรามที่ 1 แขวงปทุมวัน เขตปทุมวัน 10330</td>
+        <td><a href="https://www.google.com/maps?q=13.74597,100.53307" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>11</td>
+        <td class="mono">2025-AMXRAZ, 2025-637DK7, 2025-LZJFJL</td>
+        <td>ES422</td>
+        <td>ES422</td>
+        <td class="dist">327.5</td>
+        <td><span class="badge badge-district">ประเวศ</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td class="desc">ป้ายรถเมล์ตรงหน้าร้านสเต็กบ้านแดง อ่อนนุช 55/1 ตรงข้ามโรงงาน SCS เดิมเป็นเต้นท์ห...</td>
+        <td>391, 1 ซ. สุขุมวิท 77 แขวงประเวศ เขตประเวศ 10250</td>
+        <td><a href="https://www.google.com/maps?q=13.71915,100.66699" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>12</td>
+        <td class="mono">2025-8Y9K6K, 2025-B4624F</td>
+        <td>NS009</td>
+        <td>NS009</td>
+        <td class="dist">1310.7</td>
+        <td><span class="badge badge-district">พญาไท</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ขออนุญาตแจ้งเป็นข้อมูลนะคะ รบกวนช่วยมาตรวจสอบบริเวณป้ายรถเมล์แยกสุทธิสาร วิภาวดี...</td>
+        <td>แยกสุทธิสาร (ฝั่งวิภาวดี ขาออก) แขวงสามเสนใน เขตพญาไท 10400</td>
+        <td><a href="https://www.google.com/maps?q=13.79067,100.56123" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>13</td>
+        <td class="mono">ACRVL9</td>
+        <td>MS203</td>
+        <td>MS203</td>
+        <td class="dist">231.7</td>
+        <td><span class="badge badge-district">พระนคร</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทางหน้าสนามหลวง 1. บริเวณที่พักผู้โดยสาร ไม่มีเก...</td>
+        <td>2 ถ. หน้าพระธาตุ แขวงพระบรมมหาราชวัง เขตพระนคร 10200</td>
+        <td><a href="https://www.google.com/maps?q=13.75462,100.49201" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>14</td>
+        <td class="mono">2025-KX467X</td>
+        <td>MS204</td>
+        <td>MS204</td>
+        <td class="dist">251.2</td>
+        <td><span class="badge badge-district">พระนคร</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ไฟป้ายรถเมล์ไม่ติด</td>
+        <td>ม.ธรรมศาสตร์ แขวงพระบรมมหาราชวัง เขตพระนคร 10200</td>
+        <td><a href="https://www.google.com/maps?q=13.75663,100.49229" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>15</td>
+        <td class="mono">2025-JKE23B</td>
+        <td>MS238</td>
+        <td>MS238</td>
+        <td class="dist">359.0</td>
+        <td><span class="badge badge-district">พระนคร</span></td>
+        <td>โครงสร้าง/ป้าย</td>
+        <td class="desc">ป้าหยุดรถประจำทาง ที่อยู่บริเวณหน้าสำนักงานเขตพระนคร มีสภาพชำรุดเนื่องจากว่ามีมื...</td>
+        <td>72 ซอย สามเสน 4 แขวงบ้านพานถม เขตพระนคร 10200</td>
+        <td><a href="https://www.google.com/maps?q=13.76394,100.49929" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>16</td>
+        <td class="mono">LFUEJA</td>
+        <td>MS120</td>
+        <td>MS120</td>
+        <td class="dist">594.0</td>
+        <td><span class="badge badge-district">ราชเทวี</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ปัญหา: เดิมแจ้งเรื่อง บริเวณถนนดังกล่าว หน้าวิทยาลัยพยาบาลกองทัพบก  พบดวงไฟฟ้าส่...</td>
+        <td>ป้ายรถประจำทาง แยกตึกชัย 1 แขวงทุ่งพญาไท เขตราชเทวี 10400</td>
+        <td><a href="https://www.google.com/maps?q=13.76847,100.53062" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>17</td>
+        <td class="mono">2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M</td>
+        <td>MS120</td>
+        <td>MS120</td>
+        <td class="dist">1187.8</td>
+        <td><span class="badge badge-district">ราชเทวี</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td class="desc">ป้ายโฆษณาชำรุด ณ ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิ เกาะพหลโยธิน ป้ายกลาง2 ด้านนอก ป...</td>
+        <td>SD34, 12 ถ. ราชวิถี แขวงทุ่งพญาไท เขตราชเทวี 10400</td>
+        <td><a href="https://www.google.com/maps?q=13.76589,100.53811" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>18</td>
+        <td class="mono">2025-F6XAKD, 2025-UJHZJN</td>
+        <td>MS120</td>
+        <td>MS120</td>
+        <td class="dist">1199.1</td>
+        <td><span class="badge badge-district">ราชเทวี</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิพหลโยธิน ไม่มีไฟส่องสว่างที่ป้ายตั้งแต่เริ่มรื้อจะ...</td>
+        <td>อนุสาวรีย์ชัยสมรภูมิ (เกาะพหลโยธิน) แขวงทุ่งพญาไท เขตราชเทวี...</td>
+        <td><a href="https://www.google.com/maps?q=13.76571,100.53806" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>19</td>
+        <td class="mono">2025-DU2J3U</td>
+        <td>MS120</td>
+        <td>MS120</td>
+        <td class="dist">1222.3</td>
+        <td><span class="badge badge-district">ราชเทวี</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ป้ายรถเมล์อนุสาวรีย์ เกาะพหลโยธิน ไฟดับมานานมากแล้วค่ะ เรามาขึ้นรถที่ป้ายทุกวัน ...</td>
+        <td>SD34 12 ถ. ราชวิถี แขวงทุ่งพญาไท เขตราชเทวี 10400</td>
+        <td><a href="https://www.google.com/maps?q=13.76579,100.53847" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>20</td>
+        <td class="mono">2025-MAEK96, 2025-EZ8G76</td>
+        <td>MS126</td>
+        <td>MS126</td>
+        <td class="dist">1293.7</td>
+        <td><span class="badge badge-district">ราชเทวี</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td class="desc">ขอเสนอการปรับปรุงพื้นที่อนุสาวรีย์ชัยฯ เพิ่มว่า อยากให้ปรับปรุงป้ายรถเมล์ให้เป็น...</td>
+        <td>อนุสาวรีย์ชัยสมรภูมิ เขตราชเทวี 10400</td>
+        <td><a href="https://www.google.com/maps?q=13.76467,100.5387" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>21</td>
+        <td class="mono">2025-7B46MY</td>
+        <td>NS128</td>
+        <td>NS128</td>
+        <td class="dist">320.1</td>
+        <td><span class="badge badge-district">ลาดพร้าว</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ป้ายรถเมล์ สร้างเสร็จมาได้แระมาณ 4 เดือน พบว่า ป้ายไฟ bus stop บนหลังคา ไฟไม่ติด...</td>
+        <td>หมู่บ้านชวนชื่นลาดพร้าว แขวงลาดพร้าว ลาดพร้าว 10230</td>
+        <td><a href="https://www.google.com/maps?q=13.83237,100.62524" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>22</td>
+        <td class="mono">6GYCYK</td>
+        <td>ES505</td>
+        <td>ES505</td>
+        <td class="dist">1265.4</td>
+        <td><span class="badge badge-district">สะพานสูง</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ศูนย์เรื่องราวร้องทุกข์ ได้รับการประสานผ่านระบบการจัดการเรื่องราวร้องทุกข์ สำนัก...</td>
+        <td>สำนักงานเขตสะพานสูง ซอย รามคำแหง 118 แขวงสะพานสูง สะพานสูง :...</td>
+        <td><a href="https://www.google.com/maps?q=13.76891,100.6857" target="_blank">Maps</a></td>
+      </tr>
+      <tr>
+        <td class="check">☐</td>
+        <td>23</td>
+        <td class="mono">TAHVCU</td>
+        <td>NS203</td>
+        <td>NS203</td>
+        <td class="dist">480.0</td>
+        <td><span class="badge badge-district">สายไหม</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td class="desc">ปัญหา: บริเวณที่พักผู้โดยสารภายปากซอยดังกล่าวพบ ดวงไฟส่องสว่างทางดับ 1 ดวง ส่งผล...</td>
+        <td>BTS แยก คปอ. (ทางออก 4) แขวงสายไหม เขตสายไหม 10220</td>
+        <td><a href="https://www.google.com/maps?q=13.92609,100.62657" target="_blank">Maps</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="no-print" style="text-align:center; margin-top:20px; color:#999; font-size:11px;">
+  Generated by gen_field_list.py | Print with Ctrl+P / Cmd+P
+</div>
+
+</body>
+</html>

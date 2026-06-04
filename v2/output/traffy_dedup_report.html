@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานสรุปการจับคู่เคสร้องเรียน — ศาลาที่พักผู้โดยสาร</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+    color: #1a1a2e;
+    background: #fff;
+    line-height: 1.6;
+}
+
+@media print {
+    body { font-size: 11px; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+}
+
+@page {
+    size: A4;
+    margin: 20mm 15mm;
+}
+
+.container {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 20px 30px;
+}
+
+/* Header */
+.report-header {
+    border-bottom: 3px solid #16213e;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.logo-placeholder {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #16213e;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+}
+
+.header-text h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #16213e;
+    letter-spacing: 0.5px;
+}
+
+.header-text .subtitle {
+    font-size: 13px;
+    color: #4a5568;
+    margin-top: 2px;
+}
+
+.report-date {
+    font-size: 12px;
+    color: #718096;
+    text-align: right;
+    margin-top: -20px;
+}
+
+/* Executive Summary */
+.exec-summary {
+    background: linear-gradient(135deg, #f0f4ff 0%, #e8eef9 100%);
+    border: 1px solid #c3d4e9;
+    border-left: 5px solid #16213e;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+}
+
+.exec-summary h2 {
+    font-size: 16px;
+    color: #16213e;
+    margin-bottom: 14px;
+    font-weight: 700;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dotted #c3d4e9;
+}
+
+.stat-label {
+    color: #4a5568;
+    font-weight: 400;
+}
+
+.stat-value {
+    font-weight: 700;
+    color: #16213e;
+    font-size: 15px;
+}
+
+.stat-highlight {
+    background: #16213e;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 6px;
+    margin-top: 14px;
+    text-align: center;
+    font-size: 14px;
+    grid-column: 1 / -1;
+}
+
+.stat-highlight strong {
+    font-size: 18px;
+}
+
+/* Section headings */
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #16213e;
+    border-bottom: 2px solid #16213e;
+    padding-bottom: 6px;
+    margin: 28px 0 14px 0;
+}
+
+.section-desc {
+    color: #4a5568;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 12px;
+}
+
+th {
+    background: #16213e;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+tr:hover {
+    background: #eef2ff;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.badge-matched {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-unmatched {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ticket-count {
+    background: #16213e;
+    color: #fff;
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.multi-highlight {
+    background: #fff8e1;
+}
+
+.ticket-id {
+    font-family: monospace;
+    font-size: 11px;
+    color: #2d3748;
+}
+
+.dist-val {
+    font-weight: 600;
+}
+
+.dist-close { color: #155724; }
+.dist-mid { color: #856404; }
+.dist-far { color: #721c24; }
+
+.wt-bar {
+    height: 8px;
+    background: #16213e;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.wt-bar-unmatched {
+    background: #a0aec0;
+}
+
+/* Footer */
+.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 2px solid #16213e;
+    font-size: 11px;
+    color: #718096;
+    display: flex;
+    justify-content: space-between;
+}
+
+.desc-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="report-header">
+    <div class="logo-area">
+        <div class="logo-placeholder">โลโก้<br>หน่วยงาน</div>
+        <div class="header-text">
+            <h1>รายงานสรุปการจับคู่เคสร้องเรียน</h1>
+            <div class="subtitle">ศาลาที่พักผู้โดยสาร — ระบบ Traffy Fondue</div>
+        </div>
+    </div>
+    <div class="report-date">วันที่จัดทำ: 04/06/2026</div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="exec-summary">
+    <h2>สรุปภาพรวม (Executive Summary)</h2>
+    <div class="stat-grid">
+        <div class="stat-item">
+            <span class="stat-label">จำนวน ticket Traffy ทั้งหมด</span>
+            <span class="stat-value">55 ticket</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">จำนวนแถวข้อมูล (case-rows)</span>
+            <span class="stat-value">40 แถว</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">จำนวนศาลาที่ระบุได้ (unique shelters)</span>
+            <span class="stat-value">33 จุด</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">จำนวนเคสที่จับคู่สำเร็จ (≤200m)</span>
+            <span class="stat-value">17 เคส</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">จำนวนเคสรอตรวจสอบ (&gt;200m)</span>
+            <span class="stat-value">23 เคส</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">อัตราส่วน ticket : shelter</span>
+            <span class="stat-value">55 : 33</span>
+        </div>
+        <div class="stat-highlight">
+            <strong>55</strong> ticket จากประชาชน → จับกลุ่มได้เป็น <strong>33</strong> ศาลาที่ต้องดำเนินการ
+            &nbsp;|&nbsp; แก้ไข 1 จุด = เคลียร์ได้หลาย ticket พร้อมกัน
+        </div>
+    </div>
+</div>
+
+<!-- WORK TYPE BREAKDOWN in summary -->
+<div class="exec-summary" style="border-left-color: #2b5ea7;">
+    <h2>ประเภทงานที่ร้องเรียน</h2>
+    <table>
+        <tr>
+            <th>ประเภทงาน (work_type)</th>
+            <th style="text-align:center">จำนวนเคส</th>
+            <th style="text-align:center">สัดส่วน</th>
+        </tr>
+        <tr>
+            <td>ไฟ/แสงสว่าง</td>
+            <td style="text-align:center">23</td>
+            <td><div class="wt-bar" style="width:114px"></div> 57%</td>
+        </tr>
+        <tr>
+            <td>ที่นั่ง/ม้านั่ง</td>
+            <td style="text-align:center">10</td>
+            <td><div class="wt-bar" style="width:50px"></div> 25%</td>
+        </tr>
+        <tr>
+            <td>หลังคา/กันแดดฝน</td>
+            <td style="text-align:center">5</td>
+            <td><div class="wt-bar" style="width:25px"></div> 12%</td>
+        </tr>
+        <tr>
+            <td>โครงสร้าง/ป้าย</td>
+            <td style="text-align:center">2</td>
+            <td><div class="wt-bar" style="width:10px"></div> 5%</td>
+        </tr>
+    </table>
+</div>
+
+<!-- TABLE 1: MULTI-TICKET SHELTERS -->
+<h2 class="section-title">ตารางที่ 1: ศาลาที่มีหลาย ticket (Multi-ticket Shelters)</h2>
+<p class="section-desc">ศาลาที่มีประชาชนร้องเรียนมากกว่า 1 ticket — แก้ไข 1 จุด เคลียร์ได้หลายเคสพร้อมกัน
+(5 ศาลา รวม 12 ticket)</p>
+<table>
+    <tr>
+        <th>รหัสศาลา</th>
+        <th style="text-align:center">จำนวน ticket</th>
+        <th>Ticket IDs</th>
+        <th>ประเภทงาน</th>
+        <th>เขต</th>
+        <th>ตำแหน่ง</th>
+    </tr>
+    <tr class="multi-highlight">
+        <td><strong>MS120</strong></td>
+        <td style="text-align:center"><span class="ticket-count">4</span></td>
+        <td class="ticket-id">LFUEJA,2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M,2025-F6XAKD, 2025-UJHZJN,2025-DU2J3U</td>
+        <td>ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง</td>
+        <td>พญาไท</td>
+        <td>หน้าโรงสูบน้ำที่ 7</td>
+    </tr>
+    <tr class="multi-highlight">
+        <td><strong>MS203</strong></td>
+        <td style="text-align:center"><span class="ticket-count">2</span></td>
+        <td class="ticket-id">3WTYUW,ACRVL9</td>
+        <td>ที่นั่ง/ม้านั่ง,หลังคา/กันแดดฝน</td>
+        <td>พระนคร</td>
+        <td>2 หน้าศาลอาญา</td>
+    </tr>
+    <tr class="multi-highlight">
+        <td><strong>NS083</strong></td>
+        <td style="text-align:center"><span class="ticket-count">2</span></td>
+        <td class="ticket-id">EU3RT3,CRPVE9</td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>บางซื่อ</td>
+        <td>ตรงข้ามบ. พงศ์ถาวรกิจ</td>
+    </tr>
+    <tr class="multi-highlight">
+        <td><strong>SS001</strong></td>
+        <td style="text-align:center"><span class="ticket-count">2</span></td>
+        <td class="ticket-id">CBTULN,2025-8ZNX99</td>
+        <td>ที่นั่ง/ม้านั่ง,ไฟ/แสงสว่าง</td>
+        <td>ปทุมวัน</td>
+        <td>หน้าประตู 2 ราชกรีฑาสโมสร (เลยสะพานลอบ 40 เมตร)</td>
+    </tr>
+    <tr class="multi-highlight">
+        <td><strong>SS029</strong></td>
+        <td style="text-align:center"><span class="ticket-count">2</span></td>
+        <td class="ticket-id">2025-XFPJE9,2025-N8CHMC, 2025-BFTW2T</td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>คลองเตย</td>
+        <td>ตรงข้ามตลาดตลองเตย ( ข้างซอยไผ่สิงห์โต)</td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- TABLE 2: ALL CASES BY STATUS -->
+<h2 class="section-title">ตารางที่ 2: รายละเอียดเคสทั้งหมด จำแนกตามสถานะ</h2>
+<p class="section-desc">เรียงจากเคสที่จับคู่สำเร็จ (matched ≤200m) ก่อน ตามด้วยเคสรอตรวจสอบ</p>
+<table>
+    <tr>
+        <th>#</th>
+        <th>Ticket ID</th>
+        <th>สถานะ</th>
+        <th>รหัสศาลา</th>
+        <th style="text-align:right">ระยะห่าง (m)</th>
+        <th>ประเภทงาน</th>
+        <th>เขต</th>
+        <th>รายละเอียด</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td class="ticket-id">ABREZU</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>MS023</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">0.7</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>ดุสิต</td>
+        <td class="desc-cell">ปัญหา: ริมถนนดังกล่าว บริเวณด้านหน้าสนามม้านางเลิ้ง พบดวงไฟฟ...</td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td class="ticket-id">2025-F2FXKW</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES500</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">4.8</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>บางกะปิ</td>
+        <td class="desc-cell">ที่นั่งป้ายรถเมล์ไม่เพียงพอ ทั้งๆที่ป้ายนี้ ผู้โดยสารเยอะมาก</td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td class="ticket-id">2025-EF6DC3</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES222</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">8.8</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>มนบุรี</td>
+        <td class="desc-cell">คือรออยู่ป้ายรถเมล์จุดนี้ รู้สึกไม่ปลอดภัยมากเลยครับ เพราะหน...</td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td class="ticket-id">2025-9C4C3R</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>MS274</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">15.0</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 *️⃣หมายเลขตามภาพแนบ 💡จำนวนไฟท...</td>
+    </tr>
+    <tr>
+        <td>5</td>
+        <td class="ticket-id">WPCXEP</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>SS157</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">27.0</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>บางรัก</td>
+        <td class="desc-cell">ปัญหา: ภายในศาลาที่พักผู้โดยสาร หน้าวัดแก้วแจ่มฟ้า พบดวงไฟฟ้...</td>
+    </tr>
+    <tr>
+        <td>6</td>
+        <td class="ticket-id">2025-3E3UX9</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>NS249</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">40.4</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>จตุจักร</td>
+        <td class="desc-cell">อยากให้ทำป้ายรถเมล์ป้ายธนาคารทหารไทย ให้เป็นป้ายประจำสักที ป...</td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td class="ticket-id">2025-HAGEHU</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>SS235</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">41.8</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>คลองเตย</td>
+        <td class="desc-cell">เรื่องป้ายรถเมล์ที่แจ้งไปหลายครั้ง2ครั้งแล้วบอกทำเส็จแล้วไม่...</td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td class="ticket-id">2025-WWWY77</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES468</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">55.0</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td>บางกะปี</td>
+        <td class="desc-cell">หน้าปากซอยรามคำแหง 36/1 ตรงสถานีหัวหมาก (สีส้ม) มีป้ายรถเมล์...</td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td class="ticket-id">2025-KUZUE7</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES306</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">63.9</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>บางกะปิ</td>
+        <td class="desc-cell">ป้ายรถประจำทางหน้าป้ายมหาวิทยาลัยรามคำแหง มีเก้าอี้หลุดอยู่ต...</td>
+    </tr>
+    <tr>
+        <td>10</td>
+        <td class="ticket-id">EU3RT3</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>NS083</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">79.3</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>บางซื่อ</td>
+        <td class="desc-cell">ปัญหา: เรื่องเดิม หน้าปากซอยดังกล่าว บริเวณป้ายรถโดยสารประจำ...</td>
+    </tr>
+    <tr>
+        <td>11</td>
+        <td class="ticket-id">3WTYUW</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>MS203</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-close">99.9</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">ปัญหา: ถนนดังกล่าว หน้าสนามหลวง บริเวณป้ายรอรถโดยสารประจำทาง...</td>
+    </tr>
+    <tr>
+        <td>12</td>
+        <td class="ticket-id">2025-T488WT</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES521</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">151.9</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>สะพานสูง</td>
+        <td class="desc-cell">ไฟบริเวณป้ายรถประจำทางดับ</td>
+    </tr>
+    <tr>
+        <td>13</td>
+        <td class="ticket-id">2025-K9PB87</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>NS068</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">165.2</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>บางซื่อ</td>
+        <td class="desc-cell">ป้านหยุดรถเมล์ ไม่มีสิ่งอำนวยความสะดวก ไม่มีไฟฟ้าส่องสว่างเพ...</td>
+    </tr>
+    <tr>
+        <td>14</td>
+        <td class="ticket-id">KWY2UV</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>NS074</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">166.5</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>บางซื่อ</td>
+        <td class="desc-cell">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง ทางลงจากสถานีรถไฟบางซ่อน...</td>
+    </tr>
+    <tr>
+        <td>15</td>
+        <td class="ticket-id">2025-ZF28RM</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>MS239</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">169.7</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">📢🔊💡🚍แจ้ง ไฟป้ายรถประจำทางดับ 😱 💡จำนวนไฟทั้งหมด 4 ดวง 💡ดับสนิ...</td>
+    </tr>
+    <tr>
+        <td>16</td>
+        <td class="ticket-id">2025-GHNUV6</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>ES513</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">181.5</span></td>
+        <td>โครงสร้าง/ป้าย</td>
+        <td>สะพานสูง</td>
+        <td class="desc-cell">ขอป้ายรถเมล์ฝั่งตรงข้าม บ.มีสทีนด่วนค่ะ. ป้ายสำรองพายุดัดพัง...</td>
+    </tr>
+    <tr>
+        <td>17</td>
+        <td class="ticket-id">2025-Y9HZRZ</td>
+        <td><span class="badge badge-matched">จับคู่สำเร็จ</span></td>
+        <td><strong>SS176</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">194.9</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>บางคอแหลม</td>
+        <td class="desc-cell">ไฟป้ายรถเมล์เสีย</td>
+    </tr>
+    <tr>
+        <td>18</td>
+        <td class="ticket-id">CRPVE9</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS083</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">200.3</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>บางซื่อ</td>
+        <td class="desc-cell">ปัญหา: เรื่องเดิม บริเวณป้ายรถโดยสารประจำทาง หน้าเซเว่นอิเลฟ...</td>
+    </tr>
+    <tr>
+        <td>19</td>
+        <td class="ticket-id">2025-XFPJE9</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS029</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">204.2</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>คลองเตย</td>
+        <td class="desc-cell">จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน...</td>
+    </tr>
+    <tr>
+        <td>20</td>
+        <td class="ticket-id">ACRVL9</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS203</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">231.7</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทางหน้าสนามหลวง 1. บริเวณที่...</td>
+    </tr>
+    <tr>
+        <td>21</td>
+        <td class="ticket-id">2025-KX467X</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS204</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">251.2</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">ไฟป้ายรถเมล์ไม่ติด</td>
+    </tr>
+    <tr>
+        <td>22</td>
+        <td class="ticket-id">2025-N8CHMC, 2025-BFTW2T</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS029</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">284.8</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>คลองเตย</td>
+        <td class="desc-cell">จุดป้ายรถเมล์ตรงนี้ไม่ดีเลยครับ ไม่มีทั้งป้าย ที่นั่ง ที่ยืน...</td>
+    </tr>
+    <tr>
+        <td>23</td>
+        <td class="ticket-id">2025-7B46MY</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS128</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">320.1</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>ลาดพร้าว</td>
+        <td class="desc-cell">ป้ายรถเมล์ สร้างเสร็จมาได้แระมาณ 4 เดือน พบว่า ป้ายไฟ bus st...</td>
+    </tr>
+    <tr>
+        <td>24</td>
+        <td class="ticket-id">2025-AMXRAZ, 2025-637DK7, 2025-LZJFJL</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>ES422</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">327.5</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td>ประเวศ</td>
+        <td class="desc-cell">ป้ายรถเมล์ตรงหน้าร้านสเต็กบ้านแดง อ่อนนุช 55/1 ตรงข้ามโรงงาน...</td>
+    </tr>
+    <tr>
+        <td>25</td>
+        <td class="ticket-id">2025-UMBZZX</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS003</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">352.7</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>ปทุมวัน</td>
+        <td class="desc-cell">ป้ายรถเมล์เสี่ยงไฟดูด !!! ป้ายรถเมล์บ่อนไก้ อยู่ตรงข้ามตึกลุ...</td>
+    </tr>
+    <tr>
+        <td>26</td>
+        <td class="ticket-id">2025-JKE23B</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS238</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">359.0</span></td>
+        <td>โครงสร้าง/ป้าย</td>
+        <td>พระนคร</td>
+        <td class="desc-cell">ป้าหยุดรถประจำทาง ที่อยู่บริเวณหน้าสำนักงานเขตพระนคร มีสภาพช...</td>
+    </tr>
+    <tr>
+        <td>27</td>
+        <td class="ticket-id">2025-836KYX</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS079</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">394.8</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>วัฒนา</td>
+        <td class="desc-cell">ป้ายรถเมล์มีการย้ายเอาม้านั่งออก กรุณานำตัวใหม่มาติดตั้ง</td>
+    </tr>
+    <tr>
+        <td>28</td>
+        <td class="ticket-id">2025-W9J6NM, 2025-6JENFJ, 2025-UJXLU6, 2025-3KR86D, 2025-2UKUFV, 2025-B4P69L, 2025-DY6TC4, 2025-FTPKMH</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS003</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">418.2</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>จตุจักร</td>
+        <td class="desc-cell">บริเวณทางออกหมายเลข 3 จะมีป้ายรถเมล์ ที่ดูเหมือนจะไม่ค่อยเป็...</td>
+    </tr>
+    <tr>
+        <td>29</td>
+        <td class="ticket-id">TAHVCU</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS203</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-mid">480.0</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>สายไหม</td>
+        <td class="desc-cell">ปัญหา: บริเวณที่พักผู้โดยสารภายปากซอยดังกล่าวพบ ดวงไฟส่องสว่...</td>
+    </tr>
+    <tr>
+        <td>30</td>
+        <td class="ticket-id">LFUEJA</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS120</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">594.0</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พญาไท</td>
+        <td class="desc-cell">ปัญหา: เดิมแจ้งเรื่อง บริเวณถนนดังกล่าว หน้าวิทยาลัยพยาบาลกอ...</td>
+    </tr>
+    <tr>
+        <td>31</td>
+        <td class="ticket-id">2025-8GP3JR</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS022</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">599.6</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>จตุจักร</td>
+        <td class="desc-cell">ไฟส่องสว่างบริเวณป้าย หยุดรถประจำทางตรงข้ามสถานีบางเขน ไม่ติ...</td>
+    </tr>
+    <tr>
+        <td>32</td>
+        <td class="ticket-id">9LT2G6</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS228</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">657.5</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td>บางคอแหลม</td>
+        <td class="desc-cell">ปัญหา: ขอให้ที่พักผู้โดยสารมีการติดตั้งหลังคากันแดด กันฝน เพ...</td>
+    </tr>
+    <tr>
+        <td>33</td>
+        <td class="ticket-id">CBTULN</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS001</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">759.8</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>ปทุมวัน</td>
+        <td class="desc-cell">ปัญหา: บริเวณป้ายรอรถโดยสารประจำทาง พบภายในที่พักผู้โดยสาร ไ...</td>
+    </tr>
+    <tr>
+        <td>34</td>
+        <td class="ticket-id">2025-8ZNX99</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>SS001</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">817.3</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>ปทุมวัน</td>
+        <td class="desc-cell">ขอร้องเรียนเรื่องป้ายรถเมล์ (รถโดยสารประจำทางของ ป้ายสยามสแค...</td>
+    </tr>
+    <tr>
+        <td>35</td>
+        <td class="ticket-id">2025-BGJ8JW, 2025-NEACP4, 2025-HAGY2M</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS120</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,187.8</span></td>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td>พญาไท</td>
+        <td class="desc-cell">ป้ายโฆษณาชำรุด ณ ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิ เกาะพหลโยธิน...</td>
+    </tr>
+    <tr>
+        <td>36</td>
+        <td class="ticket-id">2025-F6XAKD, 2025-UJHZJN</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS120</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,199.1</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พญาไท</td>
+        <td class="desc-cell">ป้ายรถเมล์อนุสาวรีย์ชัยสมรภูมิพหลโยธิน ไม่มีไฟส่องสว่างที่ป้...</td>
+    </tr>
+    <tr>
+        <td>37</td>
+        <td class="ticket-id">2025-DU2J3U</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS120</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,222.3</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>พญาไท</td>
+        <td class="desc-cell">ป้ายรถเมล์อนุสาวรีย์ เกาะพหลโยธิน ไฟดับมานานมากแล้วค่ะ เรามา...</td>
+    </tr>
+    <tr>
+        <td>38</td>
+        <td class="ticket-id">6GYCYK</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>ES505</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,265.4</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>สะพานสูง</td>
+        <td class="desc-cell">ศูนย์เรื่องราวร้องทุกข์ ได้รับการประสานผ่านระบบการจัดการเรื่...</td>
+    </tr>
+    <tr>
+        <td>39</td>
+        <td class="ticket-id">2025-MAEK96, 2025-EZ8G76</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>MS126</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,293.7</span></td>
+        <td>หลังคา/กันแดดฝน</td>
+        <td>ราชเทวี</td>
+        <td class="desc-cell">ขอเสนอการปรับปรุงพื้นที่อนุสาวรีย์ชัยฯ เพิ่มว่า อยากให้ปรับป...</td>
+    </tr>
+    <tr>
+        <td>40</td>
+        <td class="ticket-id">2025-8Y9K6K, 2025-B4624F</td>
+        <td><span class="badge badge-unmatched">รอตรวจสอบ</span></td>
+        <td><strong>NS009</strong></td>
+        <td style="text-align:right"><span class="dist-val dist-far">1,310.7</span></td>
+        <td>ไฟ/แสงสว่าง</td>
+        <td>จตุจักร</td>
+        <td class="desc-cell">ขออนุญาตแจ้งเป็นข้อมูลนะคะ รบกวนช่วยมาตรวจสอบบริเวณป้ายรถเมล...</td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<!-- TABLE 3: WORK TYPE SUMMARY -->
+<h2 class="section-title">ตารางที่ 3: สรุปตามประเภทงาน (Work Type Summary)</h2>
+<p class="section-desc">จำนวนเคสแยกตามประเภทงานและสถานะการจับคู่</p>
+<table>
+    <tr>
+        <th>ประเภทงาน</th>
+        <th style="text-align:center">รวมทั้งหมด</th>
+        <th style="text-align:center">จับคู่สำเร็จ</th>
+        <th style="text-align:center">รอตรวจสอบ</th>
+        <th>สัดส่วนจับคู่</th>
+    </tr>
+    <tr>
+        <td>ไฟ/แสงสว่าง</td>
+        <td style="text-align:center"><strong>23</strong></td>
+        <td style="text-align:center">11</td>
+        <td style="text-align:center">12</td>
+        <td>
+            <div class="wt-bar" style="width:71px"></div><div class="wt-bar wt-bar-unmatched" style="width:78px"></div>
+            &nbsp;48%
+        </td>
+    </tr>
+    <tr>
+        <td>ที่นั่ง/ม้านั่ง</td>
+        <td style="text-align:center"><strong>10</strong></td>
+        <td style="text-align:center">3</td>
+        <td style="text-align:center">7</td>
+        <td>
+            <div class="wt-bar" style="width:45px"></div><div class="wt-bar wt-bar-unmatched" style="width:105px"></div>
+            &nbsp;30%
+        </td>
+    </tr>
+    <tr>
+        <td>หลังคา/กันแดดฝน</td>
+        <td style="text-align:center"><strong>5</strong></td>
+        <td style="text-align:center">2</td>
+        <td style="text-align:center">3</td>
+        <td>
+            <div class="wt-bar" style="width:60px"></div><div class="wt-bar wt-bar-unmatched" style="width:90px"></div>
+            &nbsp;40%
+        </td>
+    </tr>
+    <tr>
+        <td>โครงสร้าง/ป้าย</td>
+        <td style="text-align:center"><strong>2</strong></td>
+        <td style="text-align:center">1</td>
+        <td style="text-align:center">1</td>
+        <td>
+            <div class="wt-bar" style="width:75px"></div><div class="wt-bar wt-bar-unmatched" style="width:75px"></div>
+            &nbsp;50%
+        </td>
+    </tr>
+</table>
+
+<!-- FOOTER -->
+<div class="report-footer">
+    <span>จัดทำโดยระบบ The Surveyor v2 — Traffy Dedup Pipeline</span>
+    <span>วันที่ 04/06/2026</span>
+</div>
+
+</div>
+</body>
+</html>
