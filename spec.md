@@ -2,72 +2,111 @@
 
 ## Project
 สำรวจ + บำรุงรักษาศาลาที่พักผู้โดยสารรถประจำทาง กทม. (5 TOR: ES/TNS/SS/NS/MS)
+ได้งาน e-bidding 19 พ.ค. 2569 — เข้า operational phase (Surveyor 2.0)
 
 ## Architecture
-- `index.html` — Multi-TOR dashboard (5 tabs, localStorage persistence, Google Sheets as DB)
+
+### Phase 1 (Survey — DONE)
+- `index.html` — Multi-TOR dashboard (5 tabs, localStorage, Google Sheets as DB)
 - `data/stops_*.csv` — Static shelter lists per TOR
-- `published_urls.json` — Google Forms prefill URLs per TOR
 - Google Forms → Google Sheets (Master Sheet per TOR) → CSV export → Dashboard
+- Live: https://peuarchukiati-rgb.github.io/The-Surveyor/
+
+### Phase 2 (Surveyor 2.0 — IN PROGRESS)
+- `v2/data/all_stops.csv` — Consolidated 1,620 stops (all 5 TORs)
+- `v2/data/traffy_cases.csv` — 40 Traffy Fondue cases imported
+- `v2/data/traffy_rematched.csv` — Re-matched against updated stop data (17/40 auto-matched)
+- `v2/data/traffy_dedup.csv` — 33 unique shelters (dedup: 5 tickets can = 1 case)
+- `v2/data/audit_*.csv` — Data quality audit (missing codes, duplicates, text issues)
+- `v2/scripts/geo_matcher.py` — Traffy lat/long → TOR stop matcher (haversine, configurable threshold)
+- `v2/scripts/build_all_stops.py` — Consolidate per-TOR CSVs into all_stops.csv
+- `v2/scripts/import_traffy.py` — xlsx → traffy_cases.csv + dedup
+- `v2/scripts/update_master.py` — bkk_shelter_list.xlsx → updated per-TOR CSVs
+- `v2/scripts/audit_codes.py` — Extract QA data from bkk_shelter_list
+- `v2/SCHEMA.md` — Multi-team data schema (Cleaning/Traffy/Inspection/Fixing)
 
 ## TOR Registry
 
-| TOR | Name | Stops | Owner | Sheet ID |
-|-----|------|-------|-------|----------|
-| ES | กรุงเทพตะวันออก | 606 | SO! | (legacy pub URLs) |
-| TNS | กรุงธนเหนือ-ใต้ | 272 | Look Ads | 1JiUp6HxBkO5P75txGmiFbtxb0SB3wkc57UHpnL1JfdA |
-| SS | กรุงเทพใต้ | 233 | Look Ads | 1YJaVIX9gJDXkRcoVrGwZGQfs3nlxKSmmrIJv6kTTlRk |
-| NS | กรุงเทพเหนือ | 246 | Look Ads | 1QuiJkP9kvYvRGzSoOzXd4EJOeQEChZ4fzJCITcj9_RU |
-| MS | กรุงเทพกลาง | 259 | Look Ads | 1m3BtEkaFOaqqXgFTgQbKx-XiOlt6qgigJVLLZb5QGN4 (stops) / 1RNppV8F5we57NtOj5qtVOVVHzZzX2uMNpa6sByPHnGE (responses) |
+| TOR | Name | Stops | Owner | Status |
+|-----|------|-------|-------|--------|
+| ES | กรุงเทพตะวันออก | 606 | SO! | survey ~99% done |
+| TNS | กรุงธนเหนือ-ใต้ | 272 | Look Ads | survey in progress |
+| SS | กรุงเทพใต้ | 233 | Look Ads | survey in progress |
+| NS | กรุงเทพเหนือ | 246 | Look Ads | survey in progress |
+| MS | กรุงเทพกลาง | 263 | Look Ads | survey started |
 
-## Form → Sheet Pipeline
+Total: 1,620 stops
 
-### TNS/SS/NS (fixed 2026-05-16)
-- Forms linked to Master Sheets via Google Forms UI
-- Response tab gids: TNS Day=116756779/Night=331680235, SS Day=1603041302/Night=386227147, NS Day=388228796/Night=225515044
+## Surveyor 2.0 — 4 Field Teams
 
-### MS (fixed 2026-05-20)
-- Form URLs ใช้ `/d/{ID}` ไม่ใช่ `/d/e/{ID}` (MS ไม่มี published key แบบ 1FAIpQL)
-- folder_url ถูก overwrite หายตอน provision → restored ด้วย `restore_ms_folders.py` (scan Drive → re-populate Sheet)
-- 236/259 stops matched, 23 stops (MS 260-282) ยังไม่มี folder
+| Team | Priority | Trigger | People | Output |
+|------|----------|---------|--------|--------|
+| Cleaning x2 | P2 | Schedule 4x/year | 2 trucks, driver+mech+3 cleaners each | before/after photos per shelter |
+| Traffy Fondue (พี่สาธิต) | P1 ASAP | Citizen complaint tickets | 3-4 mechanics, night work | fix + close Traffy ticket |
+| Inspection | P2 | TOR stop list | 5-10 mechanics | BOQ assessment (lights/seats/structure) |
+| Fixing | P4 | Inspection results | mechanic + worker, night | before/after, target 90% |
 
-### Known limitations
-- TNS/SS/NS/MS ใช้ `/export?format=csv` (ต้อง sheet เป็น public)
-- ES ใช้ `/pub?...output=csv` (Published to Web, stable กว่า)
-- Drive folder ต้องเป็น public ไม่งั้น Master Sheet + Dashboard พัง
+All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
 
-## Current State (2026-05-20)
+## Traffy Pipeline Status
 
-### Dashboard — DONE
-- 5-TOR support (ES/TNS/SS/NS/MS)
-- Per-TOR aggregate stats, district grouping
-- Status: todo/day-only/night-only/needs-photo/done
-- Form → Sheet pipeline ใช้งานได้ทุก TOR
+- 40 cases imported (มนต์ curated from Traffy Fondue)
+- Re-matched with geo_matcher: 17 auto-matched (≤200m), 23 need field verification
+- Dedup: 33 unique shelters (MS120=4 tickets, NS083/MS203/SS029/SS001=2 each)
+- Work types: ไฟ/แสงสว่าง, ที่นั่ง/ม้านั่ง, โครงสร้าง/ป้าย, หลังคา/กันแดดฝน
 
-### Field Survey — IN PROGRESS
-- ES: ~99% done
-- TNS: กำลังกรอก
-- SS: กำลังกรอก
-- NS: กำลังกรอก
-- MS: เริ่มแล้ว (4 responses as of 2026-05-20)
+## Data Quality Audit
 
-### Summit Prep — ยื่นแล้ว 19 พ.ค. 2569
+- 54 missing code gaps (ES: 26, MS: 20, NS: 5, SS: 3) — sequence gaps, not data loss
+- 24 duplicate entries (12 location name, 12 coordinate)
+- 3 text encoding issues (SS130, ES389, MS108)
 
-| File | Status |
-|------|--------|
-| `Prep for Summit/slide_proposal_v3.html` | **v3 FINAL** — 14 slides |
-| `Prep for Summit/boq_template.html` | DONE — 8 หมวดงาน, 1,361 ศาลา |
-| `Prep for Summit/survey_sample.html` | DONE — 15 ES ศาลา, รูปจริง |
+## What's Done (as of 2026-06-04)
 
-### Tools Created
-- `restore_ms_folders.py` — Scan Drive subfolders → re-populate folder_url in Sheet
-- `fetch_photos.gs` — Apps Script ดึง photo IDs จาก Drive
-- `patch_photos.py` — Replace HTML placeholders ด้วยรูปจริง
+- [x] Phase 1 dashboard live (5 TORs, GitHub Pages)
+- [x] Won e-bidding (19 พ.ค. 2569)
+- [x] Surveyor 2.0 data foundation (v2/ folder, branch `surveyor-2.0`)
+- [x] All stops consolidated: 1,620 across 5 TORs with lat/long
+- [x] Geo-matcher built + tested (haversine, batch CSV, interactive)
+- [x] Traffy cases imported + re-matched (17/40 auto, 6 new finds vs มนต์'s original)
+- [x] Data audit complete (missing codes, duplicates, text issues)
+- [x] Multi-team schema defined (SCHEMA.md)
 
-### What's Next
-1. **MS 23 folders ขาด** — มนต์สร้าง folders เพิ่มสำหรับ MS 260-282
-2. **Publish to Web** — upgrade จาก `/export` เป็น `/pub?` URLs (nice-to-have)
+## What's Next
 
-### Key Decisions
-- Drive folder ต้องเป็น public เสมอ
-- MS forms ใช้ `/d/{ID}` path (ไม่มี published key)
-- Bidding docs เป็น "น้ำจิ้ม" โชว์ความพร้อม
+### Step 1: Traffy Pipeline (P1 — unblocks พี่สาธิต)
+- [ ] Case ticket status tracking (open → assigned → fixed → reported)
+- [ ] Traffy fix form (ช่างถ่ายรูป + report)
+- [ ] 23 unmatched cases → field verification list for พี่สาธิต
+- [ ] Case dedup reporting for กทม. (5 tickets = 1 case)
+
+### Step 2: Inspection Form (P2 — รอ BOQ fields จากมนต์)
+- [ ] Simplified BOQ form (≤2 pages: lights/seats/structure/roof/signage)
+- [ ] Printout generator — Phase 1 data for mechanics to carry
+- [ ] ~10% lat/long re-verification flow
+
+### Step 3: Cleaning Form + Schedule (P2)
+- [ ] Cleaning form (before/after photo, done flag)
+- [ ] Schedule tracker (4 rounds/year, progress per round)
+
+### Step 4: Fixing Flow (P4 — depends on Step 2)
+- [ ] Fixing form (receive from Inspection, before/after)
+- [ ] Completion tracking (target 90%)
+
+### Step 5: Dashboard 2.0
+- [ ] Unified multi-team view
+- [ ] Daily performance tracking per team
+- [ ] Report generator for กทม.
+
+### Blocked on มนต์
+- BOQ field list for Inspection form
+- Updated lat/long data (~10% changed)
+- Cleaning team schedule/route preference
+
+## Key Decisions
+- Drive folders must be public
+- MS forms use `/d/{ID}` path (no published key)
+- Code format: "ES 001" (with space) in all CSVs
+- Geo-match threshold: 200m default, >200m = field verify
+- 5 Traffy tickets at same stop = 1 case for reporting
+- All teams use same form→photo→report pattern, different form fields
