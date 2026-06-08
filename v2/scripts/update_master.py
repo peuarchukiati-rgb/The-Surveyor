@@ -16,7 +16,7 @@ try:
 except ImportError:
     sys.exit("openpyxl not installed. Run: pip install openpyxl")
 
-XLSX_PATH = Path("/Users/peakeuarchukiati/Downloads/bkk_shelter_list.xlsx")
+XLSX_PATH = Path("/Users/peakeuarchukiati/Desktop/the-surveyor/from Mon/bkk_shelter_list_verified.xlsx")
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 SCRIPTS_DIR = Path(__file__).resolve().parent
 
@@ -47,9 +47,9 @@ def add_space_to_code(code: str) -> str:
 def read_xlsx_sheet(wb, sheet_name: str) -> list[dict]:
     """Read a sheet and return list of row dicts with CSV field names."""
     ws = wb[sheet_name]
-    headers = [c.value for c in ws[1]]
+    headers = [c.value for c in ws[2]]
     rows = []
-    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, values_only=True):
+    for row in ws.iter_rows(min_row=3, max_row=ws.max_row, values_only=True):
         if row[0] is None:
             continue
         d = {}
