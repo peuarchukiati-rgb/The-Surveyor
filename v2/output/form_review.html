@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Surveyor — Form Specs Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232735;
+    --border: #2e3345;
+    --text: #e4e6ef;
+    --text-dim: #8b8fa3;
+    --accent: #4f8cff;
+    --p1: #e85d4a;
+    --p2: #f0a030;
+    --p4: #3dc98a;
+    --p1-bg: rgba(232,93,74,0.12);
+    --p2-bg: rgba(240,160,48,0.12);
+    --p4-bg: rgba(61,201,138,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0 0 80px 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .page-header {
+    background: linear-gradient(135deg, #1a1d27 0%, #232735 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 16px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .page-header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
+  .page-header p { font-size: 0.85rem; color: var(--text-dim); margin-top: 2px; }
+
+  /* Print button */
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(79,140,255,0.3);
+    z-index: 200;
+  }
+  .print-btn:active { transform: scale(0.96); }
+
+  /* Container */
+  .container { max-width: 680px; margin: 0 auto; padding: 16px; }
+
+  /* Collapsible whiteboard */
+  .collapsible-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 8px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .collapsible-header h2 { font-size: 1rem; font-weight: 600; }
+  .collapsible-header .arrow { transition: transform 0.2s; font-size: 1.2rem; color: var(--text-dim); }
+  .collapsible-header.open .arrow { transform: rotate(180deg); }
+  .collapsible-body {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 16px;
+  }
+  .collapsible-body.open { display: block; }
+  .collapsible-body img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .collapsible-body img:last-child { margin-bottom: 0; }
+  .img-label { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; }
+
+  /* Summary table */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .summary-card h3 {
+    padding: 14px 16px 10px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .summary-table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .summary-table th {
+    background: var(--surface2);
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .summary-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .team-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-btn.active-p1 { background: var(--p1-bg); border-color: var(--p1); color: var(--p1); }
+  .tab-btn.active-p2 { background: var(--p2-bg); border-color: var(--p2); color: var(--p2); }
+  .tab-btn.active-p4 { background: var(--p4-bg); border-color: var(--p4); color: var(--p4); }
+
+  /* Form card */
+  .form-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .form-card.visible { display: block; }
+  .form-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-header h2 { font-size: 1.15rem; font-weight: 700; }
+  .form-header .purpose {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .form-header-p1 { border-left: 4px solid var(--p1); background: var(--p1-bg); }
+  .form-header-p2 { border-left: 4px solid var(--p2); background: var(--p2-bg); }
+  .form-header-p4 { border-left: 4px solid var(--p4); background: var(--p4-bg); }
+
+  .form-body { padding: 16px; }
+
+  /* Form field mockups */
+  .field-group { margin-bottom: 18px; }
+  .field-group:last-child { margin-bottom: 0; }
+  .field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .field-label .req { color: var(--p1); font-weight: 700; }
+  .field-type {
+    font-size: 0.72rem;
+    background: var(--surface2);
+    color: var(--text-dim);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 400;
+  }
+  .field-note {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+    padding-left: 2px;
+  }
+
+  /* Mock input */
+  .mock-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text-dim);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 0.9rem;
+  }
+  .mock-input::placeholder { color: #555; }
+
+  /* Mock checkboxes & radios */
+  .mock-options { display: flex; flex-direction: column; gap: 8px; }
+  .mock-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    border: 1px solid transparent;
+  }
+  .mock-option .icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    margin-top: 1px;
+  }
+  .mock-option .icon.radio { border-radius: 50%; }
+  .mock-option .option-content { flex: 1; }
+  .mock-option .sub-dropdown {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .mock-option.special {
+    border-color: var(--p4);
+    background: rgba(61,201,138,0.08);
+  }
+
+  /* Photo mockup */
+  .photo-slots {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .photo-slot {
+    width: 80px;
+    height: 80px;
+    background: var(--surface2);
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-align: center;
+    gap: 2px;
+  }
+  .photo-slot .cam { font-size: 1.4rem; }
+
+  /* Flow steps */
+  .flow-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .flow-section h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-dim);
+  }
+  .flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .flow-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .flow-arrow { color: var(--text-dim); font-size: 0.8rem; }
+
+  /* Prerequisites */
+  .prereqs {
+    background: rgba(240,160,48,0.08);
+    border: 1px solid rgba(240,160,48,0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 0.82rem;
+  }
+  .prereqs strong { color: var(--p2); }
+
+  /* Feedback section */
+  .feedback-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    margin-top: 24px;
+  }
+  .feedback-section h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item .box {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--accent);
+    border-radius: 6px;
+    margin-top: 1px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 16px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  /* Print styles */
+  @media print {
+    body { background: #fff; color: #111; padding: 10px; }
+    .page-header { position: static; background: #fff; border: none; }
+    .page-header h1 { color: #111; }
+    .print-btn { display: none; }
+    .form-card { display: block !important; break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; margin-bottom: 20px; }
+    .tabs { display: none; }
+    .mock-input, .mock-option, .photo-slot, .flow-step { border-color: #ccc; }
+    :root { --surface: #fafafa; --surface2: #f0f0f0; --border: #ddd; --text: #111; --text-dim: #666; }
+    .form-header-p1 { background: #fce8e5; }
+    .form-header-p2 { background: #fef3e0; }
+    .form-header-p4 { background: #e6f9ef; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>THE SURVEYOR — Form Specs Review</h1>
+  <p>สำหรับมนต์ตรวจสอบ — 3 ฟอร์มสำหรับงานภาคสนาม</p>
+</div>
+
+<button class="print-btn" onclick="window.print()">🖨️ พิมพ์</button>
+
+<div class="container">
+
+  <!-- Whiteboard photos -->
+  <div class="collapsible-header" onclick="toggleCollapse(this)" id="wb-header">
+    <h2>📋 รูป Whiteboard จากประชุม</h2>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="collapsible-body" id="wb-body">
+    <div class="img-label">P1 — Traffy Fix Report</div>
+    <img src="../../p1.jpg" alt="P1 Whiteboard" loading="lazy">
+    <div class="img-label">P2/P3 — Inspection BOQ</div>
+    <img src="../../p2p3.jpg" alt="P2P3 Whiteboard" loading="lazy">
+    <div class="img-label">P4 — Cleaning</div>
+    <img src="../../p4.jpg" alt="P4 Whiteboard" loading="lazy">
+  </div>
+
+  <!-- Summary comparison table -->
+  <div class="summary-card">
+    <h3>สรุปเปรียบเทียบทีม</h3>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th><span class="team-dot" style="background:var(--p1)"></span>P1 Fix</th>
+          <th><span class="team-dot" style="background:var(--p2)"></span>P2 Inspect</th>
+          <th><span class="team-dot" style="background:var(--p4)"></span>P4 Clean</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">ทีม</td>
+          <td>ช่างพี่สาธิต</td>
+          <td>Rider</td>
+          <td>ทำความสะอาด</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">เป้าหมาย</td>
+          <td>ซ่อมตาม Traffy</td>
+          <td>สำรวจ BOQ</td>
+          <td>ทำความสะอาด</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">เวลา</td>
+          <td>ตาม Ticket</td>
+          <td>กลางคืนเท่านั้น</td>
+          <td>ทำได้เลย</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">รูปถ่าย</td>
+          <td>3 (Before/Ongoing/After)</td>
+          <td>ตามสภาพ</td>
+          <td>2 (Before/After)</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">ฟิลด์</td>
+          <td>6 ฟิลด์</td>
+          <td>4 ฟิลด์</td>
+          <td>4 ฟิลด์</td>
+        </tr>
+        <tr>
+          <td style="color:var(--text-dim);font-weight:600">ต้องรอทีมอื่น?</td>
+          <td>รอ Traffy ticket</td>
+          <td>รอกุญแจตู้ไฟ</td>
+          <td>ไม่ต้องรอ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active-p1" onclick="showTab('p1', this)" id="tab-p1">P1 Traffy Fix</button>
+    <button class="tab-btn" onclick="showTab('p2', this)" id="tab-p2">P2 Inspection</button>
+    <button class="tab-btn" onclick="showTab('p4', this)" id="tab-p4">P4 Cleaning</button>
+  </div>
+
+  <!-- ============ FORM 1: P1 ============ -->
+  <div class="form-card visible" id="form-p1">
+    <div class="form-header form-header-p1">
+      <h2>P1: Traffy Fix Report</h2>
+      <div class="purpose">ทีมช่างพี่สาธิต — ซ่อมป้ายรถเมล์ตามเคส Traffy Fondue</div>
+    </div>
+    <div class="form-body">
+
+      <!-- Field 1 -->
+      <div class="field-group">
+        <div class="field-label">
+          รหัสป้าย / Stop Code <span class="req">*</span>
+          <span class="field-type">Short Text</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="เช่น ES001, NS042" disabled>
+        <div class="field-note">Prefill จาก Tracker — แก้ไขได้ | regex: (ES|MS|NS|SS)XXX</div>
+      </div>
+
+      <!-- Field 2 -->
+      <div class="field-group">
+        <div class="field-label">
+          Traffy Ticket ID <span class="req">*</span>
+          <span class="field-type">Short Text</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="Prefill จาก Tracker" disabled>
+      </div>
+
+      <!-- Field 3 -->
+      <div class="field-group">
+        <div class="field-label">
+          อาการเสีย / Damage Type <span class="req">*</span>
+          <span class="field-type">Checkbox (เลือกได้หลายข้อ)</span>
+        </div>
+        <div class="field-note" style="margin-bottom:8px">Pre-fill จาก Traffy work_type</div>
+        <div class="mock-options">
+          <div class="mock-option"><div class="icon"></div><div class="option-content">หลอดไฟ (หลอดเสีย)</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">Solar เสีย</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">หลังคา</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">เก้าอี้</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">ระบบไฟ (อุปกรณ์เสีย)</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">ทำสี/ปรับปรุง/บัดกรีผิน</div></div>
+          <div class="mock-option"><div class="icon"></div><div class="option-content">ทำความสะอาด</div></div>
+          <div class="mock-option special"><div class="icon"></div><div class="option-content">ไม่เสีย (แก้ไขไปแล้ว) <div class="sub-dropdown">⚠️ เลือกข้อนี้ = ไม่ต้องซ่อม</div></div></div>
+        </div>
+      </div>
+
+      <!-- Field 4 -->
+      <div class="field-group">
+        <div class="field-label">
+          รูปถ่าย
+          <span class="field-type">Drive Folder Upload</span>
+        </div>
+        <div class="photo-slots">
+          <div class="photo-slot"><span class="cam">📷</span>Before</div>
+          <div class="photo-slot"><span class="cam">📷</span>Ongoing</div>
+          <div class="photo-slot"><span class="cam">📷</span>After</div>
+        </div>
+        <div class="field-note">อัพโหลดเข้า Drive folder เดียวกัน (ไม่ใช่ form upload)</div>
+      </div>
+
+      <!-- Field 5 -->
+      <div class="field-group">
+        <div class="field-label">
+          สถานะ <span class="req">*</span>
+          <span class="field-type">Radio</span>
+        </div>
+        <div class="mock-options">
+          <div class="mock-option"><div class="icon radio"></div><div class="option-content">แก้ไขเรียบร้อย</div></div>
+          <div class="mock-option"><div class="icon radio"></div><div class="option-content">ไม่สามารถแก้ไขได้ <div class="sub-dropdown">→ ระบุเหตุผล (text field)</div></div></div>
+        </div>
+      </div>
+
+      <!-- Field 6 -->
+      <div class="field-group">
+        <div class="field-label">
+          Timestamp
+          <span class="field-type">Auto</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="บันทึกอัตโนมัติเมื่อส่งฟอร์ม" disabled style="font-style:italic">
+      </div>
+
+      <!-- Flow -->
+      <div class="flow-section">
+        <h4>ขั้นตอนการทำงาน (Flow)</h4>
+        <div class="flow-steps">
+          <span class="flow-step">Tracker</span><span class="flow-arrow">→</span>
+          <span class="flow-step">Maps</span><span class="flow-arrow">→</span>
+          <span class="flow-step">ซ่อม</span><span class="flow-arrow">→</span>
+          <span class="flow-step">ถ่ายรูป Drive</span><span class="flow-arrow">→</span>
+          <span class="flow-step">กรอก Form</span><span class="flow-arrow">→</span>
+          <span class="flow-step">Submit</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ FORM 2: P2 ============ -->
+  <div class="form-card" id="form-p2">
+    <div class="form-header form-header-p2">
+      <h2>P2: Inspection BOQ</h2>
+      <div class="purpose">ทีม Rider — สำรวจสภาพศาลาเพื่อทำ BOQ (ไม่ซ่อม แค่เก็บข้อมูล) | กลางคืนเท่านั้น</div>
+    </div>
+    <div class="form-body">
+
+      <!-- Field 1 -->
+      <div class="field-group">
+        <div class="field-label">
+          รหัสศาลา <span class="req">*</span>
+          <span class="field-type">Short Text</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="เช่น ES001, NS042" disabled>
+        <div class="field-note">Prefill จาก Tracker — แก้ไขได้ | regex: (ES|MS|NS|SS)XXX</div>
+      </div>
+
+      <!-- Field 2 -->
+      <div class="field-group">
+        <div class="field-label">
+          อาการเสีย + จำนวน <span class="req">*</span>
+          <span class="field-type">Checkbox + Dropdown</span>
+        </div>
+        <div class="mock-options">
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">
+              หลอดไฟ
+              <div class="sub-dropdown">▾ จำนวนหลอด (1-10)</div>
+            </div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">ระบบไฟ <div class="sub-dropdown">checkbox only</div></div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">
+              เก้าอี้
+              <div class="sub-dropdown">▾ จำนวน (1-20)</div>
+            </div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">
+              พลังงาน (Solar)
+              <div class="sub-dropdown">▾ จำนวน (1-10)</div>
+            </div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">ทำสี/ปรับปรุง/บัดกรีผิน <div class="sub-dropdown">checkbox only</div></div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">ทำความสะอาด <div class="sub-dropdown">checkbox only</div></div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">อื่นๆ <div class="sub-dropdown">→ ระบุรายละเอียด (free text)</div></div>
+          </div>
+          <div class="mock-option special">
+            <div class="icon"></div>
+            <div class="option-content">ไม่เสีย <div class="sub-dropdown">⚠️ ศาลาสภาพดี ไม่ต้องซ่อม</div></div>
+          </div>
+          <div class="mock-option">
+            <div class="icon"></div>
+            <div class="option-content">Solar เสีย <div class="sub-dropdown">checkbox only</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Field 3 -->
+      <div class="field-group">
+        <div class="field-label">
+          รูปถ่าย
+          <span class="field-type">Drive Folder Upload</span>
+        </div>
+        <div class="photo-slots">
+          <div class="photo-slot"><span class="cam">📷</span>สภาพศาลา</div>
+          <div class="photo-slot"><span class="cam">📷</span>จุดเสีย</div>
+          <div class="photo-slot"><span class="cam">📷</span>ตู้ไฟ</div>
+        </div>
+        <div class="field-note">อัพโหลดเข้า Drive folder</div>
+      </div>
+
+      <!-- Field 4 -->
+      <div class="field-group">
+        <div class="field-label">
+          Timestamp
+          <span class="field-type">Auto</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="บันทึกอัตโนมัติเมื่อส่งฟอร์ม" disabled style="font-style:italic">
+      </div>
+
+      <!-- Prerequisites -->
+      <div class="prereqs">
+        <strong>⚠️ Prerequisites:</strong><br>
+        • Rider ต้องเทรนกับพี่สอง (electrical) ก่อนลงสนาม<br>
+        • ต้องมีกุญแจตู้ไฟ (รอสัญญา)
+      </div>
+
+      <!-- Flow -->
+      <div class="flow-section">
+        <h4>ขั้นตอนการทำงาน (Flow)</h4>
+        <div class="flow-steps">
+          <span class="flow-step">Map GPS</span><span class="flow-arrow">→</span>
+          <span class="flow-step">นำทาง</span><span class="flow-arrow">→</span>
+          <span class="flow-step">หาป้าย</span><span class="flow-arrow">→</span>
+          <span class="flow-step">ถ่ายรูป</span><span class="flow-arrow">→</span>
+          <span class="flow-step">กรอก Form</span><span class="flow-arrow">→</span>
+          <span class="flow-step">Submit</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ FORM 3: P4 ============ -->
+  <div class="form-card" id="form-p4">
+    <div class="form-header form-header-p4">
+      <h2>P4: Cleaning</h2>
+      <div class="purpose">ทีมทำความสะอาด — ทำได้เลยทุกป้าย ไม่ต้องรอทีมอื่น</div>
+    </div>
+    <div class="form-body">
+
+      <!-- Field 1 -->
+      <div class="field-group">
+        <div class="field-label">
+          รหัสศาลา <span class="req">*</span>
+          <span class="field-type">Short Text</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="เช่น ES001, NS042" disabled>
+        <div class="field-note">Prefill จาก Tracker — แก้ไขได้ | regex: (ES|MS|NS|SS)XXX</div>
+      </div>
+
+      <!-- Field 2 -->
+      <div class="field-group">
+        <div class="field-label">
+          สถานะ <span class="req">*</span>
+          <span class="field-type">Radio</span>
+        </div>
+        <div class="mock-options">
+          <div class="mock-option"><div class="icon radio"></div><div class="option-content">แก้ไขเรียบร้อย</div></div>
+          <div class="mock-option"><div class="icon radio"></div><div class="option-content">แก้ไขไม่ได้ <div class="sub-dropdown">→ ระบุเหตุผล (text field)</div></div></div>
+        </div>
+      </div>
+
+      <!-- Field 3 -->
+      <div class="field-group">
+        <div class="field-label">
+          รูปถ่าย
+          <span class="field-type">Drive Folder Upload</span>
+        </div>
+        <div class="photo-slots">
+          <div class="photo-slot"><span class="cam">📷</span>Before</div>
+          <div class="photo-slot"><span class="cam">📷</span>After</div>
+        </div>
+        <div class="field-note">อัพโหลดเข้า Drive folder — 2 รูป: ก่อน/หลัง</div>
+      </div>
+
+      <!-- Field 4 -->
+      <div class="field-group">
+        <div class="field-label">
+          Timestamp
+          <span class="field-type">Auto</span>
+        </div>
+        <input type="text" class="mock-input" placeholder="บันทึกอัตโนมัติเมื่อส่งฟอร์ม" disabled style="font-style:italic">
+      </div>
+
+      <!-- Flow -->
+      <div class="flow-section">
+        <h4>ขั้นตอนการทำงาน (Flow)</h4>
+        <div class="flow-steps">
+          <span class="flow-step">Map GPS</span><span class="flow-arrow">→</span>
+          <span class="flow-step">นำทาง</span><span class="flow-arrow">→</span>
+          <span class="flow-step">📷 Before</span><span class="flow-arrow">→</span>
+          <span class="flow-step">ทำความสะอาด (15-20 นาที)</span><span class="flow-arrow">→</span>
+          <span class="flow-step">📷 After</span><span class="flow-arrow">→</span>
+          <span class="flow-step">กรอก Form</span><span class="flow-arrow">→</span>
+          <span class="flow-step">Submit</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Feedback section -->
+  <div class="feedback-section">
+    <h3>📝 Checklist สำหรับมนต์</h3>
+    <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:14px">ตรวจสอบแต่ละข้อแล้วแจ้ง Peak ว่าต้องแก้อะไร</p>
+
+    <div class="checklist-item"><div class="box"></div><div>ตัวเลือก "อาการเสีย" ครบถ้วนมั้ย? มีอะไรที่ขาดไป?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>จำนวน dropdown ของ P2 (หลอดไฟ 1-10, เก้าอี้ 1-20) — range ถูกมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>ชื่อฟิลด์เข้าใจง่ายสำหรับทีมภาคสนามมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>Flow ขั้นตอนการทำงาน — ตรงกับที่ทีมจะทำจริงมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>รูปถ่าย — จำนวนรูปที่ต้องการต่อป้ายถูกต้องมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>P4 Cleaning ต้องเพิ่มฟิลด์อะไรอีกมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>Prerequisite ของ P2 (เทรน + กุญแจ) — มีอะไรเพิ่มเติมมั้ย?</div></div>
+    <div class="checklist-item"><div class="box"></div><div>มีทีมไหนต้องการฟอร์มเพิ่มเติมที่ยังไม่ได้ spec?</div></div>
+  </div>
+
+  <div class="footer">
+    สร้างจาก meeting 8 มิ.ย. 2569 — ตรวจสอบแล้วส่งกลับ Peak
+  </div>
+
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.form-card').forEach(c => c.classList.remove('visible'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.className = 'tab-btn';
+  });
+  document.getElementById('form-' + id).classList.add('visible');
+  btn.classList.add('active-' + id);
+}
+
+function toggleCollapse(header) {
+  header.classList.toggle('open');
+  var body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// Print mode: show all forms
+window.addEventListener('beforeprint', function() {
+  document.querySelectorAll('.form-card').forEach(c => c.classList.add('visible'));
+});
+window.addEventListener('afterprint', function() {
+  // restore tab state
+  var activeTab = document.querySelector('.tab-btn[class*="active-"]');
+  if (activeTab) activeTab.click();
+});
+</script>
+
+</body>
+</html>

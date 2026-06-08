@@ -1,7 +1,7 @@
 # The Surveyor — spec.md
 
 ## Project
-สำรวจ + บำรุงรักษาศาลาที่พักผู้โดยสารรถประจำทาง กทม. (5 TOR: ES/TNS/SS/NS/MS)
+สำรวจ + บำรุงรักษาศาลาที่พักผู้โดยสารรถประจำทาง กทม. (4 TOR: ES/SS/NS/MS)
 ได้งาน e-bidding 19 พ.ค. 2569 — เข้า operational phase (Surveyor 2.0)
 
 ## Architecture
@@ -23,30 +23,37 @@
 - `v2/scripts/import_traffy.py` — xlsx → traffy_cases.csv + dedup
 - `v2/scripts/update_master.py` — bkk_shelter_list.xlsx → updated per-TOR CSVs
 - `v2/scripts/audit_codes.py` — Extract QA data from bkk_shelter_list
-- `v2/SCHEMA.md` — Multi-team data schema (Cleaning/Traffy/Inspection/Fixing)
+- `v2/SCHEMA.md` — Multi-team data schema (P1-P4)
+- `v2/forms/traffy_fix_form.md` — P1 Traffy fix form spec
+- `v2/forms/inspection_form.md` — P2 Inspection BOQ form spec
+- `v2/forms/cleaning_form.md` — P4 Cleaning form spec
 
 ## TOR Registry
 
 | TOR | Name | Stops | Owner | Status |
 |-----|------|-------|-------|--------|
 | ES | กรุงเทพตะวันออก | 606 | SO! | survey ~99% done |
-| TNS | กรุงธนเหนือ-ใต้ | 272 | Look Ads | survey in progress |
 | SS | กรุงเทพใต้ | 233 | Look Ads | survey in progress |
 | NS | กรุงเทพเหนือ | 246 | Look Ads | survey in progress |
 | MS | กรุงเทพกลาง | 263 | Look Ads | survey started |
 
-Total: 1,620 stops
+Total: 1,348 stops (verified by มนต์)
+
+> TNS (กรุงธนเหนือ-ใต้, 272 หลัง) — ไม่อยู่ใน verified list จากมนต์
 
 ## Surveyor 2.0 — 4 Field Teams
 
 | Team | Priority | Trigger | People | Output |
 |------|----------|---------|--------|--------|
-| Cleaning x2 | P2 | Schedule 4x/year | 2 trucks, driver+mech+3 cleaners each | before/after photos per shelter |
-| Traffy Fondue (พี่สาธิต) | P1 ASAP | Citizen complaint tickets | 3-4 mechanics, night work | fix + close Traffy ticket |
-| Inspection | P2 | TOR stop list | 5-10 mechanics | BOQ assessment (lights/seats/structure) |
-| Fixing | P4 | Inspection results | mechanic + worker, night | before/after, target 90% |
+| Traffy (พี่สาธิต) | P1 ASAP | Traffy Fondue ticket | 3-4 ช่าง, night | fix report + 3 photos + case closure |
+| Inspection (Rider) | P2 | TOR stop list | 5 Riders + พี่สอง train | BOQ assessment (checkbox+count) |
+| Maintenance | P3 | Inspection + Traffy data | ช่าง + แรงงาน, night | fix + before/after + completion |
+| Cleaning x2 | P4 | Schedule 4x/year | 2 คัน (driver+mech+3) | before/after photos per shelter |
 
-All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
+All teams → Drive folder photos → Google Form → Sheets → Dashboard → report กทม.
+
+> P1 วิ่งอิสระ ทำก่อนทุกทีม — ทำเสร็จแจ้งทีมอื่นให้ skip
+> P4 วิ่งขนานได้เลย ไม่ต้องรอใคร
 
 ## Traffy Pipeline Status
 
@@ -61,7 +68,7 @@ All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
 - 24 duplicate entries (12 location name, 12 coordinate)
 - 3 text encoding issues (SS130, ES389, MS108)
 
-## What's Done (as of 2026-06-04)
+## What's Done (as of 2026-06-08)
 
 - [x] Phase 1 dashboard live (5 TORs, GitHub Pages)
 - [x] Won e-bidding (19 พ.ค. 2569)
@@ -72,58 +79,70 @@ All teams → forms → photos → Surveyor 2.0 dashboard → report กทม.
 - [x] Data audit complete (missing codes, duplicates, text issues)
 - [x] Multi-team schema defined (SCHEMA.md)
 - [x] Field verification list generated (v2/output/field_verification_list.html)
-  - gen_field_list.py: reads traffy_rematched.csv, outputs printable A4 HTML
-  - Section A: 17 auto-matched (go fix), Section B: 23 field verify (sorted by district)
-  - Google Maps links, checkbox column, Sarabun font, print-optimized CSS
 - [x] Traffy Tracker dashboard (v2/traffy_tracker.html)
-  - build_traffy_tracker.py: reads CSVs → generates static HTML with embedded data
-  - Summary bar, case list with expand detail, dedup view, filters (match/work_type/district)
-  - Status tracking per case via localStorage (open/assigned/in_progress/fixed/reported)
-  - Google Maps links for case + shelter locations, dark theme, Sarabun font, mobile-first
-- [x] Traffy fix form spec (v2/forms/traffy_fix_form.md)
-  - 10 fields: stop code, ticket ID, work type, before/after photos, description, status, notes, technician, date
-  - Google Form prefill URL pattern documented
-  - End-to-end flow: tracker → maps → fix → form → report
 - [x] Dedup report for กทม. (v2/output/traffy_dedup_report.html + .csv)
-  - 55 tickets → 33 unique shelters, formal print-ready report
-  - Multi-ticket table, work type breakdown, executive summary
-  - CSV handoff for data integration
+- [x] P1 Traffy Fix form spec — updated per 8 มิ.ย. meeting
+  - Checkboxes (multi-select) อาการเสีย + "ไม่เสีย" option
+  - 3 photos: Before/Ongoing/After → Drive folder (ไม่ใช่ form upload)
+  - Status: แก้ไขเรียบร้อย / ไม่สามารถแก้ไขได้
+  - Prefill from Traffy data, timestamp auto
+- [x] P2 Inspection form spec — from whiteboard 8 มิ.ย.
+  - Checkbox + count: หลอดไฟ(1-10), เก้าอี้(1-20), พลังงา(1-10), ระบบไฟ, Solar, etc.
+  - Night mode only, Rider x5 trained กับพี่สอง
+- [x] P4 Cleaning form spec — simplest form
+  - รหัสศาลา + status + 2 photos (Before/After)
+  - ทำได้เลยทุกป้าย ไม่ต้องรอทีมอื่น
 
 ## What's Next
 
-### Step 1: Traffy Pipeline (P1 — unblocks พี่สาธิต)
-- [x] Case ticket status tracking (open → assigned → fixed → reported)
-- [x] Traffy fix form spec (ช่างถ่ายรูป + report) — ready to create Google Form
-- [x] 23 unmatched cases → field verification list for พี่สาธิต
-- [x] Case dedup reporting for กทม. (55 tickets → 33 shelters, formal HTML + CSV)
+### Step 1: Traffy Pipeline (P1) ✅ DONE
+- [x] Case ticket status tracking
+- [x] Traffy fix form spec (updated 8 มิ.ย.)
+- [x] 23 unmatched cases → field verification list
+- [x] Case dedup reporting for กทม.
 
-### Step 2: Inspection Form (P2 — รอ BOQ fields จากมนต์)
-- [ ] Simplified BOQ form (≤2 pages: lights/seats/structure/roof/signage)
-- [ ] Printout generator — Phase 1 data for mechanics to carry
-- [ ] ~10% lat/long re-verification flow
+### Step 2: Create Google Forms จริง
+- [ ] สร้าง Google Form จาก P1 spec → get Form ID → update tracker prefill links
+- [ ] สร้าง Google Form จาก P2 spec
+- [ ] สร้าง Google Form จาก P4 spec
 
-### Step 3: Cleaning Form + Schedule (P2)
-- [ ] Cleaning form (before/after photo, done flag)
-- [ ] Schedule tracker (4 rounds/year, progress per round)
+### Step 3: Import verified data จากมนต์
+- [ ] Import `bkk_shelter_list_verified.xlsx` → update per-TOR CSVs + all_stops.csv
+- [ ] Compare old vs new lat/long → report what changed (~10%)
+- [ ] Rebuild tracker/dashboard with updated stop data
 
-### Step 4: Fixing Flow (P4 — depends on Step 2)
-- [ ] Fixing form (receive from Inspection, before/after)
-- [ ] Completion tracking (target 90%)
+### Step 4: P3 Maintenance Form
+- [ ] Form spec (เหมือน P1 + ใช้ data จาก P2)
+- [ ] Google Form
 
 ### Step 5: Dashboard 2.0
-- [ ] Unified multi-team view
+- [ ] Unified multi-team view (all 4 teams in one dashboard)
 - [ ] Daily performance tracking per team
 - [ ] Report generator for กทม.
 
-### Blocked on มนต์
-- BOQ field list for Inspection form
-- Updated lat/long data (~10% changed)
+### Waiting on มนต์
+- ~~BOQ field list~~ → ได้แล้วจาก whiteboard 8 มิ.ย.
+- ~~Updated lat/long~~ → ได้แล้ว `bkk_shelter_list_verified.xlsx`
 - Cleaning team schedule/route preference
+- Traffy case tickets (for P1 pre-fill data)
+
+## Meeting Notes
+
+### 8 มิ.ย. 2569 (มนต์ + พี่บอย + Peak)
+- Whiteboard spec ครบ 4 ทีม (P1-P4) — photos saved: p1.jpg, p2p3.jpg, p4.jpg
+- P1 Traffy: checkbox อาการเสีย + "ไม่เสีย" + 3 photos (Before/Ongoing/After) + Drive folder
+- P2 Inspection: checkbox+count BOQ, Night only, Rider x5, กุญแจตู้ไฟรอสัญญา
+- P3 Maintenance: form เหมือน P1, ใช้ data P1+P2 combined
+- P4 Cleaning: form ง่ายสุด (code + status + 2 photos)
+- Key decisions: P1 วิ่งอิสระ, P4 ขนานได้, photos ใช้ Drive folder ไม่ใช่ form upload
+- มนต์ส่ง `bkk_shelter_list_verified.xlsx` (4 TOR, 1,348 หลัง, lat/long verified)
 
 ## Key Decisions
 - Drive folders must be public
-- MS forms use `/d/{ID}` path (no published key)
-- Code format: "ES 001" (with space) in all CSVs
+- Photos → Drive folder (ไม่ใช่ Google Form file upload)
+- Code format: "ES001" (no space) in forms, "ES 001" (with space) in old CSVs
 - Geo-match threshold: 200m default, >200m = field verify
 - 5 Traffy tickets at same stop = 1 case for reporting
 - All teams use same form→photo→report pattern, different form fields
+- Timestamp auto — ไม่ต้องกรอกวันที่
+- ไม่เก็บชื่อช่างในฟอร์ม
