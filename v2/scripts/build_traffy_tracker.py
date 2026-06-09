@@ -18,6 +18,9 @@ REMATCHED_CSV = os.path.join(DATA_DIR, "traffy_rematched.csv")
 DEDUP_CSV = os.path.join(DATA_DIR, "traffy_dedup.csv")
 OUT_HTML = os.path.join(OUT_DIR, "traffy_tracker.html")
 
+# Google Form IDs (created 8 Jun 2026)
+P1_FORM_ID = "1FAIpQLSfpfTkED3m-66HalnmnKZSSxpjvY3c97Y4wmSJp4Dv4a9vJ1A"
+
 
 def read_csv(path):
     rows = []
@@ -362,6 +365,7 @@ function renderCases() {{
         <div class="detail-row"><span class="detail-label">ระยะห่าง</span><span class="detail-value">${{dist || '—'}}</span></div>
         ${{mapsUrl ? `<div class="detail-row"><span class="detail-label">แผนที่เคส</span><span class="detail-value"><a href="${{mapsUrl}}" target="_blank">เปิด Google Maps (เคส)</a></span></div>` : ''}}
         ${{shelterMapsUrl ? `<div class="detail-row"><span class="detail-label">แผนที่ศาลา</span><span class="detail-value"><a href="${{shelterMapsUrl}}" target="_blank">เปิด Google Maps (ศาลา)</a></span></div>` : ''}}
+        <div class="detail-row"><span class="detail-label">📋 รายงานซ่อม</span><span class="detail-value"><a href="https://docs.google.com/forms/d/e/{P1_FORM_ID}/viewform?usp=pp_url&entry.62705490=${{encodeURIComponent(c.shelter_code || '')}}&entry.711616789=${{encodeURIComponent(c.ticket_id || '')}}" target="_blank" style="color:#4fc3f7;font-weight:600">กรอกฟอร์ม P1</a></span></div>
         <div class="detail-row" style="margin-top:8px">
           <span class="detail-label">สถานะงาน</span>
           <select class="status-select" onchange="setStatus('${{esc(c.ticket_id)}}', this.value); event.stopPropagation();" onclick="event.stopPropagation();">

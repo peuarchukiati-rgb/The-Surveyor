@@ -101,30 +101,41 @@ All teams → Drive folder photos → Google Form → Sheets → Dashboard → r
 - [x] 23 unmatched cases → field verification list
 - [x] Case dedup reporting for กทม.
 
-### Step 2: Create Google Forms จริง
-- [ ] สร้าง Google Form จาก P1 spec → get Form ID → update tracker prefill links
-- [ ] สร้าง Google Form จาก P2 spec
-- [ ] สร้าง Google Form จาก P4 spec
+### Step 2: Create Google Forms จริง ✅ DONE (9 มิ.ย.)
+มนต์สร้างผ่าน Apps Script + ปรับแก้เพิ่มเอง
 
-### Step 3: Import verified data จากมนต์
-- [ ] Import `bkk_shelter_list_verified.xlsx` → update per-TOR CSVs + all_stops.csv
-- [ ] Compare old vs new lat/long → report what changed (~10%)
-- [ ] Rebuild tracker/dashboard with updated stop data
+| Form | Edit URL | Fill URL |
+|------|----------|----------|
+| P1 Traffy Fix | [edit](https://docs.google.com/forms/d/1obh3hP9EcmmXv3-TozRSmS19jHlqrgLxEdofl1xqatQ/edit) | [fill](https://docs.google.com/forms/d/e/1FAIpQLSfpfTkED3m-66HalnmnKZSSxpjvY3c97Y4wmSJp4Dv4a9vJ1A/viewform) |
+| P2 Inspection | [edit](https://docs.google.com/forms/d/1_wS2-qsw1EqmmfzDYYDz9Ume3r1t3i1im3Xi--_PgSY/edit) | [fill](https://docs.google.com/forms/d/e/1FAIpQLSeaDJtyyu7Ba4ZT7P34P8Qkrtau3ddVr5F1JP2eCplp7NdS1g/viewform) |
+| P3 Maintenance | (มนต์สร้างเอง จาก P1 + เพิ่มชื่อทีม) | TBD |
+| P4 Cleaning | [edit](https://docs.google.com/forms/d/1GJvyg7iohIojcVOy_KIaofu0kUEQQA0uJ3QWTLDPxi0/edit) | [fill](https://docs.google.com/forms/d/e/1FAIpQLSeLmkl5WLc57j8nwGW4iV84seIDDA-q-UCCYvknm8kVrpAAEQ/viewform) |
+
+มนต์ปรับเพิ่มจาก script:
+- P1: ปรับคำอธิบาย options ให้ชัดขึ้น
+- P2: เพิ่มจาก 10 → 18 fields (ไล่ logic ไฟฟ้าจริง, แยก component, ประเภทม้านั่ง) — รอ confirm กับวิศวะไฟฟ้า
+- P4: เพิ่ม field ชื่อ-ทีมผู้ปฏิบัติงาน
+
+Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=1825707891
+
+### Step 3: Import verified data จากมนต์ ✅ DONE (9 มิ.ย.)
+- [x] Import `bkk_shelter_list_verified.xlsx` → data ตรงกับที่มีอยู่แล้ว (ไม่มี diff)
+- [x] Tracker rebuilt with P1 form prefill links
 
 ### Step 4: P3 Maintenance Form
-- [ ] Form spec (เหมือน P1 + ใช้ data จาก P2)
-- [ ] Google Form
+- [ ] มนต์สร้าง form เอง (เหมือน P1 + ชื่อทีม) — รอ Form URL
+- [ ] Update spec.md เมื่อได้ URL
 
 ### Step 5: Dashboard 2.0
 - [ ] Unified multi-team view (all 4 teams in one dashboard)
 - [ ] Daily performance tracking per team
 - [ ] Report generator for กทม.
 
-### Waiting on มนต์
-- ~~BOQ field list~~ → ได้แล้วจาก whiteboard 8 มิ.ย.
-- ~~Updated lat/long~~ → ได้แล้ว `bkk_shelter_list_verified.xlsx`
+### Waiting
+- P2 Inspection form: รอ confirm กับวิศวะไฟฟ้า
+- P3 Maintenance form: รอมนต์สร้าง + ส่ง URL
 - Cleaning team schedule/route preference
-- Traffy case tickets (for P1 pre-fill data)
+- กุญแจตู้ไฟ: รอเซ็นสัญญากับ กทม.
 
 ## Meeting Notes
 
