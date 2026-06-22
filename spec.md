@@ -126,12 +126,15 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 - [x] มนต์สร้าง form เอง (= P1 + ชื่อ-ทีมผู้ปฏิบัติงาน)
 - [x] Fields: รหัสป้าย, ชื่อ-ทีม, อาการเสีย (checkboxes), สถานะ, เหตุผล
 
-### Step 5: Dashboard 2.0
-- [ ] Unified multi-team view (all 4 teams in one dashboard)
+### Step 5: Dashboard 2.0 (IN PROGRESS)
+- [x] Unified multi-team view — `v2/output/dashboard.html` (dummy data, live on GitHub Pages)
+- [ ] ต่อ Google Sheets live CSV (รอมนต์ publish 4 sheets → ส่ง CSV URLs กลับ)
 - [ ] Daily performance tracking per team
 - [ ] Report generator for กทม.
+- [ ] ลบ dummy data เมื่อมี data จริง
 
 ### Waiting
+- มนต์: publish 4 Google Sheets เป็น CSV URLs (handoff ส่งแล้ว `HANDOFF_MON_SHEETS.md`)
 - P2 Inspection form: รอ confirm กับวิศวะไฟฟ้า
 - Cleaning team schedule/route preference
 - กุญแจตู้ไฟ: รอเซ็นสัญญากับ กทม.
