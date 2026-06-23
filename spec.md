@@ -128,13 +128,23 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 
 ### Step 5: Dashboard 2.0 (IN PROGRESS)
 - [x] Unified multi-team view — `v2/output/dashboard.html` (dummy data, live on GitHub Pages)
+- [x] Restyle → light theme เหมือน v1 (#f5f7fa, การ์ดขาว, accent #1a73e8) — 23 มิ.ย.
+- [x] ปุ่ม 3 ปุ่มต่อ P (📍 Map / 📁 Upload / 📋 Form) ใน section ของแต่ละ P — 23 มิ.ย.
+  - Map ใช้ lat/long จาก DATA, refactor template ซ้ำเป็น `cardHTML()`/`pSection()`
+  - Script: `v2/scripts/restyle_dashboard.py` (regex แก้ style+formUrl+render, ไม่แตะ DATA)
 - [ ] ต่อ Google Sheets live CSV (รอมนต์ publish 4 sheets → ส่ง CSV URLs กลับ)
 - [ ] Daily performance tracking per team
 - [ ] Report generator for กทม.
 - [ ] ลบ dummy data เมื่อมี data จริง
 
+### Step 6: P2+P4 Response Sheets (23 มิ.ย. — handoff `~/Downloads/HANDOFF_PEAK.md`)
+- [ ] Peak กดสร้าง Response Sheet เอง P2+P4 (Responses → Sheets icon → Create new spreadsheet) — ownership ต้องอยู่ที่ Peak ไม่ใช่มนต์
+- มนต์ยืนยัน P2+P4 forms แก้ข้อมูลเสร็จ → ทีมงานใช้พุธ 24 มิ.ย.
+
 ### Waiting
 - มนต์: publish 4 Google Sheets เป็น CSV URLs (handoff ส่งแล้ว `HANDOFF_MON_SHEETS.md`)
+- มนต์: P1 + P3 forms ยังแก้ข้อมูลอยู่ (P3 อิงโครงสร้าง P1, code พร้อมใน `create_forms.gs`)
+- มนต์: ส่ง mapping `P<n>_<code>` → Drive folder URL (เริ่มโซน ES) → เอามาใส่ปุ่ม Upload (ตอนนี้ใช้ s.folder ศาลาเดิมไปก่อน)
 - P2 Inspection form: รอ confirm กับวิศวะไฟฟ้า
 - Cleaning team schedule/route preference
 - กุญแจตู้ไฟ: รอเซ็นสัญญากับ กทม.
