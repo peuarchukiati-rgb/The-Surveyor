@@ -189,6 +189,19 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 - Cleaning team schedule/route preference
 - กุญแจตู้ไฟ: รอเซ็นสัญญากับ กทม.
 
+## Session Log
+
+### 1 ก.ค. 2569 — go LIVE + redesign (Peak + claude)
+- **Live subscription ON**: `dashboard.html` LIVE:true, เสียบ CSV มนต์ (P_STATUS + P2_MAP + P4_MAP). match รหัส 1,348/1,348. push แล้ว — "นิ่งสนิท" ก่อนหน้าเพราะยังไม่ commit (Pages serve dummy เก่า)
+- **มนต์ verify รอบ 1** (`FEEDBACK_PEAK.md`) → แก้ครบ 5 ข้อ:
+  - ตัด TNS 272 ออกทั้งระบบ (dashboard init splice + map data.js + design1_classic) → 1,348
+  - ทุก P counter ฐาน /1348 (renderSummary), เลขนับจาก data จริง (MS263/SS233)
+  - redesign เป็น **drill-down 4 ชั้น**: overall→ทีม P→โซน→เขต→ศาลา + back/breadcrumb
+  - สี v1: P1 แดง/P2 เหลือง/P3 ฟ้า/P4 เขียว + zone palette
+- data layer (DATA/CONFIG/mergeStatus/loadLive) ไม่แตะ. commits: `b11e0a2` (TNS+base), `79cf0ff` (redesign)
+- handoff verify รอบ 2 → `HANDOFF_MON_VERIFY.md`
+- **ค้าง**: P1+P3 form entry ID + folder CSV (ปุ่มอัพรูป P1/P3 เทา, prefill P2-P4 รอ entry). dead CSS เก่ายังค้างในไฟล์ (harmless)
+
 ## Meeting Notes
 
 ### 8 มิ.ย. 2569 (มนต์ + พี่บอย + Peak)
