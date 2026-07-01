@@ -334,19 +334,19 @@ function mapsUrl(lat, lng) {
 
 // ===== SUMMARY =====
 function renderSummary() {
+  // Every phase reports against the same 1,348 in-scope base (มนต์'s verified list:
+  // ES 606 + MS 263 + NS 246 + SS 233). TNS already stripped in init.
   const total = DATA.length;
-  const traffyTotal = DATA.filter(s => s.p1 !== 'na').length;
   const p1Done = DATA.filter(s => s.p1 === 'done').length;
   const p2Done = DATA.filter(s => s.p2 === 'done').length;
-  const p3Eligible = DATA.filter(s => s.p3 !== 'na' && s.p3 !== 'waiting').length;
   const p3Done = DATA.filter(s => s.p3 === 'done').length;
   const p4Done = DATA.filter(s => s.p4 === 'done').length;
 
   document.getElementById('summaryBar').innerHTML = `
     <div class="sum-card"><span class="n">${total}</span><span class="l">ศาลาทั้งหมด</span></div>
-    <div class="sum-card"><span class="n">${p1Done}/${traffyTotal}</span><span class="l">P1 Traffy</span><span class="d">เฉพาะเคส Traffy</span></div>
+    <div class="sum-card"><span class="n">${p1Done}/${total}</span><span class="l">P1 Traffy ซ่อมด่วน</span></div>
     <div class="sum-card"><span class="n">${p2Done}/${total}</span><span class="l">P2 ตรวจสภาพ</span></div>
-    <div class="sum-card"><span class="n">${p3Done}/${p3Eligible}</span><span class="l">P3 ซ่อมบำรุง</span><span class="d">เฉพาะที่พบความเสียหาย</span></div>
+    <div class="sum-card"><span class="n">${p3Done}/${total}</span><span class="l">P3 ซ่อมบำรุง</span></div>
     <div class="sum-card"><span class="n">${p4Done}/${total}</span><span class="l">P4 ทำความสะอาด R1</span></div>
   `;
 }
@@ -518,6 +518,12 @@ function renderShelters() {
 }
 
 // ===== INIT =====
+// TNS (กรุงธน 272 หลัง) is out of scope — not in มนต์'s verified list, no forms,
+// no P_STATUS rows. Drop it so list + all counters run on the 1,348 in-scope shelters.
+for (let i = DATA.length - 1; i >= 0; i--) {
+  if (DATA[i].tor === 'TNS') DATA.splice(i, 1);
+}
+
 async function init() {
   if (CONFIG.LIVE) {
     try { await loadLive(); } catch (e) { console.error("live load failed — using bundled data", e); }
