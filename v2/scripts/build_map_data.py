@@ -30,6 +30,10 @@ def main():
     with open(DATA_CSV, encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # TNS (กรุงธนบุรี, 272 หลัง) is out of scope — drop it whole-system.
+            if row.get("tor", "").strip().upper() == "TNS":
+                skipped += 1
+                continue
             lat = row.get("lat", "").strip()
             lng = row.get("long", "").strip()
             if not lat or not lng:

@@ -124,35 +124,116 @@ body {
   .filters select, .filters input { width: 100%; }
 }
 
+/* ===== v2 drill-down redesign ===== */
+:root{
+  --p1:#ff4757; --p2:#ffcf33; --p3:#1e90ff; --p4:#2ed573;
+  --zone-MS:#ff4757; --zone-NS:#2ed573; --zone-SS:#ffcf33; --zone-ES:#1e90ff;
+  --ink:#1a1a1a; --muted:#5f6368; --line:#e1e5eb; --bg:#f5f7fa;
+}
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;
+  background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;}
+.back-btn{border:1px solid #d0d7e0;background:#fff;color:var(--ink);border-radius:10px;
+  padding:8px 14px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.back-btn:active{background:#f1f3f4;}
+.crumb{flex:1;font-size:14px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.map-link{text-decoration:none;font-size:13px;font-weight:700;color:#1a73e8;
+  border:1px solid #d0d7e0;border-radius:10px;padding:8px 12px;white-space:nowrap;}
+.app{padding:14px 14px 120px;max-width:1120px;margin:0 auto;}
+
+.zpills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.zpill{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+  border-radius:20px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink);}
+.zpill .zdot{width:10px;height:10px;border-radius:50%;}
+.zpill .zn{background:#eef2f6;border-radius:12px;padding:1px 9px;font-size:12px;font-weight:700;}
+
+.page-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.page-h h2{margin:0;font-size:20px;font-weight:700;color:var(--ink);}
+.page-h .ph-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px;}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.stat .sn{display:block;font-size:24px;font-weight:800;color:var(--ink);line-height:1.1;}
+.stat .sl{font-size:12px;color:var(--muted);margin-top:4px;display:block;}
+
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.team-col{display:flex;flex-direction:column;gap:10px;}
+.big-btn{border:none;border-radius:22px;padding:26px 10px;cursor:pointer;font-family:inherit;
+  color:#111;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.12);transition:transform .1s;}
+.big-btn:active{transform:scale(.97);}
+.big-btn .bn{display:block;font-size:40px;font-weight:800;line-height:1;}
+.big-btn .bl{display:block;font-size:15px;font-weight:700;margin-top:8px;}
+.big-btn.p1{background:var(--p1);} .big-btn.p2{background:var(--p2);}
+.big-btn.p3{background:var(--p3);color:#fff;} .big-btn.p4{background:var(--p4);}
+
+.mini{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px;}
+.mini th,.mini td{padding:7px 8px;text-align:center;border-bottom:1px solid #eef1f4;}
+.mini th{background:#f7f9fb;color:var(--muted);font-weight:700;font-size:11px;}
+.mini td:first-child,.mini th:first-child{text-align:left;font-weight:700;}
+.mini tr:last-child td{border-bottom:none;}
+.mini .ok{color:#137333;font-weight:700;}
+.mini .no{color:#b06000;font-weight:700;}
+
+.zone-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.zone-col{display:flex;flex-direction:column;gap:10px;}
+.zone-btn{border:none;border-radius:22px;padding:30px 10px;cursor:pointer;font-family:inherit;color:#111;
+  text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.12);transition:transform .1s;}
+.zone-btn:active{transform:scale(.97);}
+.zone-btn .zk{display:block;font-size:38px;font-weight:800;line-height:1;}
+.zone-btn .zl{display:block;font-size:14px;font-weight:700;margin-top:6px;}
+.zone-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;line-height:1.7;}
+.zone-stat .ok{color:#137333;} .zone-stat .no{color:#b06000;}
+
+.search-box{width:100%;border:1px solid #d0d7e0;border-radius:12px;padding:12px 14px;font-size:14px;
+  font-family:inherit;margin-bottom:12px;}
+.search-box:focus{outline:none;border-color:#1a73e8;}
+.row-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.row-item:active{background:#f7f9fb;}
+.row-title{font-weight:700;font-size:15px;color:var(--ink);}
+.row-sub{font-size:12px;color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;}
+.row-frac{font-size:14px;font-weight:700;color:var(--muted);white-space:nowrap;}
+.row-frac.full{color:#137333;}
+
+.st-done{background:#e6f4ea;color:#137333;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap;}
+.st-todo{background:#fef7e0;color:#b06000;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:700;white-space:nowrap;}
+
+.shelter-item{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden;}
+.shelter-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer;}
+.shelter-item.open .shelter-head{border-bottom:1px solid #eef1f4;}
+.sh-panel{display:none;padding:16px;}
+.shelter-item.open .sh-panel{display:block;}
+.act3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.act{display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;
+  border-radius:16px;padding:18px 8px;background:#f5f7fa;border:1px solid var(--line);color:var(--ink);font-weight:700;}
+.act .ai{font-size:34px;line-height:1;}
+.act .at{font-size:14px;}
+.act.a-map{background:#e8f0fe;} .act.a-up{background:#fff8e1;} .act.a-form{background:#e6f4ea;}
+.act.off{opacity:.4;pointer-events:none;}
+.act .up-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.act .up-status.done{background:#e6f4ea;color:#137333;}
+.act .up-status.todo{background:#fef7e0;color:#b06000;}
+
+@media(max-width:720px){
+  .team-grid,.zone-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:480px){
+  .stats{grid-template-columns:repeat(2,1fr);}
+  .big-btn .bn,.zone-btn .zk{font-size:32px;}
+  .act{padding:14px 6px;} .act .ai{font-size:28px;}
+}
+
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div>
-    <h1>The Surveyor v2 — Dashboard รวม 4 ทีม</h1>
-    <div class="sub">ศาลาที่พักผู้โดยสาร กรุงเทพมหานคร</div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px;">
-    <a href="../map/index.html" style="text-decoration:none;font-size:13px;font-weight:600;color:#1a73e8;border:1px solid #d0d7e0;border-radius:8px;padding:6px 12px;white-space:nowrap;">🗺️ Map</a>
-    <span class="badge-dummy">DUMMY DATA</span>
-  </div>
+<div class="topbar">
+  <button id="backBtn" class="back-btn" onclick="goBack()" style="display:none;">‹ กลับ</button>
+  <div id="crumb" class="crumb">The Surveyor v2 — Dashboard รวม 4 ทีม</div>
+  <a class="map-link" href="../map/index.html">🗺️ แผนที่ภาพรวม</a>
 </div>
 
-<div id="summaryBar" class="summary"></div>
-
-<div class="filters">
-  <select id="fTor"><option value="">TOR ทั้งหมด</option></select>
-  <select id="fDistrict"><option value="">เขต ทั้งหมด</option></select>
-  <input id="fSearch" type="search" placeholder="ค้น code, เขต, ถนน, สถานที่..." autocomplete="off">
-  <select id="fP1"><option value="">P1 ทั้งหมด</option></select>
-  <select id="fP2"><option value="">P2 ทั้งหมด</option></select>
-  <select id="fP3"><option value="">P3 ทั้งหมด</option></select>
-  <select id="fP4"><option value="">P4 ทั้งหมด</option></select>
-</div>
-
-<div id="countBar" class="count-bar"></div>
-<div id="shelterList" class="shelter-list"></div>
+<div id="app" class="app"></div>
 
 <script>
 // ===== DATA =====
@@ -332,189 +413,216 @@ function mapsUrl(lat, lng) {
   return 'https://www.google.com/maps?q=' + lat + ',' + lng;
 }
 
-// ===== SUMMARY =====
-function renderSummary() {
-  // Every phase reports against the same 1,348 in-scope base (มนต์'s verified list:
-  // ES 606 + MS 263 + NS 246 + SS 233). TNS already stripped in init.
+// ===== DRILL-DOWN NAV (4 levels) =====
+const ZONES = [
+  { k:'MS', th:'กรุงเทพกลาง',    short:'กลาง' },
+  { k:'NS', th:'กรุงเทพเหนือ',   short:'เหนือ' },
+  { k:'SS', th:'กรุงเทพใต้',     short:'ใต้' },
+  { k:'ES', th:'กรุงเทพตะวันออก', short:'ตะวันออก' },
+];
+const TEAMS = [
+  { k:'p1', n:'P1', th:'ทีมซ่อมด่วน' },
+  { k:'p2', n:'P2', th:'ทีมสำรวจ' },
+  { k:'p3', n:'P3', th:'ทีมซ่อม' },
+  { k:'p4', n:'P4', th:'ทีมทำความสะอาด' },
+];
+const ZLABEL = {};
+ZONES.forEach(z => { ZLABEL[z.k] = z.th; });
+
+let nav = { p:null, zone:null, district:null };
+let expandedCode = null;
+let searchQ = '';
+let _lastView = '';
+
+function jsq(s){ return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+function totalScope(zone, district){
+  return DATA.filter(s =>
+    (!zone || s.tor === zone) &&
+    (!district || s.district === district)).length;
+}
+function doneP(phase, zone, district){
+  return DATA.filter(s =>
+    (!zone || s.tor === zone) &&
+    (!district || s.district === district) &&
+    s[phase] === 'done').length;
+}
+
+// ---------- Level 1: overall + pick team ----------
+function renderL1(){
   const total = DATA.length;
-  const p1Done = DATA.filter(s => s.p1 === 'done').length;
-  const p2Done = DATA.filter(s => s.p2 === 'done').length;
-  const p3Done = DATA.filter(s => s.p3 === 'done').length;
-  const p4Done = DATA.filter(s => s.p4 === 'done').length;
+  const zpills = ZONES.map(z => {
+    const n = totalScope(z.k);
+    return `<span class="zpill"><span class="zdot" style="background:var(--zone-${z.k})"></span>${z.short}<span class="zn">${n}</span></span>`;
+  }).join('');
 
-  document.getElementById('summaryBar').innerHTML = `
-    <div class="sum-card"><span class="n">${total}</span><span class="l">ศาลาทั้งหมด</span></div>
-    <div class="sum-card"><span class="n">${p1Done}/${total}</span><span class="l">P1 Traffy ซ่อมด่วน</span></div>
-    <div class="sum-card"><span class="n">${p2Done}/${total}</span><span class="l">P2 ตรวจสภาพ</span></div>
-    <div class="sum-card"><span class="n">${p3Done}/${total}</span><span class="l">P3 ซ่อมบำรุง</span></div>
-    <div class="sum-card"><span class="n">${p4Done}/${total}</span><span class="l">P4 ทำความสะอาด R1</span></div>
-  `;
+  const stats = `<div class="stat"><span class="sn">${total}</span><span class="sl">ศาลาทั้งหมด</span></div>` +
+    TEAMS.map(t => `<div class="stat"><span class="sn">${doneP(t.k)}/${total}</span><span class="sl">${t.n} ${t.th}</span></div>`).join('');
+
+  const teams = TEAMS.map(t => {
+    const rows = ZONES.map(z => {
+      const tot = totalScope(z.k);
+      const done = doneP(t.k, z.k);
+      return `<tr><td>${z.k}</td><td>${tot}</td><td class="ok">${done}</td><td class="no">${tot - done}</td></tr>`;
+    }).join('');
+    return `<div class="team-col">
+      <button class="big-btn ${t.k}" onclick="pickP('${t.k}')">
+        <span class="bn">${t.n}</span><span class="bl">${t.th}</span></button>
+      <table class="mini"><thead><tr><th></th><th>ทั้งหมด</th><th>เสร็จ</th><th>ยังไม่เสร็จ</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    </div>`;
+  }).join('');
+
+  return `<div class="zpills">${zpills}</div>
+    <div class="stats">${stats}</div>
+    <div class="team-grid">${teams}</div>`;
 }
 
-// ===== FILTERS =====
-function populateFilters() {
-  const tors = new Set();
-  const districts = new Set();
-  const statuses = ['done', 'pending', 'na', 'waiting', 'partial'];
-  const statusLabels = { done: 'done ✅', pending: 'pending ⏳', na: 'na —', waiting: 'waiting ⏸', partial: 'partial' };
+// ---------- Level 2: pick zone ----------
+function renderL2(){
+  const t = TEAMS.find(x => x.k === nav.p);
+  const cols = ZONES.map(z => {
+    const tot = totalScope(z.k), done = doneP(nav.p, z.k);
+    return `<div class="zone-col">
+      <button class="zone-btn" style="background:var(--zone-${z.k});${z.k === 'ES' ? 'color:#fff' : ''}" onclick="pickZone('${z.k}')">
+        <span class="zk">${z.k}</span><span class="zl">${z.short}</span></button>
+      <div class="zone-stat">
+        <div><b>ทั้งหมด</b> ${tot}</div>
+        <div class="ok"><b>เสร็จแล้ว</b> ${done}</div>
+        <div class="no"><b>ยังไม่เสร็จ</b> ${tot - done}</div>
+      </div></div>`;
+  }).join('');
+  return `<div class="page-h"><div><h2>เลือกโซน</h2><div class="ph-sub">${t.n} ${t.th}</div></div></div>
+    <div class="zone-grid">${cols}</div>`;
+}
 
-  DATA.forEach(s => {
-    if (s.tor) tors.add(s.tor);
-    if (s.district) districts.add(s.district);
+// ---------- Level 3: districts in zone ----------
+function codeRange(zone){
+  const codes = DATA.filter(s => s.tor === zone).map(s => s.code);
+  if (!codes.length) return '';
+  return normCode(codes[0]) + '–' + normCode(codes[codes.length - 1]);
+}
+function districtListHTML(){
+  const seen = new Map();
+  DATA.filter(s => s.tor === nav.zone).forEach(s => {
+    if (!seen.has(s.district)) seen.set(s.district, { total:0, done:0 });
+    const d = seen.get(s.district);
+    d.total++; if (s[nav.p] === 'done') d.done++;
   });
-
-  const torSel = document.getElementById('fTor');
-  [...tors].sort().forEach(t => {
-    const o = document.createElement('option');
-    o.value = t; o.textContent = t;
-    torSel.appendChild(o);
-  });
-
-  const distSel = document.getElementById('fDistrict');
-  [...districts].sort().forEach(d => {
-    const o = document.createElement('option');
-    o.value = d; o.textContent = d;
-    distSel.appendChild(o);
-  });
-
-  ['fP1','fP2','fP3','fP4'].forEach(id => {
-    const sel = document.getElementById(id);
-    statuses.forEach(st => {
-      const o = document.createElement('option');
-      o.value = st; o.textContent = statusLabels[st];
-      sel.appendChild(o);
+  const q = searchQ.trim().toLowerCase();
+  let rows = [...seen.entries()];
+  if (q){
+    rows = rows.filter(([dist]) => {
+      if (dist.toLowerCase().includes(q)) return true;
+      return DATA.some(s => s.tor === nav.zone && s.district === dist &&
+        [s.code, s.road, s.location].join(' ').toLowerCase().includes(q));
     });
-  });
+  }
+  if (!rows.length) return '<div class="empty">ไม่พบเขตที่ตรงเงื่อนไข</div>';
+  return rows.map(([dist, d]) => {
+    const full = d.done === d.total && d.total > 0 ? 'full' : '';
+    return `<div class="row-item" onclick="pickDistrict('${jsq(dist)}')">
+      <div class="row-title">${esc(dist)}</div>
+      <div class="row-frac ${full}">${d.done}/${d.total}</div></div>`;
+  }).join('');
 }
-
-function getFiltered() {
-  const q = document.getElementById('fSearch').value.toLowerCase();
-  const tor = document.getElementById('fTor').value;
-  const dist = document.getElementById('fDistrict').value;
-  const fp1 = document.getElementById('fP1').value;
-  const fp2 = document.getElementById('fP2').value;
-  const fp3 = document.getElementById('fP3').value;
-  const fp4 = document.getElementById('fP4').value;
-
-  return DATA.filter(s => {
-    if (tor && s.tor !== tor) return false;
-    if (dist && s.district !== dist) return false;
-    if (fp1 && s.p1 !== fp1) return false;
-    if (fp2 && s.p2 !== fp2) return false;
-    if (fp3 && s.p3 !== fp3) return false;
-    if (fp4 && s.p4 !== fp4) return false;
-    if (q) {
-      const hay = [s.code, s.district, s.road, s.location].join(' ').toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-}
-
-// ===== RENDER =====
-const P_LABELS = { p1: 'P1 Traffy', p2: 'P2 \u0e15\u0e23\u0e27\u0e08\u0e2a\u0e20\u0e32\u0e1e', p3: 'P3 \u0e0b\u0e48\u0e2d\u0e21\u0e1a\u0e33\u0e23\u0e38\u0e07', p4: 'P4 \u0e17\u0e33\u0e04\u0e27\u0e32\u0e21\u0e2a\u0e30\u0e2d\u0e32\u0e14' };
-
-function statusBadge(val, rounds) {
-  if (val === 'done') return '<span class="pill p-done">\u0e40\u0e2a\u0e23\u0e47\u0e08 \u2705</span>';
-  if (val === 'pending') return '<span class="pill p-pending">\u0e23\u0e2d\u0e17\u0e33 \u23f3</span>';
-  if (val === 'progress') return '<span class="pill p-progress">\u0e01\u0e33\u0e25\u0e31\u0e07\u0e17\u0e33 \ud83d\udd27</span>';
-  if (val === 'na') return '<span class="pill p-na">\u0e44\u0e21\u0e48\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27 \u2014</span>';
-  if (val === 'waiting') return '<span class="pill p-waiting">\u0e23\u0e2d\u0e04\u0e34\u0e27 \u23f8</span>';
-  if (val === 'partial') return '<span class="pill p-partial">R' + (rounds || 0) + '/4</span>';
-  return '';
-}
-
-function pSection(s, phase) {
-  const val = s[phase];
-  const maps = mapsUrl(s.lat, s.long);
-  const folder = s[phase + "_folder"] || s.folder;  // phase-specific first, fallback to shared
-  const form = formUrl(phase, s.code);
-  const ts = s[phase + '_ts'];
-  let info = '';
-  if (phase === 'p1' && s.p1_dmg) info = esc(s.p1_dmg);
-  if (phase === 'p2' && s.p2_items) info = esc(s.p2_items);
-  if (phase === 'p4') info = (s.p4r || 0) + '/4 \u0e23\u0e2d\u0e1a';
-  const meta = [ts ? esc(ts) : '', info].filter(Boolean).join(' \u00b7 ');
-  return `<div class="p-section">
-    <div class="p-head"><span class="p-name">${P_LABELS[phase]}</span>${statusBadge(val, s.p4r)}</div>
-    ${meta ? '<div class="p-meta">' + meta + '</div>' : ''}
-    <div class="p-btns">
-      <a class="pbtn ${maps ? '' : 'off'}" href="${maps || '#'}" target="_blank" rel="noopener">\ud83d\udccd Map</a>
-      <a class="pbtn ${folder ? '' : 'off'}" href="${folder ? esc(folder) : '#'}" target="_blank" rel="noopener">\ud83d\udcc1 Upload</a>
-      <a class="pbtn" href="${form}" target="_blank" rel="noopener">\ud83d\udccb Form</a>
+function renderL3(){
+  const t = TEAMS.find(x => x.k === nav.p);
+  const z = ZONES.find(x => x.k === nav.zone);
+  const tot = totalScope(nav.zone), done = doneP(nav.p, nav.zone);
+  const pct = tot ? Math.round(done / tot * 100) : 0;
+  return `<div class="page-h">
+      <div><h2>${z.th}</h2><div class="ph-sub">${codeRange(nav.zone)} · ${t.n} ${t.th}</div></div>
     </div>
-  </div>`;
+    <div class="stats">
+      <div class="stat"><span class="sn">${tot}</span><span class="sl">ทั้งหมด</span></div>
+      <div class="stat"><span class="sn" style="color:#137333">${done}</span><span class="sl">เสร็จแล้ว</span></div>
+      <div class="stat"><span class="sn" style="color:#b06000">${tot - done}</span><span class="sl">เหลือ</span></div>
+      <div class="stat"><span class="sn">${pct}%</span><span class="sl">Done</span></div>
+    </div>
+    <input id="searchBox" class="search-box" type="search" placeholder="🔍 ค้น code, ถนน, location..." value="${esc(searchQ)}">
+    <div id="distList">${districtListHTML()}</div>`;
 }
 
-function cardHTML(s) {
-  return `<div class="shelter-card" onclick="toggleCard(this)">
-    <div class="card-top">
-      <span class="card-code">${esc(s.code)}</span>
-      <span class="card-dist">${esc(s.district)}</span>
-      <span class="card-road">${esc(s.road)}</span>
-    </div>
-    <div class="card-loc">${esc(s.location)}</div>
-    <div class="card-pills">
-      ${statusPill('p1', s.p1, 0)}
-      ${statusPill('p2', s.p2, 0)}
-      ${statusPill('p3', s.p3, 0)}
-      ${statusPill('p4', s.p4, s.p4r)}
-    </div>
-    <div class="card-detail" onclick="event.stopPropagation()">
-      <div class="dt-meta">${esc(s.type)}</div>
-      ${pSection(s, 'p1')}
-      ${pSection(s, 'p2')}
-      ${pSection(s, 'p3')}
-      ${pSection(s, 'p4')}
-    </div>
-  </div>`;
+// ---------- Level 4: shelters in district ----------
+function renderL4(){
+  const z = ZONES.find(x => x.k === nav.zone);
+  const t = TEAMS.find(x => x.k === nav.p);
+  const shelters = DATA.filter(s => s.tor === nav.zone && s.district === nav.district);
+  const items = shelters.map(s => {
+    const done = s[nav.p] === 'done';
+    const open = s.code === expandedCode;
+    const folder = s[nav.p + '_folder'] || s.folder;
+    const maps = mapsUrl(s.lat, s.long);
+    const form = formUrl(nav.p, s.code);
+    const stTxt = done ? 'เสร็จ ✓' : 'ยังไม่ทำ';
+    const panel = `<div class="sh-panel">
+      <div class="act3">
+        <a class="act a-map ${maps ? '' : 'off'}" href="${maps || '#'}" target="_blank" rel="noopener"><span class="ai">📍</span><span class="at">แผนที่</span></a>
+        <a class="act a-up ${folder ? '' : 'off'}" href="${folder ? esc(folder) : '#'}" target="_blank" rel="noopener"><span class="ai">📁</span><span class="at">อัพรูป</span><span class="up-status ${done ? 'done' : 'todo'}">${stTxt}</span></a>
+        <a class="act a-form" href="${form}" target="_blank" rel="noopener"><span class="ai">📄</span><span class="at">กรอกข้อมูล</span></a>
+      </div></div>`;
+    return `<div class="shelter-item ${open ? 'open' : ''}">
+      <div class="shelter-head" onclick="toggleShelter('${jsq(s.code)}')">
+        <div><div class="row-title">${esc(s.code)}</div><div class="row-sub">${esc(s.district)} · ${esc(s.location || '')}</div></div>
+        <span class="${done ? 'st-done' : 'st-todo'}">${stTxt}</span>
+      </div>${panel}</div>`;
+  }).join('') || '<div class="empty">ไม่มีศาลาในเขตนี้</div>';
+  return `<div class="page-h"><div><h2>${esc(nav.district)}</h2>
+      <div class="ph-sub">${z.th} · ${t.n} · ${shelters.length} ศาลา</div></div></div>
+    ${items}`;
 }
 
-function toggleCard(el) {
-  el.classList.toggle('expanded');
+// ---------- navigation ----------
+function pickP(p){ nav.p = p; nav.zone = null; nav.district = null; searchQ = ''; render(); }
+function pickZone(z){ nav.zone = z; nav.district = null; searchQ = ''; render(); }
+function pickDistrict(d){ nav.district = d; expandedCode = null; render(); }
+function toggleShelter(code){ expandedCode = (expandedCode === code) ? null : code; render(); }
+function goBack(){
+  if (nav.district !== null){ nav.district = null; expandedCode = null; }
+  else if (nav.zone !== null){ nav.zone = null; }
+  else if (nav.p !== null){ nav.p = null; }
+  searchQ = '';
+  render();
 }
 
-function renderShelters() {
-  const filtered = getFiltered();
-  const container = document.getElementById('shelterList');
-  document.getElementById('countBar').textContent = '\u0e41\u0e2a\u0e14\u0e07 ' + filtered.length + ' / ' + DATA.length + ' \u0e28\u0e32\u0e25\u0e32';
-
-  if (!filtered.length) {
-    container.innerHTML = '<div class="empty">\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e28\u0e32\u0e25\u0e32\u0e17\u0e35\u0e48\u0e15\u0e23\u0e07\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02</div>';
+function updateTopbar(){
+  const back = document.getElementById('backBtn');
+  const crumb = document.getElementById('crumb');
+  if (!nav.p){
+    crumb.textContent = 'The Surveyor v2 — Dashboard รวม 4 ทีม';
+    back.style.display = 'none';
     return;
   }
+  const parts = [];
+  const t = TEAMS.find(x => x.k === nav.p);
+  parts.push(t.n + ' ' + t.th);
+  if (nav.zone) parts.push(ZLABEL[nav.zone]);
+  if (nav.district) parts.push(nav.district);
+  crumb.textContent = parts.join('  ›  ');
+  back.style.display = '';
+}
 
-  const BATCH = 200;
-  const show = filtered.slice(0, BATCH);
-  container.innerHTML = show.map(cardHTML).join('');
+function attachSearch(){
+  const box = document.getElementById('searchBox');
+  if (!box) return;
+  box.addEventListener('input', () => {
+    searchQ = box.value;
+    const list = document.getElementById('distList');
+    if (list) list.innerHTML = districtListHTML();
+  });
+}
 
-  if (filtered.length > BATCH) {
-    const more = document.createElement('div');
-    more.className = 'empty';
-    more.id = 'loadMore';
-    more.textContent = '\u0e41\u0e2a\u0e14\u0e07 ' + BATCH + ' \u0e08\u0e32\u0e01 ' + filtered.length + ' \u2014 \u0e40\u0e25\u0e37\u0e48\u0e2d\u0e19\u0e25\u0e07\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e42\u0e2b\u0e25\u0e14\u0e40\u0e1e\u0e34\u0e48\u0e21';
-    container.appendChild(more);
-
-    let loaded = BATCH;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && loaded < filtered.length) {
-        const next = filtered.slice(loaded, loaded + BATCH);
-        const frag = document.createDocumentFragment();
-        const tmp = document.createElement('div');
-        tmp.innerHTML = next.map(cardHTML).join('');
-        while (tmp.firstChild) frag.appendChild(tmp.firstChild);
-        container.insertBefore(frag, more);
-        loaded += next.length;
-        if (loaded >= filtered.length) {
-          observer.disconnect();
-          more.remove();
-        } else {
-          more.textContent = '\u0e41\u0e2a\u0e14\u0e07 ' + loaded + ' \u0e08\u0e32\u0e01 ' + filtered.length + ' \u2014 \u0e40\u0e25\u0e37\u0e48\u0e2d\u0e19\u0e25\u0e07\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e42\u0e2b\u0e25\u0e14\u0e40\u0e1e\u0e34\u0e48\u0e21';
-        }
-      }
-    });
-    observer.observe(more);
-  }
+function render(){
+  updateTopbar();
+  const app = document.getElementById('app');
+  let view;
+  if (!nav.p){ app.innerHTML = renderL1(); view = 'L1'; }
+  else if (!nav.zone){ app.innerHTML = renderL2(); view = 'L2:' + nav.p; }
+  else if (!nav.district){ app.innerHTML = renderL3(); attachSearch(); view = 'L3:' + nav.p + nav.zone; }
+  else { app.innerHTML = renderL4(); view = 'L4:' + nav.p + nav.zone + nav.district; }
+  if (view !== _lastView) window.scrollTo(0, 0);
+  _lastView = view;
 }
 
 // ===== INIT =====
@@ -528,24 +636,9 @@ async function init() {
   if (CONFIG.LIVE) {
     try { await loadLive(); } catch (e) { console.error("live load failed — using bundled data", e); }
   }
-  renderSummary();
-  populateFilters();
-  renderShelters();
+  render();
 }
 init();
-
-// Debounced search
-let searchTimer;
-document.getElementById('fSearch').addEventListener('input', () => {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(renderShelters, 200);
-});
-document.getElementById('fTor').addEventListener('change', renderShelters);
-document.getElementById('fDistrict').addEventListener('change', renderShelters);
-document.getElementById('fP1').addEventListener('change', renderShelters);
-document.getElementById('fP2').addEventListener('change', renderShelters);
-document.getElementById('fP3').addEventListener('change', renderShelters);
-document.getElementById('fP4').addEventListener('change', renderShelters);
 </script>
 </body>
 </html>

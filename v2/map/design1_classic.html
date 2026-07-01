@@ -209,8 +209,8 @@
 // so we just open the form blank — do NOT append a fake entry param.
 const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSeaDJtyyu7Ba4ZT7P34P8Qkrtau3ddVr5F1JP2eCplp7NdS1g/viewform';
 window.FORM_URL=FORM_URL; // expose for inline popup onclick handlers
-const CENTER=[13.724306,100.527311], COLORS={MS:'#ff4757',NS:'#2ed573',SS:'#1e90ff',ES:'#ffa502',TNS:'#a855f7',CENTER:'#1e293b'};
-const NAMES={MS:'MS · กรุงเทพกลาง',NS:'NS · กรุงเทพเหนือ',SS:'SS · กรุงเทพใต้',ES:'ES · กรุงเทพตะวันออก',TNS:'TNS · ธนบุรี'};
+const CENTER=[13.724306,100.527311], COLORS={MS:'#ff4757',NS:'#2ed573',SS:'#1e90ff',ES:'#ffa502',CENTER:'#1e293b'};
+const NAMES={MS:'MS · กรุงเทพกลาง',NS:'NS · กรุงเทพเหนือ',SS:'SS · กรุงเทพใต้',ES:'ES · กรุงเทพตะวันออก'};
 const CENTER_POINT={code:'SILOM9',dist:'บางรัก',road:'ซอยสีลม 9',place:'ซอยสีลม 9 (Center Point)',type:'Center',g:'CENTER',lat:CENTER[0],lng:CENTER[1]};
 const map=L.map('map').setView(CENTER,12);
 // 3 ระดับความสะอาด × light/dark
@@ -248,8 +248,8 @@ const centerMarker=L.marker(CENTER,{icon:L.divIcon({className:'',html:'<div styl
 centerMarker.bindPopup(`<b>🎯 SILOM9 · Center Point</b><br><b>เขต:</b> บางรัก<br><b>ถนน:</b> ซอยสีลม 9<br><b>ตำแหน่ง:</b> ซอยสีลม 9<br><b>พิกัด:</b> <a href="https://www.google.com/maps/search/?api=1&query=${CENTER[0]},${CENTER[1]}" target="_blank" rel="noopener" style="color:#1e90ff;text-decoration:none;font-weight:600;">${CENTER[0]}, ${CENTER[1]} 🌐</a><br><button onclick="addWP('SILOM9')" style="margin-top:6px;padding:4px 8px;border:0;background:#1e293b;color:#fff;border-radius:4px;cursor:pointer;">➕ เพิ่มเป็น waypoint</button> <button onclick="window.open(FORM_URL,'_blank','noopener')" style="margin-top:6px;padding:4px 8px;border:0;background:#10b981;color:#fff;border-radius:4px;cursor:pointer;" title="เปิดฟอร์มสำรวจ P2">📋 เปิดฟอร์ม</button>`);
 centerMarker.on('click',()=>{if(routeMode)addWP('SILOM9');});
 
-const layers={MS:L.layerGroup().addTo(map),NS:L.layerGroup().addTo(map),SS:L.layerGroup().addTo(map),ES:L.layerGroup().addTo(map),TNS:L.layerGroup().addTo(map)};
-const enabled={MS:true,NS:true,SS:true,ES:true,TNS:true};
+const layers={MS:L.layerGroup().addTo(map),NS:L.layerGroup().addTo(map),SS:L.layerGroup().addTo(map),ES:L.layerGroup().addTo(map)};
+const enabled={MS:true,NS:true,SS:true,ES:true};
 const TYPES=['Type A','Type B','Type B2','Type JC','ลอนโค้ง','ทรงไทย','หลังเล็ก','ไม่ระบุ'];
 const typeEnabled={}; TYPES.forEach(t=>typeEnabled[t]=true);
 // ===== Process status config =====
@@ -350,7 +350,7 @@ loadStatus(STATUS_CSV_URL);
 
 // legend
 const legEl=document.getElementById('legend');
-['MS','NS','SS','ES','TNS'].forEach(g=>{
+['MS','NS','SS','ES'].forEach(g=>{
   const n=DATA.filter(p=>p.g===g).length;
   const el=document.createElement('div');
   el.className='lg'; el.dataset.g=g;
@@ -368,7 +368,7 @@ function applyFilters(){
     if(show){if(!layers[p.g].hasLayer(m))layers[p.g].addLayer(m);}
     else{if(layers[p.g].hasLayer(m))layers[p.g].removeLayer(m);}
   });
-  ['MS','NS','SS','ES','TNS'].forEach(g=>{enabled[g]?map.addLayer(layers[g]):map.removeLayer(layers[g]);});
+  ['MS','NS','SS','ES'].forEach(g=>{enabled[g]?map.addLayer(layers[g]):map.removeLayer(layers[g]);});
   if(typeof refreshZones==='function') refreshZones();
 }
 const tcEl=document.getElementById('type-chips');
@@ -471,7 +471,7 @@ function buildZones(){
   zoneLayer.clearLayers();
   const visible=DATA.filter(p=>enabled[p.g]&&typeEnabled[p.type]);
   // group into the 4 TOR zones
-  ['MS','NS','SS','ES','TNS'].forEach(g=>{
+  ['MS','NS','SS','ES'].forEach(g=>{
     const pts=visible.filter(p=>p.g===g);
     if(!pts.length) return;
     const color=COLORS[g];
