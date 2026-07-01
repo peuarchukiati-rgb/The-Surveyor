@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>BKK Shelter Survey – Classic Light</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  :root{--ms:#e74c3c;--ns:#27ae60;--ss:#3498db;--es:#f39c12;--center:#ffffff;}
+  html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI','Sarabun',sans-serif;overflow:hidden;}
+  #app{display:flex;height:100vh;position:relative;}
+  #map{flex:1;height:100%;}
+  #sidebar{width:340px;background:#f7f7f8;border-left:1px solid #ddd;display:flex;flex-direction:column;transition:transform .25s ease;flex-shrink:0;overflow-y:auto;}
+  #sidebar.collapsed{transform:translateX(100%);margin-right:-340px;}
+  #toggle-sb{position:absolute;top:14px;right:14px;z-index:1000;width:44px;height:44px;border:0;border-radius:50%;background:#1e293b;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);display:none;align-items:center;justify-content:center;}
+  #toggle-sb:hover{background:#374151;}
+  #collapse-sb{position:absolute;top:50%;right:340px;transform:translateY(-50%);z-index:999;width:22px;height:48px;border:0;border-radius:6px 0 0 6px;background:#1e293b;color:#fff;cursor:pointer;font-size:12px;box-shadow:-2px 0 6px rgba(0,0,0,.15);transition:right .25s ease;opacity:.85;}
+  #collapse-sb:hover{opacity:1;}
+  #collapse-sb.collapsed{right:0;}
+  @media(max-width:768px){
+    /* bottom sheet: แผนที่ครึ่งบน + แถบเลื่อนครึ่งล่าง */
+    #map{width:100%;height:100%;}
+    #sidebar{position:absolute;left:0;right:0;bottom:0;top:auto;width:100%;max-width:none;height:58vh;
+      border-left:none;border-top:1px solid #ddd;border-radius:18px 18px 0 0;
+      box-shadow:0 -6px 24px rgba(0,0,0,.28);transform:none;margin-right:0;z-index:998;overflow-y:auto;}
+    #sidebar::before{content:'';position:sticky;top:0;display:block;width:42px;height:5px;margin:7px auto 2px;
+      background:#cbd5e1;border-radius:3px;}
+    #sidebar.collapsed{transform:translateY(100%);}
+    #collapse-sb{display:none;}
+    #toggle-sb{display:flex;}
+  }
+  header{padding:12px 14px;background:#1e293b;color:#fff;}
+  header h1{font-size:15px;margin:0 0 4px 0;}
+  header p{font-size:12px;margin:0;opacity:.8;}
+  .legend{padding:10px 14px;background:#fff;border-bottom:1px solid #ddd;display:flex;flex-wrap:wrap;gap:8px;font-size:12px;}
+  .lg{display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 8px;border-radius:14px;background:#eef2f6;}
+  .lg.off{opacity:.35;}
+  .dot{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.2);}
+  .controls{padding:10px 14px;background:#fff;border-bottom:1px solid #ddd;display:flex;gap:6px;flex-wrap:wrap;}
+  .controls button{flex:1;padding:7px 8px;border:1px solid #cbd5e1;background:#fff;border-radius:6px;cursor:pointer;font-size:12px;}
+  .controls button.primary{background:#1e293b;color:#fff;border-color:#1e293b;}
+  .controls button:hover{background:#e2e8f0;}
+  .controls button.primary:hover{background:#334155;}
+  #route-info{padding:8px 14px;background:#fffbeb;border-bottom:1px solid #fde68a;font-size:12px;color:#854d0e;display:none;}
+  /* ===== Left working panel (route / waypoints) ===== */
+  #left-panel{position:absolute;left:12px;top:12px;bottom:12px;width:300px;z-index:800;background:#fff;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);display:none;flex-direction:column;overflow:hidden;}
+  #left-panel.show{display:flex;}
+  #lp-head{padding:11px 14px;background:#1e293b;color:#fff;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+  #lp-head .lp-x{cursor:pointer;font-size:18px;opacity:.8;}
+  #lp-head .lp-x:hover{opacity:1;}
+  #left-panel #route-info{flex-shrink:0;}
+  #left-panel #wp-list{flex:1;overflow-y:auto;padding:6px 8px;}
+  body.dark #left-panel{background:#0b1220;}
+  body.dark #left-panel #wp-list{background:#0b1220;}
+  @media(max-width:768px){
+    /* route panel อยู่บน (เหนือ bottom sheet) เห็นพร้อมแผนที่ */
+    #left-panel{left:8px;right:8px;width:auto;top:8px;bottom:auto;max-height:36vh;}
+  }
+  #wp-list{flex:1;overflow:auto;padding:6px 8px;}
+  .wp{padding:8px 10px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:6px;font-size:12px;display:flex;justify-content:space-between;align-items:center;}
+  .wp-idx{display:inline-block;width:22px;height:22px;line-height:22px;text-align:center;background:#1e293b;color:#fff;border-radius:50%;font-size:11px;margin-right:8px;}
+  .wp-rm{cursor:pointer;color:#dc2626;font-weight:bold;}
+  .wp-rm:hover{color:#991b1b;}
+  .search{padding:8px 14px;background:#fff;border-bottom:1px solid #ddd;}
+  .search input{width:100%;padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;}
+  .center-pin{font-size:18px;}
+  .type-filter{padding:8px 14px;background:#f3f4f6;border-bottom:1px solid #ddd;}
+  .type-filter h4{margin:0 0 6px;font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;}
+  .type-filter h4 a{color:#1e293b;font-size:10px;cursor:pointer;text-decoration:underline;}
+  .type-chips{display:flex;flex-wrap:wrap;gap:4px;}
+  .tch{padding:3px 8px;border-radius:10px;background:#fff;border:1px solid #cbd5e1;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;}
+  .tch.off{opacity:.35;background:#e5e7eb;}
+  .tch .ts{background:#1e293b;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;}
+  @keyframes dashFlow{to{stroke-dashoffset:-24;}}
+  .route-animated{animation:dashFlow 1s linear infinite;}
+  /* ===== Map cleanliness control (left) ===== */
+  #clean-ctrl{position:absolute;right:354px;bottom:14px;z-index:850;background:rgba(255,255,255,.95);border-radius:10px;box-shadow:0 3px 12px rgba(0,0,0,.25);padding:6px;display:flex;flex-direction:row;align-items:center;gap:5px;backdrop-filter:blur(6px);}
+  #clean-ctrl .cc-title{display:none;}
+  #clean-ctrl .cc-btn{padding:7px 11px;border:1px solid #cbd5e1;background:#fff;border-radius:7px;cursor:pointer;font-size:12px;text-align:center;white-space:nowrap;transition:.15s;}
+  #clean-ctrl .cc-btn:hover{background:#eef2f6;}
+  #clean-ctrl .cc-btn.active{background:#1e293b;color:#fff;border-color:#1e293b;}
+  body.dark #clean-ctrl{background:rgba(15,23,42,.92);}
+  body.dark #clean-ctrl .cc-btn{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark #clean-ctrl .cc-btn.active{background:#2563eb;border-color:#2563eb;}
+  #sidebar.collapsed ~ #clean-ctrl{right:14px;}
+  @media(max-width:768px){
+    #clean-ctrl{right:8px;bottom:calc(58vh + 10px);padding:5px;gap:4px;}
+    #clean-ctrl .cc-btn{padding:6px 9px;font-size:11px;}
+  }
+  /* ===== Traffy + Process sections ===== */
+  .section{padding:8px 14px;border-bottom:1px solid #ddd;background:#fff;}
+  .section h4{margin:0 0 6px;font-size:11px;color:#475569;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
+  .section h4 .sw{display:flex;align-items:center;gap:5px;}
+  .sub-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+  .date-row{display:flex;gap:5px;margin-top:6px;align-items:center;}
+  .date-row input{flex:1;padding:4px 6px;border:1px solid #cbd5e1;border-radius:5px;font-size:11px;}
+  .date-row span{font-size:11px;color:#64748b;}
+  .toggle-switch{position:relative;width:36px;height:20px;background:#cbd5e1;border-radius:10px;cursor:pointer;transition:.2s;flex-shrink:0;}
+  .toggle-switch.on{background:#10b981;}
+  .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;}
+  .toggle-switch.on::after{left:18px;}
+  body.dark .section{background:#111c30;border-bottom-color:#1e293b;}
+  body.dark .section h4{color:#94a3b8;}
+  body.dark .tch{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark .date-row input{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  /* bigger popup close button */
+  .leaflet-popup-close-button{width:30px!important;height:30px!important;font-size:24px!important;line-height:26px!important;padding:0!important;right:4px!important;top:4px!important;color:#64748b!important;font-weight:700;}
+  .leaflet-popup-close-button:hover{color:#dc2626!important;background:#f1f5f9;border-radius:50%;}
+  .leaflet-popup-content{margin-right:30px;}
+  /* ===== DARK MODE ===== */
+  body.dark #sidebar{background:#0b1220;border-left-color:#1e293b;}
+  body.dark header{background:#0f172a;}
+  body.dark .legend,body.dark .type-filter,body.dark .search,body.dark .controls,
+  body.dark #route-info{background:#111c30;border-bottom-color:#1e293b;}
+  body.dark .type-filter{background:#0d1626;}
+  body.dark .type-filter h4{color:#94a3b8;}
+  body.dark .type-filter h4 a{color:#60a5fa;}
+  body.dark .lg{background:#1e293b;color:#e2e8f0;}
+  body.dark .tch{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark .tch.off{background:#0f172a;}
+  body.dark .search input{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark .controls button{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark .controls button:hover{background:#334155;}
+  body.dark .controls button.primary{background:#2563eb;border-color:#2563eb;}
+  body.dark #route-info{background:#1b2a1f;border-bottom-color:#14532d;color:#86efac;}
+  body.dark #wp-list{background:#0b1220;}
+  body.dark .wp{background:#1e293b;border-color:#334155;color:#e2e8f0;}
+  body.dark .wp span[style*="color:#64748b"]{color:#94a3b8!important;}
+  body.dark .leaflet-popup-content-wrapper,body.dark .leaflet-popup-tip{background:#1e293b;color:#e2e8f0;}
+  body.dark .leaflet-control-zoom a{background:#1e293b!important;color:#e2e8f0!important;border-color:#334155!important;}
+  /* neon glow on markers in dark mode */
+  body.dark .shelter-dot{filter:drop-shadow(0 0 3px rgba(255,255,255,.55));stroke-width:1px;}
+  body.dark .route-animated{filter:drop-shadow(0 0 5px currentColor);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map"></div>
+  <div id="clean-ctrl">
+    <div class="cc-title">ความละเอียดแผนที่</div>
+    <button class="cc-btn active" data-lv="0">🗺️ ละเอียด</button>
+    <button class="cc-btn" data-lv="1">🧹 สะอาดตา</button>
+    <button class="cc-btn" data-lv="2">⬜ มินิมอล</button>
+  </div>
+  <button id="toggle-sb" title="เปิด/ปิดแถบข้าง">☰</button>
+  <button id="collapse-sb" title="ซ่อนแถบข้าง">◀</button>
+  <div id="sidebar">
+    <header style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h1>🗺️ BKK Shelter Survey · v2.0</h1>
+        <p id="hdr-sub">Classic Light · OpenStreetMap · 1,620 จุด</p>
+        <a href="../output/dashboard.html" title="ไปหน้า Monitoring Dashboard" style="display:inline-block;margin-top:6px;padding:3px 10px;background:rgba(255,255,255,.15);color:#fff;border-radius:12px;font-size:11px;text-decoration:none;">→ Dashboard</a>
+      </div>
+      <button id="btn-theme" title="สลับโหมดมืด/สว่าง" style="background:rgba(255,255,255,.15);border:0;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:18px;flex-shrink:0;">🌙</button>
+    </header>
+    <div class="legend" id="legend"></div>
+    <div class="type-filter">
+      <h4>กรองประเภทศาลา <span><a id="t-all">ทั้งหมด</a> · <a id="t-none">ไม่เลือก</a></span></h4>
+      <div class="type-chips" id="type-chips"></div>
+    </div>
+    <div class="section">
+      <h4>🛠️ สถานะงานศาลา <span><a id="s-all" style="color:#1e293b;font-size:10px;cursor:pointer;text-decoration:underline;">ทั้งหมด</a></span></h4>
+      <div style="display:flex;gap:4px;margin-bottom:6px;" id="phase-selector">
+        <button class="tch" onclick="switchPhase('P1')">P1</button>
+        <button class="tch" onclick="switchPhase('P2')">P2</button>
+        <button class="tch" onclick="switchPhase('P3')">P3</button>
+        <button class="tch active" onclick="switchPhase('P4')" style="background:#1e293b;color:#fff;">P4</button>
+      </div>
+      <div class="sub-chips" id="status-chips"></div>
+      <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#475569;cursor:pointer;"><input type="checkbox" id="color-by-status"> ระบายสีหมุดตามสถานะงาน</label>
+    </div>
+    <div class="section">
+      <h4>⚠️ Traffy Fondue <span class="sw"><span id="traffy-count" style="font-size:10px;color:#64748b;"></span><div class="toggle-switch" id="traffy-toggle"></div></span></h4>
+      <div id="traffy-body" style="display:none;">
+        <div class="sub-chips" id="traffy-status-chips"></div>
+        <div class="sub-chips" id="traffy-type-chips" style="margin-top:4px;"></div>
+        <div class="date-row"><input type="date" id="traffy-from"><span>ถึง</span><input type="date" id="traffy-to"></div>
+      </div>
+    </div>
+    <div class="search"><input id="search" placeholder="🔍 ค้นหา รหัส / ถนน / สถานที่"></div>
+    <div class="controls">
+      <button class="primary" id="btn-route">▶ Route Mode</button>
+      <button id="btn-clear">ล้าง</button>
+      <button id="btn-goto-center">🏠 สีลม 9</button>
+      <button id="btn-zoning" style="flex:1 1 100%;">🔲 แบ่ง 4 โซน TOR: ปิด</button>
+      <button id="btn-roadmode" style="flex:1 1 100%;">🛣️ ตามถนน: เปิด</button>
+      <button id="btn-share" style="flex:1 1 100%;background:#10b981;color:#fff;border-color:#10b981;">📤 แชร์เส้นทางไปมือถือ</button>
+    </div>
+    <div style="padding:8px 14px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:#475569;">สีเส้น:</span>
+      <div id="color-swatches" style="display:flex;gap:5px;"></div>
+      <input type="color" id="color-pick" value="#000000" style="width:30px;height:26px;border:1px solid #cbd5e1;border-radius:5px;cursor:pointer;padding:0;" title="เลือกสีเอง">
+    </div>
+  </div>
+  <div id="left-panel">
+    <div id="lp-head"><span>🛣️ เส้นทางสำรวจ</span><span class="lp-x" id="lp-close" title="ปิด">✕</span></div>
+    <div id="route-info"></div>
+    <div id="wp-list"><div style="padding:20px;text-align:center;color:#94a3b8;font-size:12px;">กดที่หมุดบนแผนที่เพื่อเพิ่ม waypoint</div></div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script src="status.js"></script>
+<script src="traffy.js"></script>
+<script src="share.js"></script>
+<script>
+// Google Form fill URL — opened from each marker popup (📋 เปิดฟอร์ม).
+// Default = P2 Inspection (P1/P3 forms still being edited). Prefill entry ID unknown,
+// so we just open the form blank — do NOT append a fake entry param.
+const FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSeaDJtyyu7Ba4ZT7P34P8Qkrtau3ddVr5F1JP2eCplp7NdS1g/viewform';
+window.FORM_URL=FORM_URL; // expose for inline popup onclick handlers
+const CENTER=[13.724306,100.527311], COLORS={MS:'#ff4757',NS:'#2ed573',SS:'#1e90ff',ES:'#ffa502',TNS:'#a855f7',CENTER:'#1e293b'};
+const NAMES={MS:'MS · กรุงเทพกลาง',NS:'NS · กรุงเทพเหนือ',SS:'SS · กรุงเทพใต้',ES:'ES · กรุงเทพตะวันออก',TNS:'TNS · ธนบุรี'};
+const CENTER_POINT={code:'SILOM9',dist:'บางรัก',road:'ซอยสีลม 9',place:'ซอยสีลม 9 (Center Point)',type:'Center',g:'CENTER',lat:CENTER[0],lng:CENTER[1]};
+const map=L.map('map').setView(CENTER,12);
+// 3 ระดับความสะอาด × light/dark
+const TILE_DEFS={
+  light:[
+    {url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',opts:{maxZoom:19,attribution:'© OpenStreetMap'}},               // 0 ละเอียด
+    {url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',opts:{maxZoom:20,subdomains:'abcd',attribution:'© CARTO © OSM'}}, // 1 สะอาด
+    {url:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',opts:{maxZoom:20,subdomains:'abcd',attribution:'© CARTO © OSM'}},           // 2 มินิมอล
+  ],
+  dark:[
+    {url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',opts:{maxZoom:20,subdomains:'abcd',attribution:'© CARTO © OSM'}},
+    {url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',opts:{maxZoom:20,subdomains:'abcd',attribution:'© CARTO © OSM'}},
+    {url:'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',opts:{maxZoom:20,subdomains:'abcd',attribution:'© CARTO © OSM'}},
+  ],
+};
+let dark=false, cleanLevel=0;
+let baseLayer=L.tileLayer(TILE_DEFS.light[0].url,TILE_DEFS.light[0].opts).addTo(map);
+function applyBasemap(){
+  if(baseLayer) map.removeLayer(baseLayer);
+  const t=(dark?TILE_DEFS.dark:TILE_DEFS.light)[cleanLevel];
+  baseLayer=L.tileLayer(t.url,t.opts).addTo(map);
+  baseLayer.bringToBack();
+}
+// cleanliness level buttons (left control)
+document.querySelectorAll('#clean-ctrl .cc-btn').forEach(b=>{
+  b.onclick=()=>{
+    cleanLevel=parseInt(b.dataset.lv,10);
+    document.querySelectorAll('#clean-ctrl .cc-btn').forEach(x=>x.classList.toggle('active',x===b));
+    applyBasemap();
+  };
+});
+
+// center pin (also usable as waypoint)
+const centerMarker=L.marker(CENTER,{icon:L.divIcon({className:'',html:'<div style="background:#fff;border:4px solid #1e293b;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 12px rgba(0,0,0,.5);">🎯</div>',iconSize:[32,32],iconAnchor:[16,16]}),zIndexOffset:1000}).addTo(map);
+centerMarker.bindPopup(`<b>🎯 SILOM9 · Center Point</b><br><b>เขต:</b> บางรัก<br><b>ถนน:</b> ซอยสีลม 9<br><b>ตำแหน่ง:</b> ซอยสีลม 9<br><b>พิกัด:</b> <a href="https://www.google.com/maps/search/?api=1&query=${CENTER[0]},${CENTER[1]}" target="_blank" rel="noopener" style="color:#1e90ff;text-decoration:none;font-weight:600;">${CENTER[0]}, ${CENTER[1]} 🌐</a><br><button onclick="addWP('SILOM9')" style="margin-top:6px;padding:4px 8px;border:0;background:#1e293b;color:#fff;border-radius:4px;cursor:pointer;">➕ เพิ่มเป็น waypoint</button> <button onclick="window.open(FORM_URL,'_blank','noopener')" style="margin-top:6px;padding:4px 8px;border:0;background:#10b981;color:#fff;border-radius:4px;cursor:pointer;" title="เปิดฟอร์มสำรวจ P2">📋 เปิดฟอร์ม</button>`);
+centerMarker.on('click',()=>{if(routeMode)addWP('SILOM9');});
+
+const layers={MS:L.layerGroup().addTo(map),NS:L.layerGroup().addTo(map),SS:L.layerGroup().addTo(map),ES:L.layerGroup().addTo(map),TNS:L.layerGroup().addTo(map)};
+const enabled={MS:true,NS:true,SS:true,ES:true,TNS:true};
+const TYPES=['Type A','Type B','Type B2','Type JC','ลอนโค้ง','ทรงไทย','หลังเล็ก','ไม่ระบุ'];
+const typeEnabled={}; TYPES.forEach(t=>typeEnabled[t]=true);
+// ===== Process status config =====
+const ST_DEFS=[
+  {key:'pending', label:'ยังไม่สำรวจ', color:'#94a3b8'},
+  {key:'progress',label:'กำลังดำเนินการ', color:'#f59e0b'},
+  {key:'done',    label:'เสร็จสิ้น', color:'#10b981'},
+];
+const ST_COLOR={pending:'#94a3b8',progress:'#f59e0b',done:'#10b981'};
+const ST_LABEL={pending:'ยังไม่สำรวจ',progress:'กำลังดำเนินการ',done:'เสร็จสิ้น'};
+const statusEnabled={pending:true,progress:true,done:true};
+let colorByStatus=false;
+function shStatus(code){ return (typeof STATUS!=='undefined' && STATUS[code]) ? STATUS[code].status : 'pending'; }
+const markers={};
+
+DATA.forEach(p=>{
+  const st=shStatus(p.code);
+  const m=L.circleMarker([p.lat,p.lng],{radius:6,color:'#fff',weight:1.5,fillColor:COLORS[p.g],fillOpacity:.95,className:'shelter-dot'});
+  const stBadge=`<span style="display:inline-block;background:${ST_COLOR[st]};color:#fff;padding:1px 7px;border-radius:9px;font-size:11px;">${ST_LABEL[st]}</span>`;
+  m.bindPopup(`<b>${p.code}</b> <span style="color:${COLORS[p.g]}">[${p.g}]</span><br><b>เขต:</b> ${p.dist}<br><b>ถนน:</b> ${p.road}<br><b>ตำแหน่ง:</b> ${p.place}<br><b>ประเภท:</b> ${p.type}<br><b>สถานะงาน:</b> ${stBadge}<br><b>พิกัด:</b> <a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}" target="_blank" rel="noopener" style="color:#1e90ff;text-decoration:none;font-weight:600;" title="เปิดใน Google Maps">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)} 🌐</a><br><button onclick="addWP('${p.code}')" style="margin-top:6px;padding:4px 8px;border:0;background:#1e293b;color:#fff;border-radius:4px;cursor:pointer;">➕ เพิ่มเป็น waypoint</button> <button onclick="window.open(FORM_URL,'_blank','noopener')" style="margin-top:6px;padding:4px 8px;border:0;background:#10b981;color:#fff;border-radius:4px;cursor:pointer;" title="เปิดฟอร์มสำรวจ P2 (รหัส ${p.code})">📋 เปิดฟอร์ม</button>`);
+  m.on('click',()=>{if(routeMode)addWP(p.code);});
+  layers[p.g].addLayer(m);
+  markers[p.code]={m,p};
+});
+markers['SILOM9']={m:centerMarker,p:CENTER_POINT};
+// recolor markers based on mode (TOR group vs work status)
+function recolorMarkers(){
+  DATA.forEach(p=>{
+    const m=markers[p.code].m;
+    m.setStyle({fillColor: colorByStatus ? ST_COLOR[shStatus(p.code)] : COLORS[p.g]});
+  });
+}
+
+// ===================================================================
+// TODO (NOT WIRED — needs มนต์'s input): live work-status from Google Sheets
+// -------------------------------------------------------------------
+// Scaffold for pulling per-shelter work status from a PUBLISHED Google
+// Sheets CSV (File > Share > Publish to web > CSV) and recoloring pins.
+// Currently OFF: no CSV URL exists yet, and the column schema is unknown.
+//
+// To activate later:
+//   1. Publish the status sheet as CSV, paste its URL into STATUS_CSV_URL.
+//   2. Confirm the column names with มนต์ — expected at minimum:
+//        code   -> shelter code (must match DATA[].code, NO space e.g. "ES001")
+//        status -> one of: pending | progress | done  (maps to ST_COLOR)
+//   3. Call loadStatus(STATUS_CSV_URL) once on load (e.g. end of script).
+// It mutates the global STATUS map (same shape status.js provides), then
+// re-runs applyFilters()/recolorMarkers() so chips, counts, and "ระบายสี
+// ตามสถานะงาน" reflect the live data instead of the static status.js seed.
+// -------------------------------------------------------------------
+const STATUS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQhYBDAEPsCLz_m5rzh2dIug18LysrxzBgHIqyzfGdVGPJ77449cSbgCS1AdAw0uJ4cybFImGIyqlbT/pub?gid=1738862538&single=true&output=csv';
+let activePhase = 'P4';  // default phase for status coloring
+async function loadStatus(csvUrl){
+  if(!csvUrl) return;
+  try{
+    const txt = await (await fetch(csvUrl, {cache:'no-store'})).text();
+    const rows = txt.trim().split(/\r?\n/);
+    const head = rows.shift().split(',').map(h=>h.trim());
+    const ci = head.indexOf('code');
+    if(ci<0){ console.warn('loadStatus: CSV missing code column'); return; }
+    if(typeof STATUS==='undefined'){ window.STATUS={}; }
+    rows.forEach(line=>{
+      const c = line.split(',');
+      const code = (c[ci]||'').trim().replace(/\s+/g,'').toUpperCase();
+      if(!code) return;
+      const entry = STATUS[code] || {};
+      head.forEach((h,i)=>{
+        if(h==='P1'||h==='P2'||h==='P3'||h==='P4'){
+          entry[h.toLowerCase()] = (c[i]||'').trim().toLowerCase();
+        }
+      });
+      // set combined status based on active phase
+      entry.status = entry[activePhase.toLowerCase()] || 'pending';
+      STATUS[code] = entry;
+    });
+    if(typeof recolorMarkers==='function') recolorMarkers();
+    if(typeof applyFilters==='function') applyFilters();
+  }catch(e){ console.warn('loadStatus failed:', e); }
+}
+function switchPhase(phase){
+  activePhase = phase;
+  // highlight active button
+  document.querySelectorAll('#phase-selector .tch').forEach(b=>{
+    const isActive = b.textContent.trim() === phase;
+    b.style.background = isActive ? '#1e293b' : '';
+    b.style.color = isActive ? '#fff' : '';
+  });
+  // recalc status for each shelter based on new phase
+  if(typeof STATUS!=='undefined'){
+    Object.keys(STATUS).forEach(code=>{
+      STATUS[code].status = STATUS[code][phase.toLowerCase()] || 'pending';
+    });
+  }
+  if(typeof recolorMarkers==='function') recolorMarkers();
+  if(typeof applyFilters==='function') applyFilters();
+}
+loadStatus(STATUS_CSV_URL);
+
+// legend
+const legEl=document.getElementById('legend');
+['MS','NS','SS','ES','TNS'].forEach(g=>{
+  const n=DATA.filter(p=>p.g===g).length;
+  const el=document.createElement('div');
+  el.className='lg'; el.dataset.g=g;
+  el.innerHTML=`<span class="dot" style="background:${COLORS[g]}"></span>${NAMES[g]} (${n})`;
+  el.onclick=()=>{enabled[g]=!enabled[g]; el.classList.toggle('off',!enabled[g]); applyFilters();};
+  legEl.appendChild(el);
+});
+
+// type filter
+function applyFilters(){
+  Object.keys(markers).forEach(code=>{
+    const {m,p}=markers[code];
+    if(!layers[p.g]) return; // skip CENTER pin (always on map)
+    const show=enabled[p.g] && typeEnabled[p.type] && statusEnabled[shStatus(p.code)];
+    if(show){if(!layers[p.g].hasLayer(m))layers[p.g].addLayer(m);}
+    else{if(layers[p.g].hasLayer(m))layers[p.g].removeLayer(m);}
+  });
+  ['MS','NS','SS','ES','TNS'].forEach(g=>{enabled[g]?map.addLayer(layers[g]):map.removeLayer(layers[g]);});
+  if(typeof refreshZones==='function') refreshZones();
+}
+const tcEl=document.getElementById('type-chips');
+TYPES.forEach(t=>{
+  const n=DATA.filter(p=>p.type===t).length;
+  if(!n) return;
+  const el=document.createElement('div');
+  el.className='tch'; el.innerHTML=`${t} <span class="ts">${n}</span>`;
+  el.onclick=()=>{typeEnabled[t]=!typeEnabled[t]; el.classList.toggle('off',!typeEnabled[t]); applyFilters();};
+  tcEl.appendChild(el);
+});
+document.getElementById('t-all').onclick=()=>{TYPES.forEach(t=>typeEnabled[t]=true); tcEl.querySelectorAll('.tch').forEach(e=>e.classList.remove('off')); applyFilters();};
+document.getElementById('t-none').onclick=()=>{TYPES.forEach(t=>typeEnabled[t]=false); tcEl.querySelectorAll('.tch').forEach(e=>e.classList.add('off')); applyFilters();};
+
+// ===== Work status chips =====
+const scEl=document.getElementById('status-chips');
+ST_DEFS.forEach(s=>{
+  const n=DATA.filter(p=>shStatus(p.code)===s.key).length;
+  const el=document.createElement('div');
+  el.className='tch';
+  el.innerHTML=`<span style="width:9px;height:9px;border-radius:50%;background:${s.color};display:inline-block;"></span>${s.label} <span class="ts">${n}</span>`;
+  el.onclick=()=>{statusEnabled[s.key]=!statusEnabled[s.key]; el.classList.toggle('off',!statusEnabled[s.key]); applyFilters();};
+  scEl.appendChild(el);
+});
+document.getElementById('s-all').onclick=()=>{ST_DEFS.forEach(s=>statusEnabled[s.key]=true); scEl.querySelectorAll('.tch').forEach(e=>e.classList.remove('off')); applyFilters();};
+document.getElementById('color-by-status').onchange=e=>{colorByStatus=e.target.checked; recolorMarkers();};
+
+// ===== Traffy Fondue layer =====
+const TF_TYPES=['ไฟ','ที่นั่ง','โครงสร้าง','หลังคา'];
+const tfStatusEn={open:true,closed:true};
+const tfTypeEn={}; TF_TYPES.forEach(t=>tfTypeEn[t]=true);
+let tfFrom=null, tfTo=null, traffyOn=false;
+const traffyLayer=L.layerGroup();
+const TF=(typeof TRAFFY!=='undefined')?TRAFFY:[];
+function tfIcon(c){
+  const col=c.status==='open'?'#dc2626':'#64748b';
+  return L.divIcon({className:'',html:`<div style="background:${col};color:#fff;width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:12px;">⚠</span></div>`,iconSize:[24,24],iconAnchor:[12,22]});
+}
+function buildTraffy(){
+  traffyLayer.clearLayers();
+  let shown=0;
+  TF.forEach(c=>{
+    if(!tfStatusEn[c.status]) return;
+    if(!tfTypeEn[c.type]) return;
+    if(tfFrom && c.date < tfFrom) return;
+    if(tfTo && c.date > tfTo) return;
+    shown++;
+    const m=L.marker([c.lat,c.lng],{icon:tfIcon(c),zIndexOffset:1500});
+    const linked=c.code?`<br><b>ศาลา:</b> ${c.code}`:'<br><span style="color:#dc2626;font-size:11px;">⚠ ยังไม่จับคู่ศาลา</span>';
+    m.bindPopup(`<b style="color:${c.status==='open'?'#dc2626':'#64748b'}">⚠ ${c.id} · Traffy</b> <span style="font-size:11px;color:#64748b;">(${c.status==='open'?'เปิด':'ปิด'})</span><br><b>ประเภท:</b> ${c.type}<br><b>วันที่:</b> ${c.date}<br><b>รายละเอียด:</b> ${c.desc}${linked}<br><a href="https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}" target="_blank" rel="noopener" style="color:#1e90ff;text-decoration:none;font-weight:600;">${c.lat.toFixed(5)}, ${c.lng.toFixed(5)} 🌐</a>`);
+    traffyLayer.addLayer(m);
+  });
+  document.getElementById('traffy-count').textContent=`${shown}/${TF.length} เคส`;
+}
+// traffy master toggle
+const tfToggle=document.getElementById('traffy-toggle'), tfBody=document.getElementById('traffy-body');
+tfToggle.onclick=()=>{
+  traffyOn=!traffyOn;
+  tfToggle.classList.toggle('on',traffyOn);
+  tfBody.style.display=traffyOn?'block':'none';
+  if(traffyOn){buildTraffy(); traffyLayer.addTo(map);} else {map.removeLayer(traffyLayer);}
+};
+// traffy status chips
+const tfsEl=document.getElementById('traffy-status-chips');
+[['open','🔴 เปิด (ยังไม่แก้)'],['closed','⚫ ปิด (แก้แล้ว)']].forEach(([k,lbl])=>{
+  const n=TF.filter(c=>c.status===k).length;
+  const el=document.createElement('div'); el.className='tch';
+  el.innerHTML=`${lbl} <span class="ts">${n}</span>`;
+  el.onclick=()=>{tfStatusEn[k]=!tfStatusEn[k]; el.classList.toggle('off',!tfStatusEn[k]); buildTraffy();};
+  tfsEl.appendChild(el);
+});
+// traffy type chips
+const tftEl=document.getElementById('traffy-type-chips');
+TF_TYPES.forEach(t=>{
+  const n=TF.filter(c=>c.type===t).length;
+  const el=document.createElement('div'); el.className='tch';
+  el.innerHTML=`${t} <span class="ts">${n}</span>`;
+  el.onclick=()=>{tfTypeEn[t]=!tfTypeEn[t]; el.classList.toggle('off',!tfTypeEn[t]); buildTraffy();};
+  tftEl.appendChild(el);
+});
+// traffy date range
+document.getElementById('traffy-from').onchange=e=>{tfFrom=e.target.value||null; buildTraffy();};
+document.getElementById('traffy-to').onchange=e=>{tfTo=e.target.value||null; buildTraffy();};
+
+// ===== Zoning Area (ตีกรอบเขต พร้อมจำนวน) =====
+let zoneOn=false, zoneLayer=L.layerGroup();
+function convexHull(coords){
+  // coords: [[lat,lng],...] ; compute hull using x=lng,y=lat
+  const pts=coords.map(p=>[p[1],p[0]]).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  if(pts.length<3) return coords;
+  const cross=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);
+  const lower=[];
+  for(const p of pts){while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],p)<=0)lower.pop();lower.push(p);}
+  const upper=[];
+  for(let i=pts.length-1;i>=0;i--){const p=pts[i];while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],p)<=0)upper.pop();upper.push(p);}
+  lower.pop();upper.pop();
+  return lower.concat(upper).map(p=>[p[1],p[0]]);
+}
+function buildZones(){
+  zoneLayer.clearLayers();
+  const visible=DATA.filter(p=>enabled[p.g]&&typeEnabled[p.type]);
+  // group into the 4 TOR zones
+  ['MS','NS','SS','ES','TNS'].forEach(g=>{
+    const pts=visible.filter(p=>p.g===g);
+    if(!pts.length) return;
+    const color=COLORS[g];
+    const coords=pts.map(p=>[p.lat,p.lng]);
+    // top-most point as label anchor (avoid overlap pile in center)
+    const cen=[pts.reduce((s,p)=>s+p.lat,0)/pts.length, pts.reduce((s,p)=>s+p.lng,0)/pts.length];
+    if(pts.length>=3){
+      zoneLayer.addLayer(L.polygon(convexHull(coords),{color,weight:3.5,opacity:.95,fillColor:color,fillOpacity:dark?.10:.07,dashArray:'1,0'}));
+    }
+    zoneLayer.addLayer(L.marker(cen,{interactive:false,zIndexOffset:600,icon:L.divIcon({className:'',html:`<div style="display:inline-block;background:${color};color:#fff;padding:6px 16px;border-radius:20px;font-size:15px;font-weight:800;line-height:1.2;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.6);border:2.5px solid #fff;transform:translate(-50%,-50%);text-shadow:0 1px 2px rgba(0,0,0,.4);box-sizing:content-box;">${g} ${pts.length}</div>`,iconSize:null})}));
+  });
+}
+function refreshZones(){ if(zoneOn) buildZones(); }
+document.getElementById('btn-zoning').onclick=function(){
+  zoneOn=!zoneOn;
+  this.textContent='🔲 แบ่ง 4 โซน TOR: '+(zoneOn?'เปิด':'ปิด');
+  this.style.background=zoneOn?'#6366f1':'#fff'; this.style.color=zoneOn?'#fff':'#000'; this.style.borderColor=zoneOn?'#6366f1':'#cbd5e1';
+  if(zoneOn){ buildZones(); zoneLayer.addTo(map); } else { map.removeLayer(zoneLayer); }
+};
+
+// route mode
+let routeMode=false, waypoints=[], routeLine=null, wpBadges=L.layerGroup().addTo(map);
+function drawBadges(){
+  wpBadges.clearLayers();
+  waypoints.forEach((c,i)=>{
+    const p=markers[c].p;
+    const last=(i===waypoints.length-1);
+    const bg=(i===0)?'#2ed573':(last?'#ff4757':routeColor);
+    wpBadges.addLayer(L.marker([p.lat,p.lng],{interactive:false,zIndexOffset:2000,icon:L.divIcon({className:'',html:`<div style="background:${bg};color:#fff;width:26px;height:26px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.4);">${i+1}</div>`,iconSize:[26,26],iconAnchor:[13,13]})}));
+  });
+}
+const btnRoute=document.getElementById('btn-route'), wpList=document.getElementById('wp-list'), routeInfo=document.getElementById('route-info');
+const leftPanel=document.getElementById('left-panel');
+function updateLeftPanel(){ leftPanel.classList.toggle('show', routeMode || waypoints.length>0); setTimeout(()=>map.invalidateSize(),50); }
+btnRoute.onclick=()=>{routeMode=!routeMode; btnRoute.textContent=routeMode?'⏹ Stop Route':'▶ Route Mode'; btnRoute.style.background=routeMode?'#dc2626':'#1e293b'; btnRoute.style.borderColor=btnRoute.style.background; updateLeftPanel();};
+document.getElementById('lp-close').onclick=()=>{ if(routeMode){btnRoute.click();} else {leftPanel.classList.remove('show');} };
+document.getElementById('btn-clear').onclick=()=>{waypoints=[]; renderWP();};
+document.getElementById('btn-goto-center').onclick=()=>map.setView(CENTER,15);
+document.getElementById('btn-share').onclick=()=>shareRoute(waypoints.map(c=>markers[c].p));
+
+// Sidebar toggle (works on both desktop & mobile)
+const sidebar=document.getElementById('sidebar'), tglBtn=document.getElementById('toggle-sb'), colBtn=document.getElementById('collapse-sb');
+function toggleSB(){
+  sidebar.classList.toggle('collapsed');
+  const c = sidebar.classList.contains('collapsed');
+  colBtn.classList.toggle('collapsed', c);
+  colBtn.textContent = c ? '▶' : '◀';
+  setTimeout(()=>map.invalidateSize(), 280);
+}
+tglBtn.onclick=toggleSB;
+colBtn.onclick=toggleSB;
+// On mobile, start collapsed so map is visible first
+if(window.innerWidth<=768){ setTimeout(()=>map.invalidateSize(),100); }
+
+// Dark mode toggle
+const btnTheme=document.getElementById('btn-theme'), hdrSub=document.getElementById('hdr-sub');
+btnTheme.onclick=()=>{
+  dark=!dark;
+  document.body.classList.toggle('dark',dark);
+  applyBasemap();
+  btnTheme.textContent = dark?'☀️':'🌙';
+  hdrSub.textContent = dark?'Dark Mode · Carto Dark · 1,620 จุด':'Classic Light · OpenStreetMap · 1,620 จุด';
+  refreshZones();
+};
+function addWP(code){if(waypoints.includes(code))return; waypoints.push(code); renderWP();}
+window.addWP=addWP;
+window.rmWP=i=>{waypoints.splice(i,1); renderWP();};
+function hav(a,b){const R=6371,toR=x=>x*Math.PI/180;const dla=toR(b[0]-a[0]),dlo=toR(b[1]-a[1]);const h=Math.sin(dla/2)**2+Math.cos(toR(a[0]))*Math.cos(toR(b[0]))*Math.sin(dlo/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+let roadMode=true, routeColor='#000000';
+// color picker (เส้นดำเป็น default)
+const PRESETS=['#000000','#10b981','#ef4444','#3b82f6','#a855f7','#f59e0b'];
+const swEl=document.getElementById('color-swatches');
+PRESETS.forEach(c=>{
+  const s=document.createElement('div');
+  s.style.cssText=`width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${c===routeColor?'#1e293b':'#fff'};box-shadow:0 0 0 1px #cbd5e1;`;
+  s.onclick=()=>{routeColor=c; document.getElementById('color-pick').value=c; swEl.querySelectorAll('div').forEach((x,i)=>x.style.border=`2px solid ${PRESETS[i]===c?'#1e293b':'#fff'}`); renderWP();};
+  swEl.appendChild(s);
+});
+document.getElementById('color-pick').oninput=e=>{routeColor=e.target.value; swEl.querySelectorAll('div').forEach(x=>x.style.border='2px solid #fff'); renderWP();};
+document.getElementById('btn-roadmode').onclick=function(){roadMode=!roadMode; this.textContent='🛣️ ตามถนน: '+(roadMode?'เปิด':'ปิด'); this.style.background=roadMode?'#10b981':'#fff'; this.style.color=roadMode?'#fff':'#000'; renderWP();};
+document.getElementById('btn-roadmode').style.background='#10b981'; document.getElementById('btn-roadmode').style.color='#fff'; document.getElementById('btn-roadmode').style.borderColor='#10b981';
+async function fetchRoute(pts){
+  const coords=pts.map(p=>p[1]+','+p[0]).join(';');
+  const url=`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson`;
+  const r=await fetch(url); if(!r.ok)throw new Error('OSRM '+r.status);
+  const j=await r.json(); if(!j.routes||!j.routes[0])throw new Error('no route');
+  return {geo:j.routes[0].geometry, km:j.routes[0].distance/1000, sec:j.routes[0].duration};
+}
+async function renderWP(){
+  if(routeLine){map.removeLayer(routeLine); routeLine=null;}
+  if(typeof updateLeftPanel==='function') updateLeftPanel();
+  drawBadges();
+  if(!waypoints.length){wpList.innerHTML='<div style="padding:20px;text-align:center;color:#94a3b8;font-size:12px;">กดที่หมุดบนแผนที่เพื่อเพิ่ม waypoint</div>'; routeInfo.style.display='none'; return;}
+  const pts=waypoints.map(c=>[markers[c].p.lat,markers[c].p.lng]);
+  wpList.innerHTML=waypoints.map((c,i)=>{const p=markers[c].p;return `<div class="wp" data-wp-idx="${i}" title="ลากเพื่อจัดลำดับใหม่"><div><span class="wp-idx">${i+1}</span><b>${c}</b> · ${p.dist}<br><span style="color:#64748b;font-size:11px;margin-left:30px;">${p.road} · ${p.place.slice(0,32)}</span></div><span class="wp-rm" onclick="rmWP(${i})">✕</span></div>`;}).join('');
+  enableWPDrag(wpList, waypoints, renderWP);
+  let straightKm=0; for(let i=1;i<pts.length;i++)straightKm+=hav(pts[i-1],pts[i]);
+  if(roadMode && pts.length>=2){
+    routeInfo.style.display='block'; routeInfo.innerHTML=`⏳ กำลังคำนวณเส้นทางตามถนน...`;
+    try{
+      const r=await fetchRoute(pts);
+      routeLine=L.geoJSON(r.geo,{style:{color:routeColor,weight:5,opacity:.95,dashArray:'14,10',className:'route-animated'}}).addTo(map);
+      const mn=Math.round(r.sec/60);
+      routeInfo.innerHTML=`🛣️ <b>${waypoints.length}</b> waypoint · <b>ตามถนน ${r.km.toFixed(2)} กม.</b> (~${mn} นาที) <br><span style="color:#94a3b8;font-size:11px;">(เส้นตรง ${straightKm.toFixed(2)} กม.)</span>`;
+    }catch(e){
+      routeLine=L.polyline(pts,{color:'#dc2626',weight:4,opacity:.7,dashArray:'14,10',className:'route-animated'}).addTo(map);
+      routeInfo.innerHTML=`⚠️ OSRM ขัดข้อง — แสดงเส้นตรง <b>${straightKm.toFixed(2)} กม.</b>`;
+    }
+  } else {
+    routeLine=L.polyline(pts,{color:routeColor,weight:4,opacity:.8,dashArray:'14,10',className:'route-animated'}).addTo(map);
+    routeInfo.style.display='block'; routeInfo.innerHTML=`📐 <b>${waypoints.length}</b> waypoint · เส้นตรงรวม <b>${straightKm.toFixed(2)} กม.</b>`;
+  }
+}
+// search
+document.getElementById('search').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase(); if(!q)return;
+  const hit=DATA.find(p=>p.code.toLowerCase().includes(q)||(p.road||'').toLowerCase().includes(q)||(p.place||'').toLowerCase().includes(q));
+  if(hit){map.setView([hit.lat,hit.lng],17); markers[hit.code].m.openPopup();}
+};
+</script>
+</body>
+</html>

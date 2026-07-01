@@ -137,9 +137,49 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 - [ ] Report generator for กทม.
 - [ ] ลบ dummy data เมื่อมี data จริง
 
-### Step 6: P2+P4 Response Sheets (23 มิ.ย. — handoff `~/Downloads/HANDOFF_PEAK.md`)
-- [ ] Peak กดสร้าง Response Sheet เอง P2+P4 (Responses → Sheets icon → Create new spreadsheet) — ownership ต้องอยู่ที่ Peak ไม่ใช่มนต์
+### Step 6: P2+P4 Response Sheets (23 มิ.ย. — handoff `HANDOFF_PEAK` + `HANDOFF_PEAK2`)
+- [ ] Peak กดสร้าง Response Sheet เอง P2+P4 — **BLOCKED**: เปิด form edit URL ขึ้น "Request edit access" → Peak ไม่มีสิทธิ์ Editor บนฟอร์มมนต์
+  - ฟอร์มสร้างใต้ account มนต์ (Apps Script) → ทุก artifact ผูก ownership มนต์
+  - แก้: มนต์ add `p.euarchukiati@gmail.com` เป็น Editor ทั้ง 4 ฟอร์ม → Peak สร้าง sheet เอง (sheet = Peak owns)
+  - โอน ownership ฟอร์มข้าม account ไม่ได้ (คนละ Workspace org / gmail ส่วนตัว) → ใช้ Editor พอ
 - มนต์ยืนยัน P2+P4 forms แก้ข้อมูลเสร็จ → ทีมงานใช้พุธ 24 มิ.ย.
+
+### Step 7: Master Drive Folder (HANDOFF_PEAK2 — ใหม่)
+- [ ] Peak สร้าง `The Surveyor v2 - Photos/` + 4 subfolder (ES/NS/SS/MS) ใน Drive ตัวเอง → share Editor ให้มนต์
+  - ไม่ติด ownership (Peak สร้างเอง) → ทำได้ทันที
+  - มนต์จะเข้าไป gen ฟอร์ม audit + อัลบั้มรูป ภายใต้ ownership Peak
+
+### Step 8: Map integration (23 มิ.ย. — DONE build-ahead)
+มนต์ส่งแอปแผนที่ Leaflet (`mapoverview_version2.0.rar`) — field navigation + route(OSRM) + share/QR + zoning
+- [x] รวมเข้า repo `v2/map/` (design1_classic.html + data.js + share/status/traffy.js)
+- [x] `v2/scripts/build_map_data.py` — regenerate `v2/map/data.js` จาก all_stops.csv (1,620 จุด, single source)
+  - schema มนต์: `g,code(no-space),dist,road,place,type,lat,lng`
+- [x] ปุ่ม "📋 เปิดฟอร์ม" (P2) ใน popup ทุกหมุด
+- [x] cross-link Map ↔ Dashboard 2 ทาง
+- [x] `loadStatus(csvUrl)` stub (OFF) — ⚠️ sub-agent เขียนสมมติ column `code`+`status` (single) แต่มนต์ทำ P_STATUS แบบ **แยกราย P** → ต้องปรับ map ให้อ่าน column P<n> ตาม filter ที่เลือก ตอน CSV จริงมา
+- [x] live-data layer ใน dashboard — อัปเดตตรง schema P_STATUS แล้ว + tested (node unit test ผ่าน)
+
+### P_STATUS — single source of truth (มนต์ยืนยัน 23 มิ.ย.)
+ชีตเดียว: `code, zone, P1, P2, P3, P4` — แต่ละช่อง `pending / progress / done` (dropdown)
+- dashboard: `CONFIG.statusCsv` + `mergeStatus()` map P1-P4 → DATA, เพิ่ม pill `progress` (สีฟ้า 🔧)
+- `codeOf()` จับ code column ได้ทั้ง `รหัสศาลา / Stop Code` (form sheets) และ `code` (P_STATUS) — ค่า ES001
+- header form unify เป็น `รหัสศาลา / Stop Code` ทุกฟอร์มแล้ว
+- flip live = แปะ `statusCsv` URL + `LIVE: true` (per-form `csv` p1-p4 เป็น optional raw)
+
+### Waiting on มนต์ (รวม)
+- P1 + P3 forms + เปิด Editor ให้ Peak (ส่งก่อนพุธ 24)
+- publish `P_STATUS` เป็น CSV URL → flip dashboard LIVE + ปรับ map loadStatus
+- mapping `P<n>_<code>` → Drive folder URL (เริ่ม P4 ES) → ปุ่ม Upload
+- มนต์ขอ **รอ push** map+live-layer (เช็คอีกรอบก่อนเคาะ)
+
+### Peak — DONE (23 มิ.ย.)
+- [x] Response Sheet P2+P4 สร้าง+publish CSV แล้ว
+  - P2 raw: `.../2PACX-1vT5fskXBCJnoIY7GDSSFaaDhTwIIs1aZP4PZfjvW8DLvwKjK47FdXC12ToJOVvOetsI6sgBnZYyuBeF/pub?gid=1943423996&output=csv` (70 col BOQ, header code = `รหัสศาลา / Stop Code`, มี response ES422)
+  - P4 raw: `.../2PACX-1vS0JfYidiVTOZL5XjWsamjYkXDBdAekcDVbkBIpiOpoLlrAULrQe2pEIw7s92UGHCzaSkgTh6rH5n3O/pub?gid=271580481&output=csv` (มี col `สถานะ / Cleaning Status`, ยังว่าง)
+  - raw sheets = ปลายทางฟอร์ม; dashboard อ่านสถานะจาก P_STATUS ไม่ใช่ raw
+- [x] Master Folder `The Surveyor v2 - Photos` (id `1TezoCbHGOCFi1Kor53QA6Gb8tzN6Opai`) + 4 โซน ES/NS/SS/MS
+  - permission: **anyone with link = Editor** (Peak เลือก — frictionless field upload, รูปกู้ได้ผ่าน Drive trash). blast radius = ทั้งต้นไม้; ยังไม่ add มนต์ named (เข้าได้ผ่าน link)
+- codeOf() เทสต์กับ header จริงแล้ว — จับ `รหัสศาลา / Stop Code` ได้ ✓
 
 ### Waiting
 - มนต์: publish 4 Google Sheets เป็น CSV URLs (handoff ส่งแล้ว `HANDOFF_MON_SHEETS.md`)

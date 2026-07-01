@@ -81,6 +81,7 @@ body {
 .p-na { background: #f1f3f4; color: #80868b; }
 .p-waiting { background: #e8eaed; color: #5f6368; }
 .p-partial { background: #e0f2f1; color: #00695c; }
+.p-progress { background: #e8f0fe; color: #1a73e8; }
 .pill-label { font-size: 10px; color: #9aa0a6; margin-right: -4px; }
 
 /* Detail expand */
@@ -132,7 +133,10 @@ body {
     <h1>The Surveyor v2 — Dashboard รวม 4 ทีม</h1>
     <div class="sub">ศาลาที่พักผู้โดยสาร กรุงเทพมหานคร</div>
   </div>
-  <span class="badge-dummy">DUMMY DATA</span>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <a href="../map/index.html" style="text-decoration:none;font-size:13px;font-weight:600;color:#1a73e8;border:1px solid #d0d7e0;border-radius:8px;padding:6px 12px;white-space:nowrap;">🗺️ Map</a>
+    <span class="badge-dummy">DUMMY DATA</span>
+  </div>
 </div>
 
 <div id="summaryBar" class="summary"></div>
@@ -162,6 +166,141 @@ const FORMS = {
   p4: { url: "https://docs.google.com/forms/d/e/1FAIpQLSeLmkl5WLc57j8nwGW4iV84seIDDA-q-UCCYvknm8kVrpAAEQ/viewform", entry: "XXXXXX" },
 };
 
+// ===== LIVE DATA (build-ahead) =====
+// Flip CONFIG.LIVE = true once มนต์ sends the 4 published-CSV URLs below.
+// Until then the dashboard renders the bundled dummy DATA exactly as before.
+const CONFIG = {
+  LIVE: true,
+  // P_STATUS sheet: one row per shelter — columns code, zone, P1, P2, P3, P4,
+  // each = pending / progress / done.
+  statusCsv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhYBDAEPsCLz_m5rzh2dIug18LysrxzBgHIqyzfGdVGPJ77449cSbgCS1AdAw0uJ4cybFImGIyqlbT/pub?gid=1738862538&single=true&output=csv",
+  // Per-form response sheets (optional, raw submissions). Presence of a row = done.
+  csv: {
+    p1: "",   // P1 Traffy Fix  response sheet CSV — รอมนต์
+    p2: "",   // P2 Inspection  response sheet CSV — รอมนต์
+    p3: "",   // P3 Maintenance response sheet CSV — รอมนต์
+    p4: "",   // P4 Cleaning    response sheet CSV — รอมนต์
+  },
+  // Phase-specific photo folder CSVs (columns: code, zone, PX_Folder)
+  folderCsv: {
+    p2: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhYBDAEPsCLz_m5rzh2dIug18LysrxzBgHIqyzfGdVGPJ77449cSbgCS1AdAw0uJ4cybFImGIyqlbT/pub?gid=1798917762&single=true&output=csv",
+    p4: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhYBDAEPsCLz_m5rzh2dIug18LysrxzBgHIqyzfGdVGPJ77449cSbgCS1AdAw0uJ4cybFImGIyqlbT/pub?gid=53019740&single=true&output=csv",
+  },
+};
+
+function normCode(c) { return (c || "").replace(/\s+/g, "").toUpperCase(); }
+
+async function fetchCSV(url) {
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return parseCSV(await r.text());
+  } catch (e) { console.error("CSV fetch failed:", url, e); return []; }
+}
+
+function parseCSV(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter(l => l.length);
+  if (!lines.length) return [];
+  const hdrs = parseLine(lines[0]).map(h => h.trim());
+  return lines.slice(1).map(l => {
+    const v = parseLine(l);
+    return Object.fromEntries(hdrs.map((h, i) => [h, (v[i] || "").trim()]));
+  });
+}
+
+function parseLine(line) {
+  const out = []; let cur = "", inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') inQ = !inQ;
+    else if (c === ',' && !inQ) { out.push(cur); cur = ""; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+// Find the shelter-code value in a row. Handles P_STATUS ("code") and the
+// form response sheets ("รหัสศาลา / Stop Code"), all carrying values like ES001.
+function codeOf(row) {
+  for (const k of Object.keys(row)) {
+    const h = k.trim().toLowerCase();
+    if (k.includes("รหัสศาลา") || h.includes("stop code") || h === "code") return row[k];
+  }
+  return "";
+}
+
+function buildIndex() {
+  const idx = {};
+  DATA.forEach((s, i) => { idx[normCode(s.code)] = i; });
+  return idx;
+}
+
+// P_STATUS sheet (PRIMARY): explicit P1..P4 status per shelter.
+function mergeStatus(rows) {
+  const idx = buildIndex();
+  let hits = 0;
+  rows.forEach(row => {
+    const i = idx[normCode(codeOf(row))];
+    if (i === undefined) return;
+    ["p1", "p2", "p3", "p4"].forEach((p, n) => {
+      const v = (row["P" + (n + 1)] || "").toLowerCase().trim();
+      if (v === "pending" || v === "progress" || v === "done") DATA[i][p] = v;
+    });
+    hits++;
+  });
+  return hits;
+}
+
+// Per-form response sheet (optional, raw): a submission for a code = done.
+function mergeResponses(phase, rows) {
+  const idx = buildIndex();
+  let hits = 0;
+  rows.forEach(row => {
+    const i = idx[normCode(codeOf(row))];
+    if (i === undefined) return;
+    DATA[i][phase] = "done";
+    hits++;
+  });
+  return hits;
+}
+
+// Phase-specific photo folder CSVs: merge PX_Folder into DATA[i].pX_folder
+function mergeFolders(phase, rows) {
+  const idx = buildIndex();
+  const col = phase.toUpperCase() + "_Folder";   // e.g. "P2_Folder"
+  let hits = 0;
+  rows.forEach(row => {
+    const i = idx[normCode(codeOf(row))];
+    if (i === undefined) return;
+    const url = (row[col] || "").trim();
+    if (url) { DATA[i][phase + "_folder"] = url; hits++; }
+  });
+  return hits;
+}
+
+async function loadLive() {
+  const fetches = [];
+  // 1. Primary status
+  if (CONFIG.statusCsv) {
+    fetches.push(fetchCSV(CONFIG.statusCsv).then(rows => mergeStatus(rows)));
+  }
+  // 2. Optional form response sheets
+  const phases = ["p1", "p2", "p3", "p4"].filter(p => CONFIG.csv[p]);
+  phases.forEach(p => {
+    fetches.push(fetchCSV(CONFIG.csv[p]).then(rows => mergeResponses(p, rows)));
+  });
+  // 3. Phase-specific folder CSVs
+  if (CONFIG.folderCsv) {
+    for (const [phase, url] of Object.entries(CONFIG.folderCsv)) {
+      if (url) fetches.push(fetchCSV(url).then(rows => mergeFolders(phase, rows)));
+    }
+  }
+  await Promise.all(fetches);
+  const badge = document.querySelector(".badge-dummy");   // drop DUMMY badge once live
+  if (badge) badge.remove();
+}
+
 // ===== UTILS =====
 function esc(s) {
   if (!s) return '';
@@ -174,6 +313,7 @@ function statusPill(phase, val, rounds) {
   const lbl = phase.toUpperCase();
   if (val === 'done') return '<span class="pill-label">' + lbl + '</span><span class="pill p-done">✅</span>';
   if (val === 'pending') return '<span class="pill-label">' + lbl + '</span><span class="pill p-pending">⏳</span>';
+  if (val === 'progress') return '<span class="pill-label">' + lbl + '</span><span class="pill p-progress">🔧</span>';
   if (val === 'na') return '<span class="pill-label">' + lbl + '</span><span class="pill p-na">—</span>';
   if (val === 'waiting') return '<span class="pill-label">' + lbl + '</span><span class="pill p-waiting">⏸</span>';
   if (val === 'partial') return '<span class="pill-label">' + lbl + '</span><span class="pill p-partial">R' + rounds + '/4</span>';
@@ -277,6 +417,7 @@ const P_LABELS = { p1: 'P1 Traffy', p2: 'P2 \u0e15\u0e23\u0e27\u0e08\u0e2a\u0e20
 function statusBadge(val, rounds) {
   if (val === 'done') return '<span class="pill p-done">\u0e40\u0e2a\u0e23\u0e47\u0e08 \u2705</span>';
   if (val === 'pending') return '<span class="pill p-pending">\u0e23\u0e2d\u0e17\u0e33 \u23f3</span>';
+  if (val === 'progress') return '<span class="pill p-progress">\u0e01\u0e33\u0e25\u0e31\u0e07\u0e17\u0e33 \ud83d\udd27</span>';
   if (val === 'na') return '<span class="pill p-na">\u0e44\u0e21\u0e48\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27 \u2014</span>';
   if (val === 'waiting') return '<span class="pill p-waiting">\u0e23\u0e2d\u0e04\u0e34\u0e27 \u23f8</span>';
   if (val === 'partial') return '<span class="pill p-partial">R' + (rounds || 0) + '/4</span>';
@@ -286,7 +427,7 @@ function statusBadge(val, rounds) {
 function pSection(s, phase) {
   const val = s[phase];
   const maps = mapsUrl(s.lat, s.long);
-  const folder = s.folder;
+  const folder = s[phase + "_folder"] || s.folder;  // phase-specific first, fallback to shared
   const form = formUrl(phase, s.code);
   const ts = s[phase + '_ts'];
   let info = '';
@@ -377,9 +518,15 @@ function renderShelters() {
 }
 
 // ===== INIT =====
-renderSummary();
-populateFilters();
-renderShelters();
+async function init() {
+  if (CONFIG.LIVE) {
+    try { await loadLive(); } catch (e) { console.error("live load failed — using bundled data", e); }
+  }
+  renderSummary();
+  populateFilters();
+  renderShelters();
+}
+init();
 
 // Debounced search
 let searchTimer;
