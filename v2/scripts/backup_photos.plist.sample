@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Weekly Surveyor photo backup (macOS launchd).
+  Install:
+    cp backup_photos.plist.sample ~/Library/LaunchAgents/co.surveyor.photobackup.plist
+    # edit the two paths below to your real username, then:
+    launchctl load ~/Library/LaunchAgents/co.surveyor.photobackup.plist
+  Runs every Monday 03:00. Logs to the backup _logs folder.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>co.surveyor.photobackup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/peakeuarchukiati/Desktop/the-surveyor/The-Surveyor/v2/scripts/backup_photos.sh</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Weekday</key><integer>1</integer>
+    <key>Hour</key><integer>3</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key><string>/Users/peakeuarchukiati/Desktop/the-surveyor/photo-backup/_logs/launchd.out.log</string>
+  <key>StandardErrorPath</key><string>/Users/peakeuarchukiati/Desktop/the-surveyor/photo-backup/_logs/launchd.err.log</string>
+</dict>
+</plist>
