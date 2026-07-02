@@ -202,6 +202,14 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 - handoff verify รอบ 2 → `HANDOFF_MON_VERIFY.md`
 - **ค้าง**: P1+P3 form entry ID + folder CSV (ปุ่มอัพรูป P1/P3 เทา, prefill P2-P4 รอ entry). dead CSS เก่ายังค้างในไฟล์ (harmless)
 
+### 2 ก.ค. 2569 — verify รอบ 2 + backup ops (Peak + claude)
+- **มนต์ verify รอบ 2 ผ่านหมด** (drill-down/สี/LIVE/map). สถานะไม่อัพเดทก่อนหน้า = publish ฝั่งมน → มนแก้เองด้วย Apps Script auto-sync (time-trigger 5 นาที: อ่าน response P2/P4 → เขียน P_STATUS done → auto-republish). จบ ไม่ต้องยึด sheet
+- **fix badge**: "เสร็จ ✓" เดิมโผล่ผิดที่ปุ่ม 📁 อัพรูป → ย้ายไป 📄 กรอกข้อมูล (P_STATUS = สัญญาณกรอกฟอร์ม). rename `.up-status`→`.form-status`. commit `bd2aafd`
+- **photo backup**: `v2/scripts/backup_photos.sh` (rclone **copy** ไม่ใช่ sync → upstream ลบ, local ไม่ลบ) + `.plist.sample` weekly + `.gitignore`. commit `2a0af2f`. **ต้อง setup ครั้งเดียว**: `brew install rclone` + `rclone config` (remote "surveyor") — Peak ทำ OAuth เอง. Master folder id `1TezoCbHGOCFi1Kor53QA6Gb8tzN6Opai`
+  - เหตุผล: รูป field เป็นของ**ผู้สำรวจ (คนอัพ)** ไม่ใช่เจ้าของ folder → ลบ account = รูปหาย. backup กันไว้
+- **decision prefill**: มนส่ง entry ID (ช่องรหัส) P2/P4 มา → เสียบใน `FORMS.entry` (formUrl รองรับแล้ว). prefill ต้อง dynamic รายศาลา = dashboard สร้างลิงก์ = ต้องรู้ entry ID เท่านั้น
+- **ค้าง**: P1/P3 form + entry ID + folder CSV (มนกำลังทำ ส่งรอบเดียวพร้อม auto-sync). Peak setup rclone. dead CSS เก่ายังค้าง
+
 ## Meeting Notes
 
 ### 8 มิ.ย. 2569 (มนต์ + พี่บอย + Peak)
