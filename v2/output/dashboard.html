@@ -210,9 +210,9 @@ body {
 .act .at{font-size:14px;}
 .act.a-map{background:#e8f0fe;} .act.a-up{background:#fff8e1;} .act.a-form{background:#e6f4ea;}
 .act.off{opacity:.4;pointer-events:none;}
-.act .up-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;}
-.act .up-status.done{background:#e6f4ea;color:#137333;}
-.act .up-status.todo{background:#fef7e0;color:#b06000;}
+.act .form-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;}
+.act .form-status.done{background:#e6f4ea;color:#137333;}
+.act .form-status.todo{background:#fef7e0;color:#b06000;}
 
 @media(max-width:720px){
   .team-grid,.zone-grid{grid-template-columns:repeat(2,1fr);}
@@ -559,8 +559,8 @@ function renderL4(){
     const panel = `<div class="sh-panel">
       <div class="act3">
         <a class="act a-map ${maps ? '' : 'off'}" href="${maps || '#'}" target="_blank" rel="noopener"><span class="ai">📍</span><span class="at">แผนที่</span></a>
-        <a class="act a-up ${folder ? '' : 'off'}" href="${folder ? esc(folder) : '#'}" target="_blank" rel="noopener"><span class="ai">📁</span><span class="at">อัพรูป</span><span class="up-status ${done ? 'done' : 'todo'}">${stTxt}</span></a>
-        <a class="act a-form" href="${form}" target="_blank" rel="noopener"><span class="ai">📄</span><span class="at">กรอกข้อมูล</span></a>
+        <a class="act a-up ${folder ? '' : 'off'}" href="${folder ? esc(folder) : '#'}" target="_blank" rel="noopener"><span class="ai">📁</span><span class="at">อัพรูป</span></a>
+        <a class="act a-form" href="${form}" target="_blank" rel="noopener"><span class="ai">📄</span><span class="at">กรอกข้อมูล</span><span class="form-status ${done ? 'done' : 'todo'}">${stTxt}</span></a>
       </div></div>`;
     return `<div class="shelter-item ${open ? 'open' : ''}">
       <div class="shelter-head" onclick="toggleShelter('${jsq(s.code)}')">
