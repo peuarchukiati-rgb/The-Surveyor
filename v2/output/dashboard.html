@@ -242,9 +242,9 @@ const DATA = [{"tor":"ES","code":"ES 001","district":"คลองสามว�
 // ===== FORM URLS =====
 const FORMS = {
   p1: { url: "https://docs.google.com/forms/d/e/1FAIpQLSfpfTkED3m-66HalnmnKZSSxpjvY3c97Y4wmSJp4Dv4a9vJ1A/viewform", entry: "62705490" },
-  p2: { url: "https://docs.google.com/forms/d/e/1FAIpQLSeaDJtyyu7Ba4ZT7P34P8Qkrtau3ddVr5F1JP2eCplp7NdS1g/viewform", entry: "XXXXXX" },
+  p2: { url: "https://docs.google.com/forms/d/e/1FAIpQLSeaDJtyyu7Ba4ZT7P34P8Qkrtau3ddVr5F1JP2eCplp7NdS1g/viewform", entry: "184273921" },
   p3: { url: "https://docs.google.com/forms/d/e/1FAIpQLSd1i8sw2-ZXvjGO3OeEmHgTA_bTD8YSpd0UlnN1aunqXY2Beg/viewform", entry: "XXXXXX" },
-  p4: { url: "https://docs.google.com/forms/d/e/1FAIpQLSeLmkl5WLc57j8nwGW4iV84seIDDA-q-UCCYvknm8kVrpAAEQ/viewform", entry: "XXXXXX" },
+  p4: { url: "https://docs.google.com/forms/d/e/1FAIpQLSeLmkl5WLc57j8nwGW4iV84seIDDA-q-UCCYvknm8kVrpAAEQ/viewform", entry: "1759256505" },
 };
 
 // ===== LIVE DATA (build-ahead) =====
@@ -405,7 +405,9 @@ function formUrl(phase, code) {
   const f = FORMS[phase];
   if (!f) return '#';
   if (!f.entry || f.entry === 'XXXXXX') return f.url;
-  return f.url + '?usp=pp_url&entry.' + f.entry + '=' + encodeURIComponent(code);
+  // Prefill the no-space code (ES044), matching the form's รหัสศาลา convention —
+  // DATA carries "ES 044" with a space.
+  return f.url + '?usp=pp_url&entry.' + f.entry + '=' + encodeURIComponent(normCode(code));
 }
 
 function mapsUrl(lat, lng) {
