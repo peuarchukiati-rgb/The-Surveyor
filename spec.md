@@ -210,6 +210,12 @@ Prefill entry IDs (P1): stop_code=62705490, ticket_id=711616789, damage_type=182
 - **decision prefill**: มนส่ง entry ID (ช่องรหัส) P2/P4 มา → เสียบใน `FORMS.entry` (formUrl รองรับแล้ว). prefill ต้อง dynamic รายศาลา = dashboard สร้างลิงก์ = ต้องรู้ entry ID เท่านั้น
 - **ค้าง**: P1/P3 form + entry ID + folder CSV (มนกำลังทำ ส่งรอบเดียวพร้อม auto-sync). Peak setup rclone. dead CSS เก่ายังค้าง
 
+### 6 ก.ค. 2569 — prefill P2/P4 (Peak + claude)
+- มนส่ง entry ID: **P2 `184273921`, P4 `1759256505`** → เสียบใน `FORMS.entry`. `formUrl` ยิง `normCode(code)` (ES044 ไม่มีเว้นวรรค ตรง convention ฟอร์ม). commit `8ea607b`
+- กด 📄 กรอกข้อมูล → ฟอร์มเปิดมามีรหัสศาลาเติมให้แล้ว
+- **ค้าง**: P1/P3 entry ID + folder CSV (มนส่งรอบเดียวตอน form เสร็จ) · Peak setup rclone backup ครั้งเดียว
+- state: dashboard LIVE ครบ P2/P4 (subscribe + prefill + auto-sync ฝั่งมน). commits ล่าสุด `8ea607b`
+
 ## Meeting Notes
 
 ### 8 มิ.ย. 2569 (มนต์ + พี่บอย + Peak)
